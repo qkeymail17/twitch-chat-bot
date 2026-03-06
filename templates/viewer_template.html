@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Twitch Chat Viewer</title>
+
+<style>
+:root{
+--bg:#0f0f12;
+--panel:#15151b;
+--text:#e7e7ea;
+--muted:#a6a6b0;
+--border:#2a2a35;
+--accent:#9146ff;
+
+/* новые: мягкие чередующиеся фоны строк (тёмная тема, почти одинаковые) */
+--rowA:#1f232a;
+--rowB:#232830;
+
+--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+}
+
+body{
+margin:0;
+background:var(--bg);
+color:var(--text);
+font-family:var(--sans);
+}
+
+header{
+position:sticky;
+top:0;
+z-index:10;
+background:linear-gradient(180deg,rgba(21,21,27,0.98),rgba(21,21,27,0.92));
+border-bottom:1px solid var(--border);
+padding:12px;
+}
+
+.row{
+  padding: 6px 12px;
+  border-bottom:1px solid rgba(42,42,53,0.55);
+  line-height: 1.35;
+}
+
+/* новые: чередование строк */
+#list .row:nth-child(odd){ background: var(--rowA); }
+#list .row:nth-child(even){ background: var(--rowB); }
+
+/* лёгкий hover для читаемости */
+#list .row:hover{ filter: brightness(1.06); }
+
+.time{
+  font-family:var(--mono);
+  color:var(--muted);
+  margin-right: 6px;
+  white-space:nowrap;
+}
+
+.user{
+  font-weight:700;
+  margin-right: 8px;
+  white-space:nowrap;
+}
+
+.msg{
+  color:var(--text);
+  word-break:break-word;
+  overflow-wrap:anywhere;
+}
+
+.meta{
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.meta a{
+color:var(--accent);
+text-decoration:none;
+}
+
+.controls{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+margin-top:10px;
+}
+
+input,button{
+background:var(--panel);
+border:1px solid var(--border);
+color:var(--text);
+padding:9px 10px;
+border-radius:10px;
+font-size:14px;
+outline:none;
+}
+
+button{cursor:pointer;}
+
+button:hover{
+border-color:rgba(145,70,255,0.6);
+}
+
+.pill{
+font-family:var(--mono);
+color:var(--muted);
+font-size:12px;
+}
+
+#list{padding-bottom:40px;}
+
+.emote{
+height:24px;
+vertical-align:middle;
+margin:0 2px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="meta">
+<div><b id="title">—</b></div>
+<div class="pill">
+<span id="channel">—</span>
+•
+<a id="vod" href="#" target="_blank">VOD (ссылка)</a>
+<span id="streamDateWrap" style="display:none;"> • <span id="streamDate">—</span></span>
+</div>
+</div>
+
+<div class="controls">
+<input id="q" placeholder="Поиск по сообщениям…"/>
+<input id="u" placeholder="Фильтр по нику…"/>
+<button id="clear">Очистить</button>
+<button id="toggleTime">Время: ON</button>
+<span class="pill" id="stat">—</span>
+</div>
+</header>
+
+<div id="list"></div>
+
+<script id="chat-data" type="application/json">
+{{CHAT_DATA_JSON}}
+</script>
+
+<script>
+
+const DATA = JSON.parse(
+  document.getElementById("chat-data").textContent
+);
+
+const meta = DATA.meta || {};
+const rows = DATA.rows || [];
+
+const MODE=meta.mode||"online";
+const LOCAL_EMOTES = meta.local_emotes || {};
+const TWITCH_CHANNEL_ID=meta.channel_id||null;
+
+const elTitle=document.getElementById("title");
+const elChannel=document.getElementById("channel");
+const elVod=document.getElementById("vod");
+const elStat=document.getElementById("stat");
+const elList=document.getElementById("list");
+
+const elStreamDate=document.getElementById("streamDate");
+const elStreamDateWrap=document.getElementById("streamDateWrap");
+
+const elQ=document.getElementById("q");
+const elU=document.getElementById("u");
+const elClear=document.getElementById("clear");
+const elToggleTime=document.getElementById("toggleTime");
+let SHOW_TIME=true;
+
+elTitle.textContent=meta.title||"—";
+elChannel.textContent=meta.channel||"—";
+elVod.href=meta.vod_url||"#";
+
+function fmtStreamStart(iso){
+  if(!iso) return null;
+  try{
+    // Twitch обычно отдаёт ISO с Z
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+
+    // Покажем в UTC, чтобы не зависеть от устройства
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth()+1).padStart(2,"0");
+    const dd = String(d.getUTCDate()).padStart(2,"0");
+    const hh = String(d.getUTCHours()).padStart(2,"0");
+    const mm = String(d.getUTCMinutes()).padStart(2,"0");
+    return `${y}-${m}-${dd} ${hh}:${mm} [UTC]`;
+  }catch(e){
+    return null;
+  }
+}
+
+const streamStart = fmtStreamStart(meta.created_at);
+if(streamStart){
+  elStreamDate.textContent = streamStart;
+  elStreamDateWrap.style.display = "";
+}
+
+function hash32(str){
+  let h = 2166136261; // FNV-1a
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function colorForUser(name){
+  const u = String(name || "").toLowerCase();
+  const h = hash32(u) % 360;        // hue
+  const s = 78;                     // saturation
+  const l = 62;                     // lightness (читабельно на тёмном)
+  return `hsl(${h} ${s}% ${l}%)`;
+}
+
+function esc(s){
+return (s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function fetch7tvEmotes(channelId){
+
+if(!channelId)return new Map();
+
+try{
+
+const r=await fetch(`https://7tv.io/v3/users/twitch/${channelId}`);
+if(!r.ok)return new Map();
+
+const json=await r.json();
+const emotes=json?.emote_set?.emotes||[];
+
+const map=new Map();
+
+for(const e of emotes){
+
+const name=e?.name;
+const host=e?.data?.host;
+
+if(!name||!host)continue;
+
+const files=host.files||[];
+
+const file=
+files.find(f=>f.name==="1x.webp")||
+files.find(f=>String(f.name).endsWith(".webp"))||
+files[0];
+
+if(!file)continue;
+
+map.set(name,`https:${host.url}/${file.name}`);
+
+}
+
+return map;
+
+}catch(e){
+
+return new Map();
+
+}
+
+}
+
+function renderTextWithEmotes(el,text,emotes){
+
+const parts=String(text||"").split(/(\s+)/);
+
+for(const p of parts){
+
+if(MODE==="local" && LOCAL_EMOTES[p]){
+
+const img=document.createElement("img");
+img.src=LOCAL_EMOTES[p];
+img.alt=p;
+img.title=p;
+img.className="emote";
+el.appendChild(img);
+
+}else if(emotes.has(p)){
+
+const img=document.createElement("img");
+img.src=emotes.get(p);
+img.alt=p;
+img.title=p;
+img.className="emote";
+el.appendChild(img);
+
+}else{
+
+el.appendChild(document.createTextNode(p));
+
+}
+
+}
+
+}
+
+const CHUNK=800;
+
+let filtered=rows;
+let rendered=0;
+
+let EMOTES=new Map();
+let EMOTES_READY=false;
+
+async function ensureEmotesLoaded(){
+
+if(EMOTES_READY)return;
+
+EMOTES_READY=true;
+
+if(MODE!=="online")return;
+if(!TWITCH_CHANNEL_ID)return;
+
+try{
+  EMOTES = await fetch7tvEmotes(TWITCH_CHANNEL_ID);
+
+  // если чат уже отрисован — перерисуем, чтобы появились эмодзи
+  if(rendered > 0){
+    elList.innerHTML="";
+    rendered=0;
+    renderMore();
+  }
+}catch(e){
+  EMOTES = new Map();
+}
+
+}
+
+function matches(r,q,u){
+
+if(u){
+if(!r.user||r.user.toLowerCase().indexOf(u)===-1)return false;
+}
+
+if(q){
+if(!r.text||r.text.toLowerCase().indexOf(q)===-1)return false;
+}
+
+return true;
+
+}
+
+async function applyFilters(){
+
+// НЕ ждём сеть перед первым рендером (важно для Safari iOS)
+ensureEmotesLoaded();
+
+const q=(elQ.value||"").trim().toLowerCase();
+const u=(elU.value||"").trim().toLowerCase();
+
+filtered=rows.filter(r=>matches(r,q,u));
+
+elStat.textContent=`Показано: ${filtered.length} / ${rows.length}`;
+
+elList.innerHTML="";
+rendered=0;
+
+renderMore();
+
+}
+
+function renderMore(){
+
+const end=Math.min(rendered+CHUNK,filtered.length);
+
+const frag=document.createDocumentFragment();
+
+for (let i = rendered; i < end; i++) {
+  const r = filtered[i];
+
+  const rowEl = document.createElement("div");
+  rowEl.className = "row";
+
+  // нормализуем время: "00 : 17 : 52" -> "00:17:52"
+  const tRaw = (r.t || "00:00:00");
+  const tNorm = String(tRaw).replace(/\s*:\s*/g, ":");
+
+  const timeEl = document.createElement("span");
+  timeEl.className = "time";
+  timeEl.textContent = `[${tNorm}]`;
+
+  const userEl = document.createElement("span");
+  userEl.className = "user";
+  userEl.textContent = r.user || "—";
+  userEl.style.color = colorForUser(r.user);
+
+  const msgEl = document.createElement("span");
+  msgEl.className = "msg";
+
+if (MODE === "online" && EMOTES && EMOTES.size) {
+  renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+} else if (MODE === "local") {
+  // local_emotes проверяются внутри renderTextWithEmotes через LOCAL_EMOTES
+  renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+} else {
+  msgEl.textContent = r.text || "";
+}
+
+if(SHOW_TIME) rowEl.appendChild(timeEl);
+rowEl.appendChild(userEl);
+rowEl.appendChild(msgEl);
+
+frag.appendChild(rowEl);
+
+}
+
+elList.appendChild(frag);
+
+rendered=end;
+
+}
+
+let scrollTimer=null;
+
+window.addEventListener("scroll",()=>{
+
+if(scrollTimer)return;
+
+scrollTimer=setTimeout(()=>{
+
+scrollTimer=null;
+
+const nearBottom=
+window.innerHeight+window.scrollY>
+document.body.offsetHeight-1200;
+
+if(nearBottom&&rendered<filtered.length){
+renderMore();
+}
+
+},80);
+
+});
+
+elQ.addEventListener("input",()=>applyFilters());
+elU.addEventListener("input",()=>applyFilters());
+
+elClear.addEventListener("click",()=>{
+elQ.value="";
+elU.value="";
+applyFilters();
+});
+
+elToggleTime.addEventListener("click",()=>{
+SHOW_TIME=!SHOW_TIME;
+elToggleTime.textContent = SHOW_TIME ? "Время: ON" : "Время: OFF";
+elList.innerHTML="";
+rendered=0;
+renderMore();
+});
+
+applyFilters();
+
+</script>
+
+</body>
+</html>

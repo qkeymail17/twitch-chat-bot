@@ -1,0 +1,99 @@
+import os
+import aiohttp
+import logging
+from log_setup import setup_logging
+from telegram import BotCommand
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    CallbackQueryHandler,
+    ContextTypes,
+    filters,
+)
+
+import database as db
+from config import ENV_TOKEN
+from handlers import (
+    start_command,
+    about_command,
+    cancel_command,
+    timezone_command,
+    vod_link_entry,
+    vod_format_chosen,
+    pending_cancel_callback,
+    timezone_callback,
+    ui_buttons,
+    history_page_callback,
+    history_files_callback,
+    noop_callback,
+)
+
+
+async def post_init(app: Application):
+    db.init_db()
+    app.bot_data["aiohttp"] = aiohttp.ClientSession()
+
+    await app.bot.set_my_commands([
+        BotCommand("about", "Описание и как пользоваться"),
+        BotCommand("timezone", "Часовой пояс"),
+    ])
+
+
+async def post_shutdown(app: Application):
+    session: aiohttp.ClientSession | None = app.bot_data.get("aiohttp")
+    if session:
+        await session.close()
+
+
+def main():
+    setup_logging()
+    log = logging.getLogger("tcd")
+    log.info("Bot starting…")
+
+    token = os.getenv(ENV_TOKEN)
+    if not token:
+        log.error("Missing env var: %s", ENV_TOKEN)
+        raise RuntimeError(f"Set {ENV_TOKEN} env var")
+
+    app = (
+        Application.builder()
+        .token(token)
+        .post_init(post_init)
+        .post_shutdown(post_shutdown)
+        .build()
+    )
+
+    async def on_error(update, context: ContextTypes.DEFAULT_TYPE):
+        logging.getLogger("tcd").error("Unhandled error", exc_info=context.error)
+
+    app.add_error_handler(on_error)
+
+    # commands
+    app.add_handler(CommandHandler("start", start_command))
+    app.add_handler(CommandHandler("about", about_command))
+    app.add_handler(CommandHandler("timezone", timezone_command))
+    app.add_handler(CommandHandler("cancel", cancel_command))  # не в меню, но работает
+
+    # link entry
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, vod_link_entry), group=0)
+
+    # callbacks
+    app.add_handler(CallbackQueryHandler(vod_format_chosen, pattern=r"^vodfmt:(txt|csv|html_online|html_offline)$"))
+    app.add_handler(CallbackQueryHandler(pending_cancel_callback, pattern=r"^vod:pending_cancel$"))
+
+    app.add_handler(CallbackQueryHandler(
+        timezone_callback,
+        pattern=r"^(ui:tz|ui:tzdec|ui:tzinc|ui:tzsave|ui:tzcancel)$"
+    ))
+
+    app.add_handler(CallbackQueryHandler(ui_buttons, pattern=r"^ui:(history)$"))
+    app.add_handler(CallbackQueryHandler(history_page_callback, pattern=r"^ui:histpage:\d+$"))
+    app.add_handler(CallbackQueryHandler(history_files_callback, pattern=r"^ui:histfiles:\d+$"))
+    app.add_handler(CallbackQueryHandler(noop_callback, pattern=r"^noop$"))
+
+    app.run_polling(drop_pending_updates=True)
+
+
+if __name__ == "__main__":
+    main()
