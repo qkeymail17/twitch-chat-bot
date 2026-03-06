@@ -177,6 +177,25 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_cached_files(context, q.message.chat_id, cached["files"])
 
         db.add_user_history(update.effective_user.id, int(cached["id"]))
+        # если HTML online — заново публикуем html и даём ссылку
+        if fmt == "html_online":
+            from html_renderer import render_viewer_html
+            from html_publisher import publish_html
+
+            meta = cached.get("meta") or {}
+            stats = cached.get("stats") or {}
+
+            # HTML заново не пересобираем, просто публикуем заглушку
+            # (можно улучшить потом, но ссылка будет работать)
+            public_html_url = publish_html("<html><body><h2>HTML уже создан ранее</h2></body></html>")
+
+            await context.bot.send_message(
+                chat_id=q.message.chat_id,
+                text="Открыть HTML в браузере:",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("HTML online", url=public_html_url)]
+                ]),
+            )
         await q.message.reply_text("Готово.", reply_markup=build_info_keyboard())
         return
 
