@@ -29,12 +29,24 @@ from handlers import (
 )
 
 
+async def history_command(update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    items = db.get_history_for_user(user_id, limit=10, offset=0)
+    if not items:
+        await update.effective_message.reply_text("История пуста.")
+        return
+
+    text, kb = ui_buttons.__globals__['build_history_page'](items, page=0, per_page=2)
+    await update.effective_message.reply_text(text, parse_mode="HTML", reply_markup=kb)
+
+
 async def post_init(app: Application):
     db.init_db()
     app.bot_data["aiohttp"] = aiohttp.ClientSession()
 
     await app.bot.set_my_commands([
         BotCommand("about", "Описание и как пользоваться"),
+        BotCommand("history", "История скачиваний"),
     ])
 
 
@@ -70,6 +82,7 @@ def main():
     # commands
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("about", about_command))
+    app.add_handler(CommandHandler("history", history_command))
     app.add_handler(CommandHandler("cancel", cancel_command))
 
     # link entry

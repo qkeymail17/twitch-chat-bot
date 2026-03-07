@@ -46,9 +46,7 @@ def build_info_keyboard() -> InlineKeyboardMarkup:
 
 
 def build_about_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("📜 История", callback_data=CB_UI_HISTORY)]
-    ])
+    return InlineKeyboardMarkup([])
 
 
 # =========================
