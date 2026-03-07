@@ -18,6 +18,7 @@ CB_UI_HISTORY = "ui:history"
 
 CB_HIST_PAGE = "ui:histpage:"
 CB_HIST_FILES_PREFIX = "ui:histfiles:"
+CB_HIST_VOD_PREFIX = "ui:histvod:"
 CB_NOOP = "noop"
 
 
@@ -27,15 +28,15 @@ CB_NOOP = "noop"
 def build_format_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("HTML ссылка", callback_data=CB_FMT_HTML_ONLINE),
-            InlineKeyboardButton("HTML файл", callback_data=CB_FMT_HTML_LOCAL),
+            InlineKeyboardButton("🌐 HTML ссылка", callback_data=CB_FMT_HTML_ONLINE),
+            InlineKeyboardButton("📄 HTML файл", callback_data=CB_FMT_HTML_LOCAL),
         ],
         [
-            InlineKeyboardButton("TXT", callback_data=CB_FMT_TXT),
-            InlineKeyboardButton("CSV", callback_data=CB_FMT_CSV),
+            InlineKeyboardButton("📝 TXT", callback_data=CB_FMT_TXT),
+            InlineKeyboardButton("📊 CSV", callback_data=CB_FMT_CSV),
         ],
         [
-            InlineKeyboardButton("Отмена", callback_data=CB_PENDING_CANCEL),
+            InlineKeyboardButton("❌ Отмена", callback_data=CB_PENDING_CANCEL),
         ]
     ])
 
@@ -93,13 +94,40 @@ def about_text() -> str:
     )
 
 
-def human_dt(ts: float) -> str:
-    return time.strftime("%Y-%m-%d %H:%M", time.localtime(ts))
+# =========================
+# History — новый дизайн
+# =========================
+def _fmt_dt_utc(iso: str | None) -> str:
+    if not iso:
+        return "—"
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        return dt.strftime("%Y-%m-%d %H:%M UTC")
+    except Exception:
+        return "—"
 
 
-# =========================
-# History (будет переработана дальше)
-# =========================
+def _fmt_len(seconds: int | None) -> str:
+    if not seconds:
+        return "—"
+    h = seconds // 3600
+    m = (seconds % 3600) // 60
+    s = seconds % 60
+    return f"{h:02d}:{m:02d}:{s:02d}"
+
+
+def _format_button(fmt: str, idx: int) -> InlineKeyboardButton:
+    if fmt == "html_online":
+        return InlineKeyboardButton("🌐 Открыть HTML", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+    if fmt == "html_local":
+        return InlineKeyboardButton("📄 Скачать HTML", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+    if fmt == "txt":
+        return InlineKeyboardButton("📝 Скачать TXT", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+    if fmt == "csv":
+        return InlineKeyboardButton("📊 Скачать CSV", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+    return InlineKeyboardButton("📁 Файлы", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+
+
 def build_history_page(items: list[dict], page: int, per_page: int):
     total = len(items)
     pages = max(1, (total + per_page - 1) // per_page)
@@ -109,30 +137,40 @@ def build_history_page(items: list[dict], page: int, per_page: int):
     end = min(start + per_page, total)
     page_items = items[start:end]
 
-    lines = ["История:\n"]
+    blocks = []
     keyboard = []
 
-    for i, it in enumerate(page_items, start=1):
-        vod_url = it.get("vod_url", "—")
-        title = html.escape(it.get("title") or "—")
+    for i, it in enumerate(page_items):
+        idx = start + i
+
+        channel = html.escape(it.get("channel") or "—")
+        dt = _fmt_dt_utc(it.get("created_at"))
+        duration = _fmt_len(it.get("length_seconds"))
+        msgs = it.get("messages") or 0
+        users = it.get("unique_users") or 0
+        fmt = it.get("fmt")
+
+        block = (
+            f"Канал: {channel}\n"
+            f"Дата: {dt}\n"
+            f"Длительность: {duration}\n"
+            f"Сообщений: {msgs}\n"
+            f"Пользователей: {users}"
+        )
+        blocks.append(block)
 
         keyboard.append([
-            InlineKeyboardButton(f"Файлы {i}", callback_data=f"{CB_HIST_FILES_PREFIX}{start + (i - 1)}"),
-            InlineKeyboardButton("Открыть", url=vod_url),
+            _format_button(fmt, idx),
+            InlineKeyboardButton("🔗 Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
         ])
-
-        lines.append(
-            f"{i})\n"
-            f"<code>{vod_url}</code>\n"
-            f"{title}"
-        )
 
     nav = []
     if page > 0:
-        nav.append(InlineKeyboardButton("←", callback_data=f"{CB_HIST_PAGE}{page - 1}"))
+        nav.append(InlineKeyboardButton("⬅️", callback_data=f"{CB_HIST_PAGE}{page - 1}"))
     nav.append(InlineKeyboardButton(f"{page + 1}/{pages}", callback_data=CB_NOOP))
     if page < pages - 1:
-        nav.append(InlineKeyboardButton("→", callback_data=f"{CB_HIST_PAGE}{page + 1}"))
+        nav.append(InlineKeyboardButton("➡️", callback_data=f"{CB_HIST_PAGE}{page + 1}"))
 
     keyboard.append(nav)
-    return "\n\n".join(lines), InlineKeyboardMarkup(keyboard)
+
+    return "\n\n".join(blocks), InlineKeyboardMarkup(keyboard)

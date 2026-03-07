@@ -1,3 +1,4 @@
+# handlers.py
 import time
 import logging
 from typing import Optional
@@ -16,7 +17,7 @@ from ui import (
     CB_FMT_HTML_ONLINE, CB_FMT_HTML_LOCAL,
     CB_PENDING_CANCEL,
     CB_UI_HISTORY,
-    CB_HIST_PAGE, CB_HIST_FILES_PREFIX,
+    CB_HIST_PAGE, CB_HIST_FILES_PREFIX, CB_HIST_VOD_PREFIX,
 )
 import database as db
 from download_worker import download_and_send
@@ -167,13 +168,9 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if fmt == "html_online":
             html_url = cached.get("html_url")
             if html_url:
-                dt = _fmt_dt_utc(cached.get("created_at"))
                 vod = cached.get("vod_url")
 
-                text = (
-                    f"Ссылка на VOD <a href=\"{vod}\">Twitch</a>\n"
-                    f"Дата: {dt}"
-                )
+                text = f"<code>{vod}</code>"
 
                 await context.bot.send_message(
                     chat_id=q.message.chat_id,
@@ -181,7 +178,7 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     parse_mode="HTML",
                     disable_web_page_preview=True,
                     reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("Просмотр в браузере", url=html_url)]
+                        [InlineKeyboardButton("🌐 Открыть HTML", url=html_url)]
                     ]),
                 )
         return
@@ -213,13 +210,7 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
             db.add_user_history(update.effective_user.id, cache_id)
 
             if fmt == "html_online" and public_html_url:
-                dt = _fmt_dt_utc(meta.get("created_at"))
-                vod = vod_url
-
-                text = (
-                    f"Ссылка на VOD <a href=\"{vod}\">Twitch</a>\n"
-                    f"Дата: {dt}"
-                )
+                text = f"<code>{vod_url}</code>"
 
                 await context.bot.send_message(
                     chat_id=q.message.chat_id,
@@ -227,7 +218,7 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     parse_mode="HTML",
                     disable_web_page_preview=True,
                     reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("Просмотр в браузере", url=public_html_url)]
+                        [InlineKeyboardButton("🌐 Открыть HTML", url=public_html_url)]
                     ]),
                 )
 
@@ -316,6 +307,31 @@ async def history_files_callback(update: Update, context: ContextTypes.DEFAULT_T
         return
 
     await send_cached_files(context, q.message.chat_id, cached["files"])
+
+
+async def history_vod_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
+    data = q.data or ""
+    if not data.startswith(CB_HIST_VOD_PREFIX):
+        return
+
+    try:
+        idx = int(data[len(CB_HIST_VOD_PREFIX):])
+    except ValueError:
+        return
+
+    items = db.get_history_for_user(update.effective_user.id, limit=10, offset=0)
+    if idx < 0 or idx >= len(items):
+        await q.message.reply_text("Запрос не найден.")
+        return
+
+    vod_url = items[idx].get("vod_url")
+    if not vod_url:
+        await q.message.reply_text("Ссылка не найдена.")
+        return
+
+    await q.message.reply_text(f"<code>{vod_url}</code>", parse_mode="HTML")
 
 
 async def noop_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):

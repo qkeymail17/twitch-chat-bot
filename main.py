@@ -24,6 +24,7 @@ from handlers import (
     ui_buttons,
     history_page_callback,
     history_files_callback,
+    history_vod_callback,
     noop_callback,
 )
 
@@ -81,6 +82,7 @@ def main():
     app.add_handler(CallbackQueryHandler(ui_buttons, pattern=r"^ui:(history)$"))
     app.add_handler(CallbackQueryHandler(history_page_callback, pattern=r"^ui:histpage:\d+$"))
     app.add_handler(CallbackQueryHandler(history_files_callback, pattern=r"^ui:histfiles:\d+$"))
+    app.add_handler(CallbackQueryHandler(history_vod_callback, pattern=r"^ui:histvod:\d+$"))
     app.add_handler(CallbackQueryHandler(noop_callback, pattern=r"^noop$"))
 
     app.run_polling(drop_pending_updates=True)
