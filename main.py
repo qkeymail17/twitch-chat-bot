@@ -13,6 +13,7 @@ from telegram.ext import (
 )
 
 import database as db
+from ui import build_history_page
 from config import ENV_TOKEN
 from handlers import (
     start_command,
