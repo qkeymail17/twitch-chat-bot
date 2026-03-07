@@ -40,10 +40,6 @@ async def download_and_send(
     vod_id: str,
     fmt: str,
 ) -> Tuple[Dict, Dict, List[Dict[str, str]], Optional[str]]:
-    """
-    Returns: (meta_dict, stats_dict, files_list(file_id + file_name), public_html_url)
-    fmt: txt/csv/html_online/html_local
-    """
     client_id = get_client_id()
     session = context.application.bot_data["aiohttp"]
 
@@ -63,7 +59,7 @@ async def download_and_send(
     base_stem = f"vod_{vod_id}_{safe_ts}_{fmt}"
 
     writer = None
-    chat_rows = []  # for HTML
+    chat_rows = []
     token_counter = Counter()
     public_html_url = None
 
@@ -88,6 +84,8 @@ async def download_and_send(
         parts = 1
         if fmt in ("txt", "csv"):
             parts = len(writer.paths) if writer and writer.paths else (1 if messages > 0 else 0)
+        elif fmt == "html_online":
+            parts = 0
 
         text = build_progress_text(
             meta=meta_dict,
@@ -140,6 +138,7 @@ async def download_and_send(
                     msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=p.name)
                 if msg and msg.document:
                     sent_files.append({"file_id": msg.document.file_id, "file_name": p.name})
+
         else:
             local_emotes = {}
 
@@ -164,17 +163,19 @@ async def download_and_send(
                 channel_id=meta.channel_id,
                 local_emotes=local_emotes,
             )
-            html_path = out_dir / f"{base_stem}.html"
-            html_path.write_text(html_text, encoding="utf-8")
 
             if fmt == "html_online":
                 public_html_url = publish_html(html_text)
-                meta_dict["html_url"] = public_html_url  # ← ключевая правка
+                meta_dict["html_url"] = public_html_url
 
-            with html_path.open("rb") as f:
-                msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=html_path.name)
-            if msg and msg.document:
-                sent_files.append({"file_id": msg.document.file_id, "file_name": html_path.name})
+            elif fmt == "html_local":
+                html_path = out_dir / f"{base_stem}.html"
+                html_path.write_text(html_text, encoding="utf-8")
+
+                with html_path.open("rb") as f:
+                    msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=html_path.name)
+                if msg and msg.document:
+                    sent_files.append({"file_id": msg.document.file_id, "file_name": html_path.name})
 
         stats = {
             "messages": messages,

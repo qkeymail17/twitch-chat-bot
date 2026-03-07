@@ -60,12 +60,12 @@ def fmt_stream_time(iso: str | None, offset_min: int) -> str:
 def build_format_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("TXT", callback_data=CB_FMT_TXT),
-            InlineKeyboardButton("CSV", callback_data=CB_FMT_CSV),
+            InlineKeyboardButton("HTML ссылка", callback_data=CB_FMT_HTML_ONLINE),
+            InlineKeyboardButton("HTML файл", callback_data=CB_FMT_HTML_LOCAL),
         ],
         [
-            InlineKeyboardButton("HTML (онлайн)", callback_data=CB_FMT_HTML_ONLINE),
-            InlineKeyboardButton("HTML offline", callback_data=CB_FMT_HTML_LOCAL),
+            InlineKeyboardButton("TXT", callback_data=CB_FMT_TXT),
+            InlineKeyboardButton("CSV", callback_data=CB_FMT_CSV),
         ],
         [
             InlineKeyboardButton("Отмена", callback_data=CB_PENDING_CANCEL),

@@ -1,6 +1,7 @@
 import time
 import logging
 from typing import Optional
+from datetime import datetime
 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
@@ -8,7 +9,6 @@ from telegram.ext import ContextTypes
 from config import VOD_URL_RE, PENDING_TTL_SECONDS
 from ui import (
     build_format_keyboard,
-    build_info_keyboard,
     build_about_keyboard,
     build_timezone_keyboard,
     about_text,
@@ -67,13 +67,22 @@ def pending_expired(p: dict) -> bool:
     return (time.time() - float(p.get("created_at") or 0)) > PENDING_TTL_SECONDS
 
 
+def _fmt_dt_utc(iso: str | None) -> str:
+    if not iso:
+        return "—"
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        return dt.strftime("%Y.%m.%d %H:%M UTC")
+    except Exception:
+        return "—"
+
+
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.effective_message
     await msg.reply_text(
         "Просто отправь ссылку на Twitch VOD:\n"
         "<code>https://www.twitch.tv/videos/0123456789</code>",
         parse_mode="HTML",
-        reply_markup=build_info_keyboard(),
     )
 
 
@@ -168,11 +177,9 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     vod_url = pending["vod_url"]
     vod_id = pending["vod_id"]
 
-    # --- DB cache hit ---
     cached = db.get_cache(vod_id, fmt)
     if cached and not db.cache_is_expired(cached) and cached.get("files"):
         clear_pending(context)
-        await q.message.reply_text("Нашёл в кэше. Отправляю без повторного скачивания…")
 
         await send_cached_files(context, q.message.chat_id, cached["files"])
         db.add_user_history(update.effective_user.id, int(cached["id"]))
@@ -180,22 +187,27 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if fmt == "html_online":
             html_url = cached.get("html_url")
             if html_url:
-                channel = cached.get("channel") or "Канал"
-                created = cached.get("created_at") or ""
-                date = created[:10] if created else ""
+                channel = cached.get("channel") or "—"
+                dt = _fmt_dt_utc(cached.get("created_at"))
+
+                text = (
+                    f"Ссылка на чат VOD: <a href=\"{html_url}\">VOD</a>\n"
+                    f"Канал: {channel}\n"
+                    f"Дата трансляции: {dt}"
+                )
 
                 await context.bot.send_message(
                     chat_id=q.message.chat_id,
-                    text=f"Открыть HTML в браузере:\n{channel} — [{date}] [UTC+0]",
+                    text=text,
+                    parse_mode="HTML",
+                    disable_web_page_preview=True,
                     reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("Открыть HTML", url=html_url)]
+                        [InlineKeyboardButton("Просмотр в браузере", url=html_url)]
                     ]),
                 )
 
-        await q.message.reply_text("Готово.", reply_markup=build_info_keyboard())
         return
 
-    # --- download ---
     clear_pending(context)
     set_busy(context, True)
 
@@ -222,22 +234,23 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             db.add_user_history(update.effective_user.id, cache_id)
 
-            await context.bot.send_message(
-                chat_id=q.message.chat_id,
-                text="Готово.",
-                reply_markup=build_info_keyboard(),
-            )
-
             if fmt == "html_online" and public_html_url:
-                channel = meta.get("channel") or "Канал"
-                created = meta.get("created_at") or ""
-                date = created[:10] if created else ""
+                channel = meta.get("channel") or "—"
+                dt = _fmt_dt_utc(meta.get("created_at"))
+
+                text = (
+                    f"Ссылка на чат VOD: <a href=\"{public_html_url}\">VOD</a>\n"
+                    f"Канал: {channel}\n"
+                    f"Дата трансляции: {dt}"
+                )
 
                 await context.bot.send_message(
                     chat_id=q.message.chat_id,
-                    text=f"Открыть HTML в браузере:\n{channel} — [{date}] [UTC+0]",
+                    text=text,
+                    parse_mode="HTML",
+                    disable_web_page_preview=True,
                     reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("Открыть HTML", url=public_html_url)]
+                        [InlineKeyboardButton("Просмотр в браузере", url=public_html_url)]
                     ]),
                 )
 
