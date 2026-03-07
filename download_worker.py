@@ -148,7 +148,7 @@ async def download_and_send(
             if fmt == "html_local" and meta.channel_id:
                 emote_map = await fetch_7tv_emote_map(session, meta.channel_id)
 
-                top = [t for t, _ in token_counter.most_common(500)]
+                top = [t for t, _ in token_counter.most_common(1500)]
                 targets = [t for t in top if t in emote_map]
 
                 for name in targets:

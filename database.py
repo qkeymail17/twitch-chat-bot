@@ -30,6 +30,7 @@ def init_db():
         messages INTEGER,
         unique_users INTEGER,
         parts INTEGER,
+        html_url TEXT,
         cached_at REAL NOT NULL
     )
     """)
@@ -90,16 +91,16 @@ def upsert_cache(
     stats: Dict[str, Any],
     files: List[Dict[str, str]],
 ) -> int:
-    """
-    files: [{'file_id':..., 'file_name':...}, ...] ordered
-    """
     con = _connect()
     cur = con.cursor()
     now = time.time()
 
     cur.execute("""
-    INSERT INTO vod_cache(vod_id, fmt, vod_url, title, created_at, channel, length_seconds, messages, unique_users, parts, cached_at)
-    VALUES(?,?,?,?,?,?,?,?,?,?,?)
+    INSERT INTO vod_cache(
+        vod_id, fmt, vod_url, title, created_at, channel,
+        length_seconds, messages, unique_users, parts, html_url, cached_at
+    )
+    VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
     ON CONFLICT(vod_id, fmt) DO UPDATE SET
       vod_url=excluded.vod_url,
       title=excluded.title,
@@ -109,20 +110,20 @@ def upsert_cache(
       messages=excluded.messages,
       unique_users=excluded.unique_users,
       parts=excluded.parts,
+      html_url=excluded.html_url,
       cached_at=excluded.cached_at
     """, (
         vod_id, fmt, vod_url,
         meta.get("title"), meta.get("created_at"), meta.get("channel"), meta.get("length_seconds"),
         stats.get("messages"), stats.get("unique_users"), stats.get("parts"),
+        meta.get("html_url"),
         now
     ))
 
-    # get cache id
     cur.execute("SELECT id FROM vod_cache WHERE vod_id=? AND fmt=?", (vod_id, fmt))
     row = cur.fetchone()
     cache_id = int(row["id"])
 
-    # replace files
     cur.execute("DELETE FROM vod_files WHERE cache_id=?", (cache_id,))
     for i, f in enumerate(files, start=1):
         cur.execute("""
