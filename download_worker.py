@@ -134,7 +134,6 @@ async def download_and_send(
 
         sent_files: List[Dict[str, str]] = []
 
-        # Send output(s)
         if fmt in ("txt", "csv"):
             for p in writer.paths:
                 with p.open("rb") as f:
@@ -142,7 +141,6 @@ async def download_and_send(
                 if msg and msg.document:
                     sent_files.append({"file_id": msg.document.file_id, "file_name": p.name})
         else:
-            # single html file
             local_emotes = {}
 
             if fmt == "html_local" and meta.channel_id:
@@ -171,6 +169,7 @@ async def download_and_send(
 
             if fmt == "html_online":
                 public_html_url = publish_html(html_text)
+                meta_dict["html_url"] = public_html_url  # ← ключевая правка
 
             with html_path.open("rb") as f:
                 msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=html_path.name)
@@ -186,7 +185,6 @@ async def download_and_send(
         return meta_dict, stats, sent_files, public_html_url
 
     finally:
-        # cleanup local temp files (Telegram хранит file_id, SQLite хранит связи)
         try:
             if fmt in ("txt", "csv") and writer:
                 for p in getattr(writer, "paths", []):

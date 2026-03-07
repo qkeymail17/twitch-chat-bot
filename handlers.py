@@ -175,23 +175,23 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await q.message.reply_text("Нашёл в кэше. Отправляю без повторного скачивания…")
 
         await send_cached_files(context, q.message.chat_id, cached["files"])
-
         db.add_user_history(update.effective_user.id, int(cached["id"]))
-        # если HTML online — заново публикуем html и даём ссылку
-        # если HTML online — даём ссылку из БД
+
         if fmt == "html_online":
             html_url = cached.get("html_url")
-        if html_url:
-            channel = (cached.get("meta") or {}).get("channel_name", "Канал")
-        created = (cached.get("meta") or {}).get("created_at", "")
-        date = created[:10] if created else ""
-        await context.bot.send_message(
-            chat_id=q.message.chat_id,
-            text=f"Открыть HTML в браузере:\n{channel} — [{date}] [UTC+0]",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("HTML online", url=html_url)]
-            ]),
-        )
+            if html_url:
+                channel = cached.get("channel") or "Канал"
+                created = cached.get("created_at") or ""
+                date = created[:10] if created else ""
+
+                await context.bot.send_message(
+                    chat_id=q.message.chat_id,
+                    text=f"Открыть HTML в браузере:\n{channel} — [{date}] [UTC+0]",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("Открыть HTML", url=html_url)]
+                    ]),
+                )
+
         await q.message.reply_text("Готово.", reply_markup=build_info_keyboard())
         return
 
@@ -229,16 +229,17 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
             if fmt == "html_online" and public_html_url:
-                channel = meta.get("channel_name", "Канал")
-            created = meta.get("created_at", "")
-            date = created[:10] if created else ""
-            await context.bot.send_message(
-                chat_id=q.message.chat_id,
-                text=f"Открыть HTML в браузере:\n{channel} — [{date}] [UTC+0]",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("HTML online", url=public_html_url)]
-                ]),
-            )
+                channel = meta.get("channel") or "Канал"
+                created = meta.get("created_at") or ""
+                date = created[:10] if created else ""
+
+                await context.bot.send_message(
+                    chat_id=q.message.chat_id,
+                    text=f"Открыть HTML в браузере:\n{channel} — [{date}] [UTC+0]",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("Открыть HTML", url=public_html_url)]
+                    ]),
+                )
 
         except Exception as e:
             logging.exception(

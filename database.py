@@ -95,6 +95,8 @@ def upsert_cache(
     cur = con.cursor()
     now = time.time()
 
+    html_url = meta.get("html_url")
+
     cur.execute("""
     INSERT INTO vod_cache(
         vod_id, fmt, vod_url, title, created_at, channel,
@@ -116,7 +118,7 @@ def upsert_cache(
         vod_id, fmt, vod_url,
         meta.get("title"), meta.get("created_at"), meta.get("channel"), meta.get("length_seconds"),
         stats.get("messages"), stats.get("unique_users"), stats.get("parts"),
-        meta.get("html_url"),
+        html_url,
         now
     ))
 
