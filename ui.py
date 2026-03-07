@@ -137,8 +137,7 @@ def build_history_page(items: list[dict], page: int, per_page: int):
     end = min(start + per_page, total)
     page_items = items[start:end]
 
-    blocks = []
-    keyboard = []
+    cards = []
 
     for i, it in enumerate(page_items):
         idx = start + i
@@ -150,19 +149,22 @@ def build_history_page(items: list[dict], page: int, per_page: int):
         users = it.get("unique_users") or 0
         fmt = it.get("fmt")
 
-        block = (
+        text = (
             f"Канал: {channel}\n"
             f"Дата: {dt}\n"
             f"Длительность: {duration}\n"
             f"Сообщений: {msgs}\n"
             f"Пользователей: {users}"
         )
-        blocks.append(block)
 
-        keyboard.append([
-            _format_button(fmt, idx),
-            InlineKeyboardButton("🔗 Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
+        kb = InlineKeyboardMarkup([
+            [
+                _format_button(fmt, idx),
+                InlineKeyboardButton("🔗 Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
+            ]
         ])
+
+        cards.append((text, kb))
 
     nav = []
     if page > 0:
@@ -171,6 +173,6 @@ def build_history_page(items: list[dict], page: int, per_page: int):
     if page < pages - 1:
         nav.append(InlineKeyboardButton("➡️", callback_data=f"{CB_HIST_PAGE}{page + 1}"))
 
-    keyboard.append(nav)
+    nav_kb = InlineKeyboardMarkup([nav]) if nav else None
 
-    return "\n\n".join(blocks), InlineKeyboardMarkup(keyboard)
+    return cards, nav_kb

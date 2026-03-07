@@ -23,6 +23,26 @@ import database as db
 from download_worker import download_and_send
 
 
+# ===== HISTORY HELPERS =====
+async def _send_history_cards(chat_id: int, context: ContextTypes.DEFAULT_TYPE, items: list, page: int):
+    cards, nav_kb = build_history_page(items, page=page, per_page=2)
+
+    for text, kb in cards:
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            parse_mode="HTML",
+            reply_markup=kb,
+        )
+
+    if nav_kb:
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="Навигация:",
+            reply_markup=nav_kb,
+        )
+
+
 async def send_cached_files(context, chat_id: int, files: list[dict]):
     for f in files:
         await context.bot.send_document(
@@ -257,8 +277,7 @@ async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await q.message.reply_text("История пуста.")
             return
 
-        text, kb = build_history_page(items, page=0, per_page=2)
-        await q.message.reply_text(text, parse_mode="HTML", reply_markup=kb)
+        await _send_history_cards(q.message.chat_id, context, items, page=0)
         return
 
 
@@ -278,8 +297,7 @@ async def history_page_callback(update: Update, context: ContextTypes.DEFAULT_TY
         await q.message.reply_text("История пуста.")
         return
 
-    text, kb = build_history_page(items, page=page, per_page=2)
-    await q.message.edit_text(text, parse_mode="HTML", reply_markup=kb)
+    await _send_history_cards(q.message.chat_id, context, items, page)
 
 
 async def history_files_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -302,6 +320,19 @@ async def history_files_callback(update: Update, context: ContextTypes.DEFAULT_T
     vod_id = items[idx]["vod_id"]
     fmt = items[idx]["fmt"]
     cached = db.get_cache(vod_id, fmt)
+    # HTML онлайн не имеет файлов — открываем ссылку
+    if fmt == "html_online":
+        html_url = cached.get("html_url") if cached else None
+        if html_url:
+            await context.bot.send_message(
+                chat_id=q.message.chat_id,
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🌐 Открыть HTML", url=html_url)]
+                ]),
+            )
+        else:
+            await q.message.reply_text("Ссылка не найдена.")
+        return
     if not cached or not cached.get("files"):
         await q.message.reply_text("Файлы не найдены.")
         return
