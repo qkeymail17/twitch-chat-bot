@@ -88,12 +88,14 @@ async def history_files_callback(update: Update, context: ContextTypes.DEFAULT_T
     vod_id = items[idx]["vod_id"]
     fmt = items[idx]["fmt"]
     cached = db.get_cache(vod_id, fmt)
+
     # HTML онлайн не имеет файлов — открываем ссылку
     if fmt == "html_online":
         html_url = cached.get("html_url") if cached else None
         if html_url:
             await context.bot.send_message(
                 chat_id=q.message.chat_id,
+                text="Открыть HTML:",
                 reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("🌐 Открыть HTML", url=html_url)]
                 ]),
@@ -101,6 +103,7 @@ async def history_files_callback(update: Update, context: ContextTypes.DEFAULT_T
         else:
             await q.message.reply_text("Ссылка не найдена.")
         return
+
     if not cached or not cached.get("files"):
         await q.message.reply_text("Файлы не найдены.")
         return
