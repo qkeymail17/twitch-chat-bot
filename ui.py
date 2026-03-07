@@ -1,10 +1,8 @@
 import html
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
-from config import PENDING_TTL_SECONDS
 
 
 # =========================
@@ -21,37 +19,6 @@ CB_UI_HISTORY = "ui:history"
 CB_HIST_PAGE = "ui:histpage:"
 CB_HIST_FILES_PREFIX = "ui:histfiles:"
 CB_NOOP = "noop"
-
-CB_TZ_OPEN = "ui:tz"
-CB_TZ_DEC_H = "ui:tzdec"
-CB_TZ_INC_H = "ui:tzinc"
-CB_TZ_SAVE = "ui:tzsave"
-CB_TZ_CANCEL = "ui:tzcancel"
-
-
-# =========================
-# Timezone helpers
-# =========================
-def tz_label(offset_min: int) -> str:
-    sign = "+" if offset_min >= 0 else "-"
-    total_min = abs(offset_min)
-    h = total_min // 60
-    m = total_min % 60
-    if m == 0:
-        return f"UTC{sign}{h}"
-    return f"UTC{sign}{h}:{m:02d}"
-
-
-def fmt_stream_time(iso: str | None, offset_min: int) -> str:
-    if not iso:
-        return "—"
-    try:
-        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
-        tz = timezone(timedelta(minutes=offset_min))
-        dt_local = dt.astimezone(tz)
-        return dt_local.strftime("%Y-%m-%d %H:%M")
-    except Exception:
-        return "—"
 
 
 # =========================
@@ -74,31 +41,11 @@ def build_format_keyboard() -> InlineKeyboardMarkup:
 
 
 def build_info_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("История", callback_data=CB_UI_HISTORY)],
-    ])
+    return InlineKeyboardMarkup([])
 
 
 def build_about_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("Часовой пояс", callback_data=CB_TZ_OPEN)],
-        [InlineKeyboardButton("История", callback_data=CB_UI_HISTORY)],
-    ])
-
-
-def build_timezone_keyboard(draft_offset_min: int) -> InlineKeyboardMarkup:
-    draft_offset_min = max(-12 * 60, min(14 * 60, int(draft_offset_min)))
-
-    return InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("−1ч", callback_data=CB_TZ_DEC_H),
-            InlineKeyboardButton("+1ч", callback_data=CB_TZ_INC_H),
-        ],
-        [
-            InlineKeyboardButton("Сохранить", callback_data=CB_TZ_SAVE),
-            InlineKeyboardButton("Отмена", callback_data=CB_TZ_CANCEL),
-        ],
-    ])
+    return InlineKeyboardMarkup([])
 
 
 # =========================
@@ -109,7 +56,7 @@ def build_progress_text(meta: dict, vod_url: str, fmt: str, messages: int, uniqu
     channel = meta.get("channel") or "—"
     vod_len = meta.get("vod_len") or "—"
     elapsed = fmt_hhmmss(int(elapsed_s))
-    status_line = "Готово ✅" if done else "Качаю…"
+    status_line = "Готово" if done else "Качаю…"
 
     return (
         f"{status_line}\n\n"
@@ -120,7 +67,7 @@ def build_progress_text(meta: dict, vod_url: str, fmt: str, messages: int, uniqu
         f"Формат: <b>{fmt.upper()}</b>\n\n"
         f"Сообщений: <b>{messages}</b>\n"
         f"Уникальных юзеров: <b>{unique_users}</b>\n"
-        f"Файлов-частей: <b>{parts}</b>\n"
+        f"Файл: <b>{parts}</b>\n"
         f"Прошло времени: <b>{elapsed}</b>"
     )
 
@@ -135,15 +82,14 @@ def fmt_hhmmss(total_seconds: int) -> str:
 # =========================
 # Text blocks
 # =========================
-def about_text(current_tz_label: str) -> str:
+def about_text() -> str:
     return (
         "Что умеет бот:\n"
         "— Скачивает чат открытого Twitch VOD в TXT / CSV / HTML\n\n"
         "Как пользоваться:\n"
         "1) Просто отправь ссылку на VOD:\n"
         "<code>https://www.twitch.tv/videos/0123456789</code>\n"
-        "2) Выбери формат кнопкой\n\n"
-        f"Текущий часовой пояс: <b>{current_tz_label}</b>"
+        "2) Выбери формат кнопкой"
     )
 
 
@@ -152,9 +98,9 @@ def human_dt(ts: float) -> str:
 
 
 # =========================
-# History
+# History (будет переработана дальше)
 # =========================
-def build_history_page(items: list[dict], page: int, per_page: int, tz_offset_min: int):
+def build_history_page(items: list[dict], page: int, per_page: int):
     total = len(items)
     pages = max(1, (total + per_page - 1) // per_page)
     page = max(0, min(page, pages - 1))
@@ -163,12 +109,10 @@ def build_history_page(items: list[dict], page: int, per_page: int, tz_offset_mi
     end = min(start + per_page, total)
     page_items = items[start:end]
 
-    header = f"История (YYYY-MM-DD HH:MM) [{tz_label(tz_offset_min)}]\n"
-    lines = [header]
+    lines = ["История:\n"]
     keyboard = []
 
     for i, it in enumerate(page_items, start=1):
-        ts = fmt_stream_time(it.get("created_at"), tz_offset_min)
         vod_url = it.get("vod_url", "—")
         title = html.escape(it.get("title") or "—")
 
@@ -178,7 +122,7 @@ def build_history_page(items: list[dict], page: int, per_page: int, tz_offset_mi
         ])
 
         lines.append(
-            f"{i}) <b>{ts}</b>\n"
+            f"{i})\n"
             f"<code>{vod_url}</code>\n"
             f"{title}"
         )

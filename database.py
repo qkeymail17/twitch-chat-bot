@@ -71,14 +71,6 @@ def init_db():
     ON user_history(user_id, processed_at)
     """)
 
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS user_settings (
-        user_id INTEGER PRIMARY KEY,
-        tz_offset_min INTEGER NOT NULL,
-        updated_at REAL NOT NULL
-    )
-    """)
-
     con.commit()
     con.close()
 
@@ -176,7 +168,7 @@ def add_user_history(user_id: int, cache_id: int):
     con.close()
 
 
-def get_history_for_user(user_id: int, limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
+def get_history_for_user(user_id: int, limit: int = 10, offset: int = 0) -> List[Dict[str, Any]]:
     limit = max(1, min(int(limit), 50))
     offset = max(0, int(offset))
 
@@ -208,31 +200,3 @@ def get_history_for_user(user_id: int, limit: int = 20, offset: int = 0) -> List
 
     con.close()
     return out
-
-
-def get_user_tz_offset(user_id: int) -> int:
-    con = _connect()
-    cur = con.cursor()
-    cur.execute("SELECT tz_offset_min FROM user_settings WHERE user_id=?", (int(user_id),))
-    row = cur.fetchone()
-    con.close()
-    if not row:
-        return 0
-    try:
-        return int(row["tz_offset_min"])
-    except Exception:
-        return 0
-
-
-def set_user_tz_offset(user_id: int, offset_min: int):
-    con = _connect()
-    cur = con.cursor()
-    cur.execute("""
-    INSERT INTO user_settings(user_id, tz_offset_min, updated_at)
-    VALUES(?,?,?)
-    ON CONFLICT(user_id) DO UPDATE SET
-      tz_offset_min=excluded.tz_offset_min,
-      updated_at=excluded.updated_at
-    """, (int(user_id), int(offset_min), time.time()))
-    con.commit()
-    con.close()

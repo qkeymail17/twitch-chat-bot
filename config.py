@@ -17,9 +17,6 @@ VOD_URL_RE = re.compile(r"^https://www\.twitch\.tv/videos/(\d+)$")
 OUT_DIR = "_out"
 TEMPLATES_DIR = "templates"
 
-# Split size for txt/csv parts
-MAX_PART_BYTES = 45 * 1024 * 1024  # 45 MB
-
 # Progress
 PROGRESS_INTERVAL = 3.0
 

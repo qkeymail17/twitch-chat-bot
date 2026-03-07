@@ -7,7 +7,7 @@ from collections import Counter
 
 from telegram.error import BadRequest, RetryAfter, TimedOut, NetworkError
 
-from config import OUT_DIR, MAX_PART_BYTES, PROGRESS_INTERVAL
+from config import OUT_DIR, PROGRESS_INTERVAL
 from writers import PartWriterTXT, PartWriterCSV
 from html_renderer import render_viewer_html
 from html_publisher import publish_html
@@ -64,9 +64,9 @@ async def download_and_send(
     public_html_url = None
 
     if fmt == "txt":
-        writer = PartWriterTXT(base_stem=base_stem, out_dir=out_dir, max_bytes=MAX_PART_BYTES)
+        writer = PartWriterTXT(base_stem=base_stem, out_dir=out_dir)
     elif fmt == "csv":
-        writer = PartWriterCSV(base_stem=base_stem, out_dir=out_dir, max_bytes=MAX_PART_BYTES)
+        writer = PartWriterCSV(base_stem=base_stem, out_dir=out_dir)
 
     messages = 0
     users = set()
@@ -81,11 +81,7 @@ async def download_and_send(
             return
         last_progress_t = now
 
-        parts = 1
-        if fmt in ("txt", "csv"):
-            parts = len(writer.paths) if writer and writer.paths else (1 if messages > 0 else 0)
-        elif fmt == "html_online":
-            parts = 0
+        parts = 1 if fmt in ("txt", "csv", "html_local") else 0
 
         text = build_progress_text(
             meta=meta_dict,
@@ -133,11 +129,11 @@ async def download_and_send(
         sent_files: List[Dict[str, str]] = []
 
         if fmt in ("txt", "csv"):
-            for p in writer.paths:
-                with p.open("rb") as f:
-                    msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=p.name)
-                if msg and msg.document:
-                    sent_files.append({"file_id": msg.document.file_id, "file_name": p.name})
+            p = writer.paths[0]
+            with p.open("rb") as f:
+                msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=p.name)
+            if msg and msg.document:
+                sent_files.append({"file_id": msg.document.file_id, "file_name": p.name})
 
         else:
             local_emotes = {}
@@ -145,8 +141,7 @@ async def download_and_send(
             if fmt == "html_local" and meta.channel_id:
                 emote_map = await fetch_7tv_emote_map(session, meta.channel_id)
 
-                top = [t for t, _ in token_counter.most_common(1500)]
-                targets = [t for t in top if t in emote_map]
+                targets = [t for t in token_counter if t in emote_map]
 
                 for name in targets:
                     uri = await download_as_data_uri(session, emote_map[name])

@@ -22,7 +22,7 @@ def render_viewer_html(
             "title": title,
             "channel": channel,
             "vod_url": vod_url,
-            "created_at": (created_at.replace("UTC", "UTC+0") if created_at else None),
+            "created_at": created_at,
             "mode": mode,
             "channel_id": channel_id,
             "local_emotes": local_emotes or {},

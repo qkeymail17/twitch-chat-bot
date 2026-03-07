@@ -10,16 +10,13 @@ from config import VOD_URL_RE, PENDING_TTL_SECONDS
 from ui import (
     build_format_keyboard,
     build_about_keyboard,
-    build_timezone_keyboard,
     about_text,
     build_history_page,
-    tz_label,
     CB_FMT_TXT, CB_FMT_CSV,
     CB_FMT_HTML_ONLINE, CB_FMT_HTML_LOCAL,
     CB_PENDING_CANCEL,
     CB_UI_HISTORY,
     CB_HIST_PAGE, CB_HIST_FILES_PREFIX,
-    CB_TZ_OPEN, CB_TZ_DEC_H, CB_TZ_INC_H, CB_TZ_SAVE, CB_TZ_CANCEL,
 )
 import database as db
 from download_worker import download_and_send
@@ -72,7 +69,7 @@ def _fmt_dt_utc(iso: str | None) -> str:
         return "—"
     try:
         dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
-        return dt.strftime("%Y.%m.%d %H:%M UTC")
+        return dt.strftime("%Y-%m-%d %H:%M UTC")
     except Exception:
         return "—"
 
@@ -88,28 +85,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.effective_message
-    user_id = update.effective_user.id
-    tz_offset_min = db.get_user_tz_offset(user_id)
-    tz = tz_label(tz_offset_min)
-
     await msg.reply_text(
-        about_text(tz),
+        about_text(),
         parse_mode="HTML",
         reply_markup=build_about_keyboard(),
-    )
-
-
-async def timezone_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    msg = update.effective_message
-    user_id = update.effective_user.id
-    tz_offset_min = db.get_user_tz_offset(user_id)
-
-    context.user_data["tz_draft"] = tz_offset_min
-
-    await msg.reply_text(
-        f"Часовой пояс: <b>{tz_label(tz_offset_min)}</b>",
-        parse_mode="HTML",
-        reply_markup=build_timezone_keyboard(tz_offset_min),
     )
 
 
@@ -117,7 +96,7 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.effective_message
 
     if is_busy(context):
-        await msg.reply_text("Сейчас идёт скачивание. /cancel отменяет только ожидание выбора формата.")
+        await msg.reply_text("Сейчас идёт скачивание.")
         return
 
     if get_pending(context):
@@ -137,7 +116,7 @@ async def vod_link_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if is_busy(context):
-        await update.message.reply_text("Я уже качаю чат. Подожди завершения и отправь ссылку снова.")
+        await update.message.reply_text("Я уже качаю чат. Подожди завершения.")
         return
 
     set_pending(context, vod_url=text, vod_id=vod_id)
@@ -158,12 +137,12 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     pending = get_pending(context)
     if not pending:
-        await q.message.reply_text("Ссылка не найдена. Просто отправь ссылку на VOD ещё раз.")
+        await q.message.reply_text("Ссылка не найдена.")
         return
 
     if pending_expired(pending):
         clear_pending(context)
-        await q.message.reply_text("Ссылка устарела. Отправь VOD-ссылку ещё раз.")
+        await q.message.reply_text("Ссылка устарела.")
         return
 
     FMT_MAP = {
@@ -178,7 +157,8 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     vod_id = pending["vod_id"]
 
     cached = db.get_cache(vod_id, fmt)
-    if cached and not db.cache_is_expired(cached) and cached.get("files"):
+    if cached and not db.cache_is_expired(cached) and (
+            cached.get("files") or (fmt == "html_online" and cached.get("html_url"))):
         clear_pending(context)
 
         await send_cached_files(context, q.message.chat_id, cached["files"])
@@ -187,13 +167,12 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if fmt == "html_online":
             html_url = cached.get("html_url")
             if html_url:
-                channel = cached.get("channel") or "—"
                 dt = _fmt_dt_utc(cached.get("created_at"))
+                vod = cached.get("vod_url")
 
                 text = (
-                    f"Ссылка на чат VOD: <a href=\"{html_url}\">VOD</a>\n"
-                    f"Канал: {channel}\n"
-                    f"Дата трансляции: {dt}"
+                    f"Ссылка на VOD <a href=\"{vod}\">Twitch</a>\n"
+                    f"Дата: {dt}"
                 )
 
                 await context.bot.send_message(
@@ -205,7 +184,6 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         [InlineKeyboardButton("Просмотр в браузере", url=html_url)]
                     ]),
                 )
-
         return
 
     clear_pending(context)
@@ -235,13 +213,12 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
             db.add_user_history(update.effective_user.id, cache_id)
 
             if fmt == "html_online" and public_html_url:
-                channel = meta.get("channel") or "—"
                 dt = _fmt_dt_utc(meta.get("created_at"))
+                vod = vod_url
 
                 text = (
-                    f"Ссылка на чат VOD: <a href=\"{public_html_url}\">VOD</a>\n"
-                    f"Канал: {channel}\n"
-                    f"Дата трансляции: {dt}"
+                    f"Ссылка на VOD <a href=\"{vod}\">Twitch</a>\n"
+                    f"Дата: {dt}"
                 )
 
                 await context.bot.send_message(
@@ -255,10 +232,7 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
 
         except Exception as e:
-            logging.exception(
-                "Download failed (vod_id=%s fmt=%s user_id=%s)",
-                vod_id, fmt, update.effective_user.id
-            )
+            logging.exception("Download failed")
             await context.bot.send_message(
                 chat_id=q.message.chat_id,
                 text=f"Ошибка: {type(e).__name__}: {e}",
@@ -279,83 +253,6 @@ async def pending_cancel_callback(update: Update, context: ContextTypes.DEFAULT_
         await q.message.reply_text("Нечего отменять.")
 
 
-def _clamp_tz_offset_min(offset_min: int) -> int:
-    return max(-12 * 60, min(14 * 60, int(offset_min)))
-
-
-async def timezone_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    await q.answer()
-    data = q.data or ""
-    user_id = update.effective_user.id
-
-    def _get_draft() -> int:
-        v = context.user_data.get("tz_draft")
-        if v is None:
-            return db.get_user_tz_offset(user_id)
-        try:
-            return int(v)
-        except Exception:
-            return db.get_user_tz_offset(user_id)
-
-    async def _edit_or_reply(text: str, kb):
-        if q and q.message:
-            try:
-                await q.message.edit_text(text, parse_mode="HTML", reply_markup=kb)
-                return
-            except Exception:
-                pass
-        if q and q.message:
-            await q.message.reply_text(text, parse_mode="HTML", reply_markup=kb)
-
-    if data == CB_TZ_OPEN:
-        draft = db.get_user_tz_offset(user_id)
-        draft = _clamp_tz_offset_min(draft)
-        context.user_data["tz_draft"] = draft
-        await _edit_or_reply(
-            f"Часовой пояс: <b>{tz_label(draft)}</b>",
-            build_timezone_keyboard(draft),
-        )
-        return
-
-    if data == CB_TZ_DEC_H:
-        draft = _clamp_tz_offset_min(_get_draft() - 60)
-        context.user_data["tz_draft"] = draft
-        await _edit_or_reply(
-            f"Часовой пояс: <b>{tz_label(draft)}</b>",
-            build_timezone_keyboard(draft),
-        )
-        return
-
-    if data == CB_TZ_INC_H:
-        draft = _clamp_tz_offset_min(_get_draft() + 60)
-        context.user_data["tz_draft"] = draft
-        await _edit_or_reply(
-            f"Часовой пояс: <b>{tz_label(draft)}</b>",
-            build_timezone_keyboard(draft),
-        )
-        return
-
-    if data == CB_TZ_SAVE:
-        draft = _clamp_tz_offset_min(_get_draft())
-        db.set_user_tz_offset(user_id, draft)
-        context.user_data.pop("tz_draft", None)
-
-        tz = tz_label(draft)
-        await _edit_or_reply(
-            f"Часовой пояс сохранён: <b>{tz}</b>",
-            build_about_keyboard(),
-        )
-        return
-
-    if data == CB_TZ_CANCEL:
-        context.user_data.pop("tz_draft", None)
-        tz_offset_min = db.get_user_tz_offset(user_id)
-        tz = tz_label(tz_offset_min)
-        await _edit_or_reply(about_text(tz), build_about_keyboard())
-        return
-
-
 async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
@@ -364,13 +261,12 @@ async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     if data == CB_UI_HISTORY:
-        items = db.get_history_for_user(user_id, limit=20, offset=0)
+        items = db.get_history_for_user(user_id, limit=10, offset=0)
         if not items:
             await q.message.reply_text("История пуста.")
             return
 
-        tz_offset_min = db.get_user_tz_offset(user_id)
-        text, kb = build_history_page(items, page=0, per_page=5, tz_offset_min=tz_offset_min)
+        text, kb = build_history_page(items, page=0, per_page=2)
         await q.message.reply_text(text, parse_mode="HTML", reply_markup=kb)
         return
 
@@ -386,13 +282,12 @@ async def history_page_callback(update: Update, context: ContextTypes.DEFAULT_TY
     except ValueError:
         return
 
-    items = db.get_history_for_user(update.effective_user.id, limit=20, offset=0)
+    items = db.get_history_for_user(update.effective_user.id, limit=10, offset=0)
     if not items:
         await q.message.reply_text("История пуста.")
         return
 
-    tz_offset_min = db.get_user_tz_offset(update.effective_user.id)
-    text, kb = build_history_page(items, page=page, per_page=5, tz_offset_min=tz_offset_min)
+    text, kb = build_history_page(items, page=page, per_page=2)
     await q.message.edit_text(text, parse_mode="HTML", reply_markup=kb)
 
 
@@ -408,7 +303,7 @@ async def history_files_callback(update: Update, context: ContextTypes.DEFAULT_T
     except ValueError:
         return
 
-    items = db.get_history_for_user(update.effective_user.id, limit=20, offset=0)
+    items = db.get_history_for_user(update.effective_user.id, limit=10, offset=0)
     if idx < 0 or idx >= len(items):
         await q.message.reply_text("Запрос не найден.")
         return
@@ -420,7 +315,6 @@ async def history_files_callback(update: Update, context: ContextTypes.DEFAULT_T
         await q.message.reply_text("Файлы не найдены.")
         return
 
-    await q.message.reply_text("Отправляю файлы…")
     await send_cached_files(context, q.message.chat_id, cached["files"])
 
 

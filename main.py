@@ -18,11 +18,9 @@ from handlers import (
     start_command,
     about_command,
     cancel_command,
-    timezone_command,
     vod_link_entry,
     vod_format_chosen,
     pending_cancel_callback,
-    timezone_callback,
     ui_buttons,
     history_page_callback,
     history_files_callback,
@@ -36,7 +34,6 @@ async def post_init(app: Application):
 
     await app.bot.set_my_commands([
         BotCommand("about", "Описание и как пользоваться"),
-        BotCommand("timezone", "Часовой пояс"),
     ])
 
 
@@ -72,8 +69,7 @@ def main():
     # commands
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("about", about_command))
-    app.add_handler(CommandHandler("timezone", timezone_command))
-    app.add_handler(CommandHandler("cancel", cancel_command))  # не в меню, но работает
+    app.add_handler(CommandHandler("cancel", cancel_command))
 
     # link entry
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, vod_link_entry), group=0)
@@ -81,11 +77,6 @@ def main():
     # callbacks
     app.add_handler(CallbackQueryHandler(vod_format_chosen, pattern=r"^vodfmt:(txt|csv|html_online|html_offline)$"))
     app.add_handler(CallbackQueryHandler(pending_cancel_callback, pattern=r"^vod:pending_cancel$"))
-
-    app.add_handler(CallbackQueryHandler(
-        timezone_callback,
-        pattern=r"^(ui:tz|ui:tzdec|ui:tzinc|ui:tzsave|ui:tzcancel)$"
-    ))
 
     app.add_handler(CallbackQueryHandler(ui_buttons, pattern=r"^ui:(history)$"))
     app.add_handler(CallbackQueryHandler(history_page_callback, pattern=r"^ui:histpage:\d+$"))
