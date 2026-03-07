@@ -5,9 +5,6 @@ from datetime import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 
-# =========================
-# Callback constants
-# =========================
 CB_FMT_TXT = "vodfmt:txt"
 CB_FMT_CSV = "vodfmt:csv"
 CB_FMT_HTML_ONLINE = "vodfmt:html_online"
@@ -22,9 +19,6 @@ CB_HIST_VOD_PREFIX = "ui:histvod:"
 CB_NOOP = "noop"
 
 
-# =========================
-# Keyboards
-# =========================
 def build_format_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [
@@ -49,9 +43,6 @@ def build_about_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([])
 
 
-# =========================
-# Progress text
-# =========================
 def build_progress_text(meta: dict, vod_url: str, fmt: str, messages: int, unique_users: int, parts: int, elapsed_s: float, done: bool) -> str:
     title = meta.get("title") or "—"
     channel = meta.get("channel") or "—"
@@ -80,9 +71,6 @@ def fmt_hhmmss(total_seconds: int) -> str:
     return f"{h:02d}:{m:02d}:{s:02d}"
 
 
-# =========================
-# Text blocks
-# =========================
 def about_text() -> str:
     return (
         "Что умеет бот:\n"
@@ -94,9 +82,6 @@ def about_text() -> str:
     )
 
 
-# =========================
-# History — новый дизайн
-# =========================
 def _fmt_dt_utc(iso: str | None) -> str:
     if not iso:
         return "—"
@@ -116,9 +101,14 @@ def _fmt_len(seconds: int | None) -> str:
     return f"{h:02d}:{m:02d}:{s:02d}"
 
 
-def _format_button(fmt: str, idx: int) -> InlineKeyboardButton:
+def _format_button(it: dict, idx: int) -> InlineKeyboardButton:
+    fmt = it.get("fmt")
+
     if fmt == "html_online":
-        return InlineKeyboardButton("🌐 Открыть HTML", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        url = it.get("html_url")
+        if url:
+            return InlineKeyboardButton("🌐 Открыть HTML", url=url)
+
     if fmt == "html_local":
         return InlineKeyboardButton("📄 Скачать HTML", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "txt":
@@ -147,7 +137,6 @@ def build_history_page(items: list[dict], page: int, per_page: int):
         duration = _fmt_len(it.get("length_seconds"))
         msgs = it.get("messages") or 0
         users = it.get("unique_users") or 0
-        fmt = it.get("fmt")
 
         text = (
             f"Канал: {channel}\n"
@@ -159,7 +148,7 @@ def build_history_page(items: list[dict], page: int, per_page: int):
 
         kb = InlineKeyboardMarkup([
             [
-                _format_button(fmt, idx),
+                _format_button(it, idx),
                 InlineKeyboardButton("🔗 Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
             ]
         ])
