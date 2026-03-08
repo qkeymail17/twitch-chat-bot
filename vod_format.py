@@ -160,9 +160,13 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         meta_raw = cached.get("meta")
         stats_raw = cached.get("stats")
+        html_url = cached.get("html_url")
 
         meta = json.loads(meta_raw) if isinstance(meta_raw, str) else (meta_raw or {})
         stats = json.loads(stats_raw) if isinstance(stats_raw, str) else (stats_raw or {})
+
+        if not html_url:
+            html_url = meta.get("html_url")
 
         safe_meta = {
             "channel": meta.get("channel") or "—",
@@ -177,7 +181,7 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
 
         item = _make_item(safe_meta, safe_stats, vod_url, fmt)
-        html_url = cached.get("html_url") if fmt == "html_online" else None
+        html_url = html_url if fmt == "html_online" else None
 
         # Try to edit original callback message (so no new messages appear)
         try:
