@@ -54,5 +54,6 @@ async def build_html_result(
             msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=html_path.name)
         if msg and msg.document:
             sent_files.append({"file_id": msg.document.file_id, "file_name": html_path.name})
+            await msg.delete()
 
     return sent_files, public_html_url
