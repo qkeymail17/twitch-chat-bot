@@ -39,18 +39,19 @@ async def history_command(update, context: ContextTypes.DEFAULT_TYPE):
 
     cards, nav_kb = build_history_page(items, page=0, per_page=2)
 
-    # Берём первую (и единственную) карточку
     text, kb = cards[0]
 
-    # Объединяем клавиатуру карточки и навигации
-    if nav_kb:
-        kb.inline_keyboard.extend(nav_kb.inline_keyboard)
-
-    await update.effective_message.reply_text(
+    # отправляем ОДНО сообщение
+    msg = await update.effective_message.reply_text(
         text,
         parse_mode="HTML",
         reply_markup=kb,
     )
+
+    # если есть навигация — редактируем это же сообщение и добавляем кнопки
+    if nav_kb:
+        kb.inline_keyboard.extend(nav_kb.inline_keyboard)
+        await msg.edit_reply_markup(reply_markup=kb)
 
     if nav_kb:
         await context.bot.send_message(
