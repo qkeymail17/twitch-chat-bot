@@ -27,7 +27,9 @@ def build_history_page(items: list[dict], page: int, per_page: int = 2):
     page = max(0, min(page, pages - 1))
 
     # вместо двух стримов — один
-    idx = page
+    idx = page * per_page
+    if idx >= total:
+        idx = total - 1
     it = items[idx]
 
     channel = html.escape(it.get("channel") or "—")
