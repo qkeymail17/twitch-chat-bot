@@ -1,23 +1,18 @@
-# ui_history.py
 import html
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from ui_constants import *
 from ui_formatters import _fmt_dt_utc, _fmt_len
 
 
-def _format_button(it: dict, idx: int) -> InlineKeyboardButton:
+def _format_button(it: dict, idx: int):
     fmt = it.get("fmt")
 
-    # Онлайн HTML — даём ссылку на чат-страницу
+    # Онлайн HTML — кнопка не нужна (ссылка будет отдельной кнопкой ниже)
     if fmt == "html_online":
-        url = it.get("html_url")
-        if url:
-            return InlineKeyboardButton("🌐 Чат HTML ссылка", url=url)
+        return None
 
-    # Локальный HTML — файл
     if fmt == "html_local":
         return InlineKeyboardButton("📄 Чат HTML файл", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
-
     if fmt == "txt":
         return InlineKeyboardButton("📝 Чат TXT файл", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "csv":
@@ -27,7 +22,6 @@ def _format_button(it: dict, idx: int) -> InlineKeyboardButton:
 
 
 def _fmt_date_ru(dt: str) -> str:
-    # "YYYY-MM-DD HH:MM UTC" -> "DD Ммм YYYY HH:MM UTC", мес. с заглавной первой буквой
     try:
         months = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
         date_part, time_part, tz = dt.split(" ")
@@ -67,13 +61,16 @@ def build_history_page(items: list[dict], page: int, per_page: int):
             f"🗓 {dt}"
         )
 
-        kb = InlineKeyboardMarkup([
-            [
-                _format_button(it, idx),
-                InlineKeyboardButton("🔗 Ссылка VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
-            ]
-        ])
+        buttons = []
+        main_btn = _format_button(it, idx)
+        if main_btn:
+            buttons.append(main_btn)
 
+        buttons.append(
+            InlineKeyboardButton("🔗 Ссылка VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
+        )
+
+        kb = InlineKeyboardMarkup([buttons])
         cards.append((text, kb))
 
     nav = []

@@ -5,7 +5,7 @@ from ui_constants import *
 def build_format_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("🌐 HTML-ссылка", callback_data=CB_FMT_HTML_ONLINE),
+            InlineKeyboardButton("🌐 HTML ссылка", callback_data=CB_FMT_HTML_ONLINE),
             InlineKeyboardButton("📄 HTML файл", callback_data=CB_FMT_HTML_LOCAL),
         ],
         [

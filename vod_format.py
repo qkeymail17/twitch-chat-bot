@@ -12,7 +12,7 @@ from handlers_history import send_cached_files
 from ui_history import build_history_page
 
 
-def _make_item(meta, stats, vod_url):
+def _make_item(meta, stats, vod_url, fmt):
     return {
         "channel": meta.get("channel"),
         "title": meta.get("title"),
@@ -21,15 +21,31 @@ def _make_item(meta, stats, vod_url):
         "messages": stats.get("messages"),
         "unique_users": stats.get("unique_users"),
         "vod_url": vod_url,
-        "fmt": "html_online",
+        "fmt": fmt,
     }
 
 
-async def _send_card(context, chat_id, item):
+def _build_card(item):
     cards, _ = build_history_page([item], page=0, per_page=1)
     if not cards:
+        return None, None
+    return cards[0]
+
+
+async def _send_card_with_buttons(context, chat_id, item, html_url=None):
+    text, kb = _build_card(item)
+    if not text:
         return
-    text, kb = cards[0]
+
+    extra_rows = []
+
+    if html_url:
+        extra_rows.append([InlineKeyboardButton("🌐 Открыть HTML", url=html_url)])
+
+    if extra_rows:
+        merged = (kb.inline_keyboard if kb else []) + extra_rows
+        kb = InlineKeyboardMarkup(merged)
+
     await context.bot.send_message(
         chat_id=chat_id,
         text=text,
@@ -82,20 +98,11 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         meta = cached.get("meta") or {}
         stats = cached.get("stats") or {}
-        item = _make_item(meta, stats, vod_url)
-        await _send_card(context, q.message.chat_id, item)
 
-        if fmt == "html_online":
-            html_url = cached.get("html_url")
-            if html_url:
-                await context.bot.send_message(
-                    chat_id=q.message.chat_id,
-                    text="🌐 Чат HTML ссылка",
-                    reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("🌐 Открыть HTML", url=html_url)],
-                        [InlineKeyboardButton("🔗 Ссылка VOD", url=vod_url)],
-                    ]),
-                )
+        item = _make_item(meta, stats, vod_url, fmt)
+        html_url = cached.get("html_url") if fmt == "html_online" else None
+
+        await _send_card_with_buttons(context, q.message.chat_id, item, html_url)
         return
 
     clear_pending(context)
@@ -135,18 +142,10 @@ async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str,
         )
         db.add_user_history(user_id, cache_id)
 
-        item = _make_item(meta, stats, vod_url)
-        await _send_card(context, chat_id, item)
+        item = _make_item(meta, stats, vod_url, fmt)
+        html_url = public_html_url if fmt == "html_online" else None
 
-        if fmt == "html_online" and public_html_url:
-            await context.bot.send_message(
-                chat_id=chat_id,
-                text="🌐 Чат HTML ссылка",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🌐 Открыть HTML", url=public_html_url)],
-                    [InlineKeyboardButton("🔗 Ссылка VOD", url=vod_url)],
-                ]),
-            )
+        await _send_card_with_buttons(context, chat_id, item, html_url)
 
     except Exception as e:
         logging.exception("Download failed")
