@@ -70,14 +70,33 @@ def get_cache(vod_id: str, fmt: str) -> Optional[Dict[str, Any]]:
         return None
 
     cache_id = int(row["id"])
+
     cur.execute(
         "SELECT part_index, file_id, file_name FROM vod_files WHERE cache_id=? ORDER BY part_index ASC",
         (cache_id,),
     )
     files = [dict(r) for r in cur.fetchall()]
 
+    # ВАЖНО: восстанавливаем meta и stats как раньше ожидал UI
+    meta = {
+        "title": row["title"],
+        "created_at": row["created_at"],
+        "channel": row["channel"],
+        "length_seconds": row["length_seconds"],
+        "html_url": row["html_url"],
+    }
+
+    stats = {
+        "messages": row["messages"],
+        "unique_users": row["unique_users"],
+        "parts": row["parts"],
+    }
+
     out = dict(row)
     out["files"] = files
+    out["meta"] = meta
+    out["stats"] = stats
+
     con.close()
     return out
 
