@@ -1,6 +1,7 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 import database as db
+import json
 from ui_history import build_history_page
 
 
@@ -37,8 +38,11 @@ async def history_files_callback(update, context: ContextTypes.DEFAULT_TYPE):
     # Готовим данные карточки
     hist = items[idx]
 
-    meta = (cached.get("meta") if cached else None) or {}
-    stats = (cached.get("stats") if cached else None) or {}
+    meta_raw = cached.get("meta") if cached else None
+    stats_raw = cached.get("stats") if cached else None
+
+    meta = json.loads(meta_raw) if isinstance(meta_raw, str) else (meta_raw or {})
+    stats = json.loads(stats_raw) if isinstance(stats_raw, str) else (stats_raw or {})
 
     item = {
         "channel": meta.get("channel") or hist.get("channel"),

@@ -1,4 +1,5 @@
 import logging
+import json
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 
@@ -157,8 +158,11 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         db.add_user_history(update.effective_user.id, int(cached["id"]))
 
-        meta = cached.get("meta") or {}
-        stats = cached.get("stats") or {}
+        meta_raw = cached.get("meta")
+        stats_raw = cached.get("stats")
+
+        meta = json.loads(meta_raw) if isinstance(meta_raw, str) else (meta_raw or {})
+        stats = json.loads(stats_raw) if isinstance(stats_raw, str) else (stats_raw or {})
 
         safe_meta = {
             "channel": meta.get("channel") or "—",
