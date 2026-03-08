@@ -1,6 +1,9 @@
 import time
 from typing import Optional, List, Dict, Any
 
+import sqlite3
+from config import DB_PATH
+
 from config import CACHE_TTL_SECONDS
 from db_core import _connect
 
@@ -104,3 +107,13 @@ def get_cache(vod_id: str, fmt: str) -> Optional[Dict[str, Any]]:
 def cache_is_expired(cache_row: Dict[str, Any]) -> bool:
     cached_at = float(cache_row.get("cached_at") or 0)
     return (time.time() - cached_at) > CACHE_TTL_SECONDS
+
+
+def get_cache_by_id(cache_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM cache WHERE id = ?", (cache_id,))
+    row = cur.fetchone()
+    conn.close()
+    return dict(row) if row else None
