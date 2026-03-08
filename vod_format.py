@@ -9,6 +9,33 @@ from handlers_state import (
     is_busy, set_busy, get_pending, clear_pending, pending_expired,
 )
 from handlers_history import send_cached_files
+from ui_history import build_history_page
+
+
+def _make_item(meta, stats, vod_url):
+    return {
+        "channel": meta.get("channel"),
+        "title": meta.get("title"),
+        "created_at": meta.get("created_at"),
+        "length_seconds": meta.get("length_seconds"),
+        "messages": stats.get("messages"),
+        "unique_users": stats.get("unique_users"),
+        "vod_url": vod_url,
+        "fmt": "html_online",
+    }
+
+
+async def _send_card(context, chat_id, item):
+    cards, _ = build_history_page([item], page=0, per_page=1)
+    if not cards:
+        return
+    text, kb = cards[0]
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text=text,
+        parse_mode="HTML",
+        reply_markup=kb,
+    )
 
 
 async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -45,26 +72,28 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     vod_id = pending["vod_id"]
 
     cached = db.get_cache(vod_id, fmt)
-    if cached and not db.cache_is_expired(cached) and (
-            cached.get("files") or (fmt == "html_online" and cached.get("html_url"))):
+    if cached and not db.cache_is_expired(cached):
         clear_pending(context)
 
         if cached.get("files"):
             await send_cached_files(context, q.message.chat_id, cached["files"])
+
         db.add_user_history(update.effective_user.id, int(cached["id"]))
+
+        meta = cached.get("meta") or {}
+        stats = cached.get("stats") or {}
+        item = _make_item(meta, stats, vod_url)
+        await _send_card(context, q.message.chat_id, item)
 
         if fmt == "html_online":
             html_url = cached.get("html_url")
             if html_url:
-                vod = cached.get("vod_url")
-                text = f"<code>{vod}</code>"
                 await context.bot.send_message(
                     chat_id=q.message.chat_id,
-                    text=text,
-                    parse_mode="HTML",
-                    disable_web_page_preview=True,
+                    text="🌐 Чат HTML ссылка",
                     reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("🌐 Открыть HTML", url=html_url)]
+                        [InlineKeyboardButton("🌐 Открыть HTML", url=html_url)],
+                        [InlineKeyboardButton("🔗 Ссылка VOD", url=vod_url)],
                     ]),
                 )
         return
@@ -106,15 +135,16 @@ async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str,
         )
         db.add_user_history(user_id, cache_id)
 
+        item = _make_item(meta, stats, vod_url)
+        await _send_card(context, chat_id, item)
+
         if fmt == "html_online" and public_html_url:
-            text = f"<code>{vod_url}</code>"
             await context.bot.send_message(
                 chat_id=chat_id,
-                text=text,
-                parse_mode="HTML",
-                disable_web_page_preview=True,
+                text="🌐 Чат HTML ссылка",
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🌐 Открыть HTML", url=public_html_url)]
+                    [InlineKeyboardButton("🌐 Открыть HTML", url=public_html_url)],
+                    [InlineKeyboardButton("🔗 Ссылка VOD", url=vod_url)],
                 ]),
             )
 

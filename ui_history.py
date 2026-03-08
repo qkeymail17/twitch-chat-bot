@@ -1,3 +1,4 @@
+# ui_history.py
 import html
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from ui_constants import *
@@ -7,24 +8,28 @@ from ui_formatters import _fmt_dt_utc, _fmt_len
 def _format_button(it: dict, idx: int) -> InlineKeyboardButton:
     fmt = it.get("fmt")
 
+    # Онлайн HTML — даём ссылку на чат-страницу
     if fmt == "html_online":
         url = it.get("html_url")
         if url:
-            return InlineKeyboardButton("🌐 Открыть HTML", url=url)
+            return InlineKeyboardButton("🌐 Чат HTML ссылка", url=url)
 
+    # Локальный HTML — файл
     if fmt == "html_local":
-        return InlineKeyboardButton("📄 Скачать HTML", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("📄 Чат HTML файл", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+
     if fmt == "txt":
-        return InlineKeyboardButton("📝 Скачать TXT", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("📝 Чат TXT файл", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "csv":
-        return InlineKeyboardButton("📊 Скачать CSV", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("📊 Чат CSV файл", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+
     return InlineKeyboardButton("📁 Файлы", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
 
 def _fmt_date_ru(dt: str) -> str:
-    # "YYYY-MM-DD HH:MM UTC" → "DD Ммм YYYY HH:MM UTC"
+    # "YYYY-MM-DD HH:MM UTC" -> "DD Ммм YYYY HH:MM UTC", мес. с заглавной первой буквой
     try:
-        months = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"]
+        months = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
         date_part, time_part, tz = dt.split(" ")
         y, m, d = date_part.split("-")
         m_txt = months[int(m) - 1]
@@ -65,7 +70,7 @@ def build_history_page(items: list[dict], page: int, per_page: int):
         kb = InlineKeyboardMarkup([
             [
                 _format_button(it, idx),
-                InlineKeyboardButton("🔗 Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
+                InlineKeyboardButton("🔗 Ссылка VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
             ]
         ])
 
