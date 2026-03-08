@@ -1,0 +1,58 @@
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional
+from collections import Counter
+
+from html_renderer import render_viewer_html
+from html_publisher import publish_html
+from twitch_api import fetch_7tv_emote_map, download_as_data_uri
+
+
+async def build_html_result(
+    context,
+    session,
+    chat_id: int,
+    fmt: str,
+    meta,
+    vod_url: str,
+    base_stem: str,
+    out_dir: Path,
+    chat_rows: List[Dict],
+    token_counter: Counter,
+):
+    sent_files: List[Dict[str, str]] = []
+    public_html_url: Optional[str] = None
+    local_emotes = {}
+
+    if fmt == "html_local" and meta.channel_id:
+        emote_map = await fetch_7tv_emote_map(session, meta.channel_id)
+        targets = [t for t in token_counter if t in emote_map]
+
+        for name in targets:
+            uri = await download_as_data_uri(session, emote_map[name])
+            if uri:
+                local_emotes[name] = uri
+
+    html_text = render_viewer_html(
+        chat_rows=chat_rows,
+        title=(meta.title or "—"),
+        channel=(meta.channel or "—"),
+        vod_url=vod_url,
+        created_at=meta.created_at,
+        mode=("online" if fmt == "html_online" else "local"),
+        channel_id=meta.channel_id,
+        local_emotes=local_emotes,
+    )
+
+    if fmt == "html_online":
+        public_html_url = publish_html(html_text)
+
+    elif fmt == "html_local":
+        html_path = out_dir / f"{base_stem}.html"
+        html_path.write_text(html_text, encoding="utf-8")
+
+        with html_path.open("rb") as f:
+            msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=html_path.name)
+        if msg and msg.document:
+            sent_files.append({"file_id": msg.document.file_id, "file_name": html_path.name})
+
+    return sent_files, public_html_url

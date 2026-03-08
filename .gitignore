@@ -1,7 +1,24 @@
-.venv
-venv
-pycache
+# Virtual environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
 *.pyc
-.idea
+
+# IDE
+.idea/
+
+# Env files
 .env
-out
+
+# Build/output
+_out/
+
+# Old backups
+old/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3

@@ -1,35 +1,17 @@
 import time
-import asyncio
 from datetime import datetime
 from pathlib import Path
 from typing import Tuple, List, Dict, Optional
 from collections import Counter
 
-from telegram.error import BadRequest, RetryAfter, TimedOut, NetworkError
-
-from config import OUT_DIR, PROGRESS_INTERVAL
+from config import OUT_DIR
 from writers import PartWriterTXT, PartWriterCSV
-from html_renderer import render_viewer_html
-from html_publisher import publish_html
-from twitch_api import fetch_vod_meta, gql_fetch_comments, get_client_id, fetch_7tv_emote_map, download_as_data_uri
-from ui import fmt_hhmmss, build_progress_text
+from twitch_api import fetch_vod_meta, gql_fetch_comments, get_client_id
+from ui import fmt_hhmmss
 
-
-async def safe_edit_html(context, chat_id: int, message_id: int, text: str):
-    try:
-        await context.bot.edit_message_text(
-            chat_id=chat_id,
-            message_id=message_id,
-            text=text,
-            parse_mode="HTML",
-        )
-    except RetryAfter as e:
-        await asyncio.sleep(float(e.retry_after))
-    except BadRequest as e:
-        if "message is not modified" in str(e).lower():
-            return
-    except (TimedOut, NetworkError):
-        return
+from worker_progress import make_progress_updater
+from worker_writers import send_writer_file, cleanup_writer_files
+from worker_html import build_html_result
 
 
 async def download_and_send(
@@ -61,7 +43,6 @@ async def download_and_send(
     writer = None
     chat_rows = []
     token_counter = Counter()
-    public_html_url = None
 
     if fmt == "txt":
         writer = PartWriterTXT(base_stem=base_stem, out_dir=out_dir)
@@ -71,32 +52,10 @@ async def download_and_send(
     messages = 0
     users = set()
 
-    start_t = time.monotonic()
-    last_progress_t = 0.0
-
-    async def maybe_progress(done: bool = False):
-        nonlocal last_progress_t
-        now = time.monotonic()
-        if (not done) and (now - last_progress_t < PROGRESS_INTERVAL):
-            return
-        last_progress_t = now
-
-        parts = 1 if fmt in ("txt", "csv", "html_local") else 0
-
-        text = build_progress_text(
-            meta=meta_dict,
-            vod_url=vod_url,
-            fmt=fmt,
-            messages=messages,
-            unique_users=len(users),
-            parts=parts,
-            elapsed_s=now - start_t,
-            done=done,
-        )
-        await safe_edit_html(context, chat_id, progress_message_id, text)
+    progress = make_progress_updater(context, chat_id, progress_message_id, meta_dict, vod_url, fmt)
 
     try:
-        await maybe_progress(done=False)
+        await progress(messages, len(users), done=False)
 
         async for offset, created_at, user, text in gql_fetch_comments(session, client_id, vod_id):
             t = fmt_hhmmss(int(offset)) if isinstance(offset, (int, float)) else "00:00:00"
@@ -116,7 +75,7 @@ async def download_and_send(
                     for tok in text.split():
                         token_counter[tok] += 1
 
-            await maybe_progress(done=False)
+            await progress(messages, len(users), done=False)
 
         if writer:
             writer.close()
@@ -124,53 +83,29 @@ async def download_and_send(
         if messages == 0:
             raise RuntimeError("Чат пустой или Twitch не отдал комментарии.")
 
-        await maybe_progress(done=True)
+        await progress(messages, len(users), done=True)
 
         sent_files: List[Dict[str, str]] = []
+        public_html_url: Optional[str] = None
 
         if fmt in ("txt", "csv"):
-            p = writer.paths[0]
-            with p.open("rb") as f:
-                msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=p.name)
-            if msg and msg.document:
-                sent_files.append({"file_id": msg.document.file_id, "file_name": p.name})
+            sent_files = await send_writer_file(context, chat_id, writer)
 
         else:
-            local_emotes = {}
-
-            if fmt == "html_local" and meta.channel_id:
-                emote_map = await fetch_7tv_emote_map(session, meta.channel_id)
-
-                targets = [t for t in token_counter if t in emote_map]
-
-                for name in targets:
-                    uri = await download_as_data_uri(session, emote_map[name])
-                    if uri:
-                        local_emotes[name] = uri
-
-            html_text = render_viewer_html(
-                chat_rows=chat_rows,
-                title=(meta.title or "—"),
-                channel=(meta.channel or "—"),
+            sent_files, public_html_url = await build_html_result(
+                context=context,
+                session=session,
+                chat_id=chat_id,
+                fmt=fmt,
+                meta=meta,
                 vod_url=vod_url,
-                created_at=meta.created_at,
-                mode=("online" if fmt == "html_online" else "local"),
-                channel_id=meta.channel_id,
-                local_emotes=local_emotes,
+                base_stem=base_stem,
+                out_dir=out_dir,
+                chat_rows=chat_rows,
+                token_counter=token_counter,
             )
-
-            if fmt == "html_online":
-                public_html_url = publish_html(html_text)
+            if public_html_url:
                 meta_dict["html_url"] = public_html_url
-
-            elif fmt == "html_local":
-                html_path = out_dir / f"{base_stem}.html"
-                html_path.write_text(html_text, encoding="utf-8")
-
-                with html_path.open("rb") as f:
-                    msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=html_path.name)
-                if msg and msg.document:
-                    sent_files.append({"file_id": msg.document.file_id, "file_name": html_path.name})
 
         stats = {
             "messages": messages,
@@ -181,12 +116,5 @@ async def download_and_send(
         return meta_dict, stats, sent_files, public_html_url
 
     finally:
-        try:
-            if fmt in ("txt", "csv") and writer:
-                for p in getattr(writer, "paths", []):
-                    try:
-                        p.unlink(missing_ok=True)
-                    except Exception:
-                        pass
-        except Exception:
-            pass
+        if fmt in ("txt", "csv") and writer:
+            cleanup_writer_files(writer)
