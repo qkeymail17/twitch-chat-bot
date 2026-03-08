@@ -7,9 +7,10 @@ from ui_formatters import _fmt_dt_utc, _fmt_len
 def _format_button(it: dict, idx: int):
     fmt = it.get("fmt")
 
-    # Онлайн HTML — кнопка не нужна (ссылка будет отдельной кнопкой ниже)
     if fmt == "html_online":
-        return None
+        url = it.get("html_url")
+        if url:
+            return InlineKeyboardButton("🌐 Чат HTML ссылка", url=url)
 
     if fmt == "html_local":
         return InlineKeyboardButton("📄 Чат HTML файл", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
