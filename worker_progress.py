@@ -3,7 +3,7 @@ import asyncio
 
 from telegram.error import BadRequest, RetryAfter, TimedOut, NetworkError
 from config import PROGRESS_INTERVAL
-from ui import build_progress_text
+from ui_formatters import _fmt_len, _fmt_dt_utc
 
 
 async def safe_edit_html(context, chat_id: int, message_id: int, text: str):
@@ -23,6 +23,34 @@ async def safe_edit_html(context, chat_id: int, message_id: int, text: str):
         return
 
 
+def _fmt_date_ru(dt: str) -> str:
+    try:
+        months = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
+        date_part, time_part, tz = dt.split(" ")
+        y, m, d = date_part.split("-")
+        m_txt = months[int(m) - 1]
+        return f"{d} {m_txt} {y} {time_part} {tz}"
+    except Exception:
+        return dt
+
+
+def _build_progress_card(meta, vod_url, messages, users_len, done):
+    channel = meta.get("channel") or "—"
+    title = meta.get("title") or "Без названия"
+    duration = _fmt_len(meta.get("length_seconds"))
+    dt = _fmt_date_ru(_fmt_dt_utc(meta.get("created_at")))
+
+    status = "Готово" if done else "Загрузка..."
+
+    return (
+        f"⏳ <b>{status}</b>\n"
+        f"🟣 {channel}\n"
+        f"🎬 {title}\n"
+        f"⏱ {duration} • 💬 {messages} • 👥 {users_len}\n"
+        f"🗓 {dt}"
+    )
+
+
 def make_progress_updater(context, chat_id, progress_message_id, meta_dict, vod_url, fmt):
     start_t = time.monotonic()
     last_progress_t = 0.0
@@ -34,18 +62,14 @@ def make_progress_updater(context, chat_id, progress_message_id, meta_dict, vod_
             return
         last_progress_t = now
 
-        parts = 1 if fmt in ("txt", "csv", "html_local") else 0
-
-        text = build_progress_text(
+        text = _build_progress_card(
             meta=meta_dict,
             vod_url=vod_url,
-            fmt=fmt,
             messages=messages,
-            unique_users=users_len,
-            parts=parts,
-            elapsed_s=now - start_t,
+            users_len=users_len,
             done=done,
         )
+
         await safe_edit_html(context, chat_id, progress_message_id, text)
 
     return maybe_progress
