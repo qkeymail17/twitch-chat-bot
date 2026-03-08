@@ -35,18 +35,19 @@ async def history_files_callback(update, context: ContextTypes.DEFAULT_TYPE):
     cached = db.get_cache(vod_id, fmt)
 
     # Готовим данные карточки
+    hist = items[idx]
+
     meta = (cached.get("meta") if cached else None) or {}
     stats = (cached.get("stats") if cached else None) or {}
-    vod_url = (cached.get("vod_url") if cached else None) or items[idx].get("vod_url")
 
     item = {
-        "channel": meta.get("channel"),
-        "title": meta.get("title"),
-        "created_at": meta.get("created_at"),
-        "length_seconds": meta.get("length_seconds"),
-        "messages": stats.get("messages"),
-        "unique_users": stats.get("unique_users"),
-        "vod_url": vod_url,
+        "channel": meta.get("channel") or hist.get("channel"),
+        "title": meta.get("title") or hist.get("title"),
+        "created_at": meta.get("created_at") or hist.get("created_at"),
+        "length_seconds": meta.get("length_seconds") or hist.get("length_seconds"),
+        "messages": stats.get("messages") or hist.get("messages"),
+        "unique_users": stats.get("unique_users") or hist.get("unique_users"),
+        "vod_url": hist.get("vod_url"),
         "fmt": fmt,
         "html_url": (cached.get("html_url") if cached else None),
     }
