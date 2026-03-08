@@ -48,9 +48,14 @@ def build_history_page(items: list[dict], page: int, per_page: int):
 
         channel = html.escape(it.get("channel") or "—")
         vod_title = html.escape(it.get("title") or "Без названия")
-        dt_raw = _fmt_dt_utc(it.get("created_at"))
-        dt = _fmt_date_ru(dt_raw)
-        duration = _fmt_len(it.get("length_seconds"))
+
+        created_at = it.get("created_at")
+        dt_raw = _fmt_dt_utc(created_at) if created_at else "—"
+        dt = _fmt_date_ru(dt_raw) if dt_raw != "—" else "—"
+
+        length_seconds = it.get("length_seconds")
+        duration = _fmt_len(length_seconds) if length_seconds else "—"
+
         msgs = it.get("messages") or 0
         users = it.get("unique_users") or 0
 
