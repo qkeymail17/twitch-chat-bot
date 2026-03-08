@@ -43,7 +43,8 @@ async def _send_card_with_buttons(context, chat_id, item, html_url=None):
         extra_rows.append([InlineKeyboardButton("🌐 Открыть HTML", url=html_url)])
 
     if extra_rows:
-        merged = (kb.inline_keyboard if kb else []) + extra_rows
+        base = list(kb.inline_keyboard) if kb else []
+        merged = base + extra_rows
         kb = InlineKeyboardMarkup(merged)
 
     await context.bot.send_message(
