@@ -32,26 +32,88 @@ def _build_card(item):
     return cards[0]
 
 
-async def _send_card_with_buttons(context, chat_id, item, html_url=None):
+async def _edit_progress_message_with_card(context, chat_id: int, message_id: int, item: dict, html_url: str | None = None):
+    """
+    Edit existing message (progress message) to final card + keyboard.
+    Ensures safe merging of keyboard rows (handles tuple/list).
+    Special-case: for html_online produce a single row with two URL buttons:
+        [🌐 Открыть HTML] [🔗 Ссылка VOD]
+    For other formats — keep keyboard produced by ui_history, and if html_url is present,
+    append an extra row with Open HTML button.
+    """
     text, kb = _build_card(item)
     if not text:
         return
 
-    extra_rows = []
+    fmt = item.get("fmt")
 
-    if html_url:
-        extra_rows.append([InlineKeyboardButton("🌐 Открыть HTML", url=html_url)])
+    # Build final keyboard depending on type
+    if fmt == "html_online":
+        # single row with two url buttons
+        html_btn = InlineKeyboardButton("🌐 Открыть HTML", url=html_url) if html_url else None
+        vod_btn = InlineKeyboardButton("🔗 Ссылка VOD", url=item.get("vod_url"))
+        row = []
+        if html_btn:
+            row.append(html_btn)
+        row.append(vod_btn)
+        final_kb = InlineKeyboardMarkup([row])
+    else:
+        # For other formats: take keyboard from ui_history and ensure it's a list of rows.
+        base_rows = list(kb.inline_keyboard) if kb else []
+        # If there is an html_url (rare for non-online), attach as extra row
+        if html_url:
+            base_rows = base_rows + [[InlineKeyboardButton("🌐 Открыть HTML", url=html_url)]]
+        final_kb = InlineKeyboardMarkup(base_rows) if base_rows else None
 
-    if extra_rows:
-        base = list(kb.inline_keyboard) if kb else []
-        merged = base + extra_rows
-        kb = InlineKeyboardMarkup(merged)
+    # edit message text + reply_markup
+    try:
+        await context.bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text=text,
+            parse_mode="HTML",
+            reply_markup=final_kb,
+        )
+    except Exception:
+        # fallback: if edit fails (message deleted, etc.) — send a fresh message
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            parse_mode="HTML",
+            reply_markup=final_kb,
+        )
+
+
+async def _send_card_with_buttons(context, chat_id, item, html_url=None):
+    """
+    Backward-compatible helper: send a new message (used only if we cannot edit a progress message).
+    Kept for safety; tries to produce the same keyboard layout as _edit_progress_message_with_card.
+    """
+    text, kb = _build_card(item)
+    if not text:
+        return
+
+    fmt = item.get("fmt")
+
+    if fmt == "html_online":
+        html_btn = InlineKeyboardButton("🌐 Открыть HTML", url=html_url) if html_url else None
+        vod_btn = InlineKeyboardButton("🔗 Ссылка VOD", url=item.get("vod_url"))
+        row = []
+        if html_btn:
+            row.append(html_btn)
+        row.append(vod_btn)
+        final_kb = InlineKeyboardMarkup([row])
+    else:
+        base_rows = list(kb.inline_keyboard) if kb else []
+        if html_url:
+            base_rows = base_rows + [[InlineKeyboardButton("🌐 Открыть HTML", url=html_url)]]
+        final_kb = InlineKeyboardMarkup(base_rows) if base_rows else None
 
     await context.bot.send_message(
         chat_id=chat_id,
         text=text,
         parse_mode="HTML",
-        reply_markup=kb,
+        reply_markup=final_kb,
     )
 
 
@@ -90,10 +152,8 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     cached = db.get_cache(vod_id, fmt)
     if cached and not db.cache_is_expired(cached):
+        # we will not auto-send files on cached path — user will request via "Файлы" button
         clear_pending(context)
-
-        if cached.get("files"):
-            await send_cached_files(context, q.message.chat_id, cached["files"])
 
         db.add_user_history(update.effective_user.id, int(cached["id"]))
 
@@ -103,13 +163,24 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         item = _make_item(meta, stats, vod_url, fmt)
         html_url = cached.get("html_url") if fmt == "html_online" else None
 
-        await _send_card_with_buttons(context, q.message.chat_id, item, html_url)
+        # Try to edit original callback message (so no new messages appear)
+        try:
+            await _edit_progress_message_with_card(
+                context=context,
+                chat_id=q.message.chat_id,
+                message_id=q.message.message_id,
+                item=item,
+                html_url=html_url,
+            )
+        except Exception:
+            # fallback: send as new message
+            await _send_card_with_buttons(context, q.message.chat_id, item, html_url)
         return
 
     clear_pending(context)
     set_busy(context, True)
 
-    progress_msg = await context.bot.send_message(chat_id=q.message.chat_id, text="Старт…")
+    progress_msg = await context.bot.send_message(chat_id=q.message.chat_id, text="Загрузка...")
 
     context.application.create_task(_runner(
         context=context,
@@ -146,13 +217,28 @@ async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str,
         item = _make_item(meta, stats, vod_url, fmt)
         html_url = public_html_url if fmt == "html_online" else None
 
-        await _send_card_with_buttons(context, chat_id, item, html_url)
+        # Edit the original progress message (no new message)
+        await _edit_progress_message_with_card(
+            context=context,
+            chat_id=chat_id,
+            message_id=progress_message_id,
+            item=item,
+            html_url=html_url,
+        )
 
     except Exception as e:
         logging.exception("Download failed")
-        await context.bot.send_message(
-            chat_id=chat_id,
-            text=f"Ошибка: {type(e).__name__}: {e}",
-        )
+        # edit progress message to show error if possible, else send new message
+        try:
+            await context.bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=progress_message_id,
+                text=f"Ошибка: {type(e).__name__}: {e}",
+            )
+        except Exception:
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=f"Ошибка: {type(e).__name__}: {e}",
+            )
     finally:
         set_busy(context, False)
