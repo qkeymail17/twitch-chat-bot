@@ -21,6 +21,16 @@ def _format_button(it: dict, idx: int) -> InlineKeyboardButton:
     return InlineKeyboardButton("📁 Файлы", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
 
+def _fmt_date_ru(dt: str) -> str:
+    # ожидается формат "YYYY-MM-DD HH:MM UTC"
+    try:
+        date_part, time_part, tz = dt.split(" ")
+        y, m, d = date_part.split("-")
+        return f"{d}.{m}.{y} {time_part} {tz}"
+    except Exception:
+        return dt
+
+
 def build_history_page(items: list[dict], page: int, per_page: int):
     total = len(items)
     pages = max(1, (total + per_page - 1) // per_page)
@@ -36,17 +46,16 @@ def build_history_page(items: list[dict], page: int, per_page: int):
         idx = start + i
 
         channel = html.escape(it.get("channel") or "—")
-        dt = _fmt_dt_utc(it.get("created_at"))
+        dt_raw = _fmt_dt_utc(it.get("created_at"))
+        dt = _fmt_date_ru(dt_raw)
         duration = _fmt_len(it.get("length_seconds"))
         msgs = it.get("messages") or 0
         users = it.get("unique_users") or 0
 
         text = (
-            f"Канал: {channel}\n"
-            f"Дата: {dt}\n"
-            f"Длительность: {duration}\n"
-            f"Сообщений: {msgs}\n"
-            f"Пользователей: {users}"
+            f"🟣 {channel}\n"
+            f"⏱ {duration} • 💬 {msgs} • 👥 {users}\n"
+            f"🗓 {dt}"
         )
 
         kb = InlineKeyboardMarkup([
