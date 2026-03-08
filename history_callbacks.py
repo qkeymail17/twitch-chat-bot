@@ -92,7 +92,7 @@ async def history_page_callback(update: Update, context: ContextTypes.DEFAULT_TY
 
     # объединение клавиатур — аккуратно: обе могут быть InlineKeyboardMarkup или None
     if card_kb is not None and nav_kb is not None:
-        combined_kb = InlineKeyboardMarkup(card_kb.inline_keyboard + nav_kb.inline_keyboard)
+        combined_kb = InlineKeyboardMarkup(list(card_kb.inline_keyboard) + list(nav_kb.inline_keyboard))
     elif card_kb is not None:
         combined_kb = card_kb
     else:
