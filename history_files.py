@@ -61,7 +61,7 @@ async def history_files_callback(update, context: ContextTypes.DEFAULT_TYPE):
         cards, _ = build_history_page([item], page=0, per_page=1)
         text, kb = cards[0]
 
-        extra_rows = [[InlineKeyboardButton("🌐 Открыть HTML", url=html_url)]]
+        extra_rows = [[InlineKeyboardButton("🌐 Чат HTML ссылка", url=html_url)]]
         merged = (kb.inline_keyboard if kb else []) + extra_rows
         kb_final = InlineKeyboardMarkup(merged)
 

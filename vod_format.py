@@ -50,7 +50,7 @@ async def _edit_progress_message_with_card(context, chat_id: int, message_id: in
     # Build final keyboard depending on type
     if fmt == "html_online":
         # single row with two url buttons
-        html_btn = InlineKeyboardButton("🌐 Открыть HTML", url=html_url) if html_url else None
+        html_btn = InlineKeyboardButton("🌐 Чат HTML ссылка", url=html_url) if html_url else None
         vod_btn = InlineKeyboardButton("🔗 Ссылка VOD", url=item.get("vod_url"))
         row = []
         if html_btn:
@@ -62,7 +62,7 @@ async def _edit_progress_message_with_card(context, chat_id: int, message_id: in
         base_rows = list(kb.inline_keyboard) if kb else []
         # If there is an html_url (rare for non-online), attach as extra row
         if html_url:
-            base_rows = base_rows + [[InlineKeyboardButton("🌐 Открыть HTML", url=html_url)]]
+            base_rows = base_rows + [[InlineKeyboardButton("🌐 Чат HTML ссылка", url=html_url)]]
         final_kb = InlineKeyboardMarkup(base_rows) if base_rows else None
 
     # edit message text + reply_markup
@@ -96,7 +96,7 @@ async def _send_card_with_buttons(context, chat_id, item, html_url=None):
     fmt = item.get("fmt")
 
     if fmt == "html_online":
-        html_btn = InlineKeyboardButton("🌐 Открыть HTML", url=html_url) if html_url else None
+        html_btn = InlineKeyboardButton("🌐 Чат HTML ссылка", url=html_url) if html_url else None
         vod_btn = InlineKeyboardButton("🔗 Ссылка VOD", url=item.get("vod_url"))
         row = []
         if html_btn:
