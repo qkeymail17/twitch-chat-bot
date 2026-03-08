@@ -10,18 +10,19 @@ def _format_button(it: dict, idx: int) -> InlineKeyboardButton:
     if fmt == "html_online":
         url = it.get("html_url")
         if url:
-            return InlineKeyboardButton("🌐 Открыть HTML", url=url)
+            return InlineKeyboardButton("Открыть HTML", url=url)
 
     if fmt == "html_local":
-        return InlineKeyboardButton("📄 Скачать HTML", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("Скачать HTML", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "txt":
-        return InlineKeyboardButton("📝 Скачать TXT", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("Скачать TXT", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "csv":
-        return InlineKeyboardButton("📊 Скачать CSV", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
-    return InlineKeyboardButton("📁 Файлы", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("Скачать CSV", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+
+    return InlineKeyboardButton("Файлы", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
 
-def build_history_page(items: list[dict], page: int, per_page: int):
+def build_history_page(items: list[dict], page: int, per_page: int = 1):
     total = len(items)
     pages = max(1, (total + per_page - 1) // per_page)
     page = max(0, min(page, pages - 1))
@@ -45,23 +46,20 @@ def build_history_page(items: list[dict], page: int, per_page: int):
 
     idx = start
 
-    rows = [
-        [
-            _format_button(it, idx),
-            InlineKeyboardButton("🔗 Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
-        ]
-    ]
+    rows = [[
+        _format_button(it, idx),
+        InlineKeyboardButton("Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
+    ]]
 
     nav = []
     if page > 0:
-        nav.append(InlineKeyboardButton("⬅️", callback_data=f"{CB_HIST_PAGE}{page - 1}"))
+        nav.append(InlineKeyboardButton("⬅", callback_data=f"{CB_HIST_PAGE}{page - 1}"))
     nav.append(InlineKeyboardButton(f"{page + 1}/{pages}", callback_data=CB_NOOP))
     if page < pages - 1:
-        nav.append(InlineKeyboardButton("➡️", callback_data=f"{CB_HIST_PAGE}{page + 1}"))
+        nav.append(InlineKeyboardButton("➡", callback_data=f"{CB_HIST_PAGE}{page + 1}"))
 
     if nav:
         rows.append(nav)
 
     kb = InlineKeyboardMarkup(rows)
-
-    return text, kb
+    return [(text, kb)]
