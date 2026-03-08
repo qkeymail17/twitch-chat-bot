@@ -89,8 +89,7 @@ async def download_and_send(
         public_html_url: Optional[str] = None
 
         if fmt in ("txt", "csv"):
-            # Файлы сохраняем, но НЕ отправляем в чат
-            sent_files = writer.get_files()
+            sent_files = []  # не отправляем файлы в чат
 
         else:
             sent_files, public_html_url = await build_html_result(
