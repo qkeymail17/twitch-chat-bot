@@ -21,11 +21,12 @@ def _format_button(it: dict, idx: int) -> InlineKeyboardButton:
     return InlineKeyboardButton("📁 Файлы", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
 
-def build_history_page(items: list[dict], page: int, per_page: int = 1):
+def build_history_page(items: list[dict], page: int, per_page: int = 2):
     total = len(items)
     pages = max(1, (total + per_page - 1) // per_page)
     page = max(0, min(page, pages - 1))
 
+    # вместо двух стримов — один
     idx = page
     it = items[idx]
 
@@ -45,18 +46,19 @@ def build_history_page(items: list[dict], page: int, per_page: int = 1):
 
     rows = [[
         _format_button(it, idx),
-        InlineKeyboardButton("🔗 Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
+        InlineKeyboardButton("Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
     ]]
 
     nav = []
     if page > 0:
-        nav.append(InlineKeyboardButton("⬅️", callback_data=f"{CB_HIST_PAGE}{page - 1}"))
+        nav.append(InlineKeyboardButton("⬅", callback_data=f"{CB_HIST_PAGE}{page - 1}"))
     nav.append(InlineKeyboardButton(f"{page + 1}/{pages}", callback_data=CB_NOOP))
     if page < pages - 1:
-        nav.append(InlineKeyboardButton("➡️", callback_data=f"{CB_HIST_PAGE}{page + 1}"))
-
-    if nav:
-        rows.append(nav)
+        nav.append(InlineKeyboardButton("➡", callback_data=f"{CB_HIST_PAGE}{page + 1}"))
 
     kb = InlineKeyboardMarkup(rows)
-    return text, kb
+    nav_kb = InlineKeyboardMarkup([nav]) if nav else None
+
+    # ВАЖНО: возвращаем старый формат
+    cards = [(text, kb)]
+    return cards, nav_kb
