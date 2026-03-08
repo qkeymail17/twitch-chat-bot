@@ -89,7 +89,7 @@ async def download_and_send(
         public_html_url: Optional[str] = None
 
         if fmt in ("txt", "csv"):
-            sent_files = []  # не отправляем файлы в чат
+            sent_files = await send_writer_file(context, chat_id, writer)
 
         else:
             sent_files, public_html_url = await build_html_result(
