@@ -37,25 +37,14 @@ async def history_command(update, context: ContextTypes.DEFAULT_TYPE):
         await update.effective_message.reply_text("История пуста.")
         return
 
-    cards, nav_kb = build_history_page(items, page=0, per_page=2)
+    from history_view import _send_history_cards
 
-    for text, kb in cards:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=text,
-            parse_mode="HTML",
-            reply_markup=kb,
-        )
-
-    if nav_kb:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="Навигация:",
-            reply_markup=nav_kb,
-        )
-
-    text, kb = ui_buttons.__globals__['build_history_page'](items, page=0, per_page=2)
-    await update.effective_message.reply_text(text, parse_mode="HTML", reply_markup=kb)
+    await _send_history_cards(
+        chat_id=update.effective_chat.id,
+        context=context,
+        items=items,
+        page=0,
+    )
 
 
 async def post_init(app: Application):
