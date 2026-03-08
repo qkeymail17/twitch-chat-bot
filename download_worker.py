@@ -104,8 +104,7 @@ async def download_and_send(
                 chat_rows=chat_rows,
                 token_counter=token_counter,
             )
-            if public_html_url:
-                meta_dict["html_url"] = public_html_url
+            meta_dict["html_url"] = public_html_url
 
         stats = {
             "messages": messages,
