@@ -1,0 +1,59 @@
+import asyncio
+import random
+from typing import Optional, List, Tuple
+
+import aiohttp
+
+from .fetch_page import gql_fetch_page
+from .meta import render_message
+
+
+async def gql_fetch_comments(
+    session: aiohttp.ClientSession,
+    client_id: str,
+    vod_id: str,
+    start_offset: int = 0,
+):
+    """yields (offset_seconds, created_at_iso, display_name, message_text)"""
+    cursor = None
+    delay_s = FETCH_DELAY_BASE
+
+    while True:
+        edges: List[dict] = []
+        next_cursor: Optional[str] = None
+        has_next = False
+
+        for attempt in range(GQL_MAX_RETRIES):
+            try:
+                edges, next_cursor, has_next = await gql_fetch_page(
+                    session=session,
+                    client_id=client_id,
+                    vod_id=vod_id,
+                    cursor=cursor,
+                    start_offset=start_offset,
+                )
+                delay_s = max(FETCH_DELAY_BASE, delay_s * 0.9)
+                break
+            except (aiohttp.ClientError, asyncio.TimeoutError, RuntimeError) as e:
+                if attempt == GQL_MAX_RETRIES - 1:
+                    raise RuntimeError(f"Twitch API error after retries: {e}") from e
+                delay_s = min(FETCH_DELAY_MAX, max(delay_s * 1.6, 0.15))
+                await asyncio.sleep(delay_s + random.uniform(0, 0.2))
+
+        if not edges:
+            return
+
+        for edge in edges:
+            node = edge.get("node") or {}
+            commenter = node.get("commenter") or {}
+            display = commenter.get("displayName") or commenter.get("login") or "unknown"
+            offset = node.get("contentOffsetSeconds")
+            created_at = node.get("createdAt") or ""
+            text = render_message(node)
+            if text:
+                yield (offset, created_at, display, text)
+
+        if not has_next or not next_cursor:
+            return
+        cursor = next_cursor
+        await asyncio.sleep(delay_s)
