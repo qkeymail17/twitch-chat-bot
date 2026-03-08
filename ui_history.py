@@ -21,42 +21,35 @@ def _format_button(it: dict, idx: int) -> InlineKeyboardButton:
     return InlineKeyboardButton("📁 Файлы", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
 
-def build_history_page(items: list[dict], page: int, per_page: int):
+def build_history_message(items: list[dict], page: int, per_page: int = 1):
     total = len(items)
     pages = max(1, (total + per_page - 1) // per_page)
     page = max(0, min(page, pages - 1))
 
     start = page * per_page
-    end = min(start + per_page, total)
-    page_items = items[start:end]
+    idx = start
+    it = items[idx]
 
-    cards = []
+    channel = html.escape(it.get("channel") or "—")
+    dt = _fmt_dt_utc(it.get("created_at"))
+    duration = _fmt_len(it.get("length_seconds"))
+    msgs = it.get("messages") or 0
+    users = it.get("unique_users") or 0
 
-    for i, it in enumerate(page_items):
-        idx = start + i
+    text = (
+        f"Канал: {channel}\n"
+        f"Дата: {dt}\n"
+        f"Длительность: {duration}\n"
+        f"Сообщений: {msgs}\n"
+        f"Пользователей: {users}"
+    )
 
-        channel = html.escape(it.get("channel") or "—")
-        dt = _fmt_dt_utc(it.get("created_at"))
-        duration = _fmt_len(it.get("length_seconds"))
-        msgs = it.get("messages") or 0
-        users = it.get("unique_users") or 0
-
-        text = (
-            f"Канал: {channel}\n"
-            f"Дата: {dt}\n"
-            f"Длительность: {duration}\n"
-            f"Сообщений: {msgs}\n"
-            f"Пользователей: {users}"
-        )
-
-        kb = InlineKeyboardMarkup([
-            [
-                _format_button(it, idx),
-                InlineKeyboardButton("🔗 Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
-            ]
-        ])
-
-        cards.append((text, kb))
+    rows = [
+        [
+            _format_button(it, idx),
+            InlineKeyboardButton("🔗 Показать ссылку VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
+        ]
+    ]
 
     nav = []
     if page > 0:
@@ -65,6 +58,8 @@ def build_history_page(items: list[dict], page: int, per_page: int):
     if page < pages - 1:
         nav.append(InlineKeyboardButton("➡️", callback_data=f"{CB_HIST_PAGE}{page + 1}"))
 
-    nav_kb = InlineKeyboardMarkup([nav]) if nav else None
+    if nav:
+        rows.append(nav)
 
-    return cards, nav_kb
+    kb = InlineKeyboardMarkup(rows)
+    return text, kb

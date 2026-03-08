@@ -2,7 +2,8 @@ from telegram import Update
 from telegram.ext import ContextTypes
 import database as db
 from ui import CB_UI_HISTORY, CB_HIST_PAGE, CB_HIST_VOD_PREFIX
-from history_view import _send_history_cards
+from history_view import send_history_message
+from ui_history import build_history_message
 
 
 async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -18,7 +19,7 @@ async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await q.message.reply_text("История пуста.")
             return
 
-        await _send_history_cards(q.message.chat_id, context, items, page=0)
+        await send_history_message(q.message.chat_id, context, items, page=0)
         return
 
 
@@ -38,7 +39,12 @@ async def history_page_callback(update: Update, context: ContextTypes.DEFAULT_TY
         await q.message.reply_text("История пуста.")
         return
 
-    await _send_history_cards(q.message.chat_id, context, items, page)
+    text, kb = build_history_message(items, page=page)
+    await q.message.edit_text(
+        text=text,
+        parse_mode="HTML",
+        reply_markup=kb,
+    )
 
 
 async def history_vod_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
