@@ -22,9 +22,6 @@ def _format_button(it: dict, idx: int) -> InlineKeyboardButton:
 
 
 def build_history_page(items: list[dict], page: int, per_page: int):
-    # ПРИНУДИТЕЛЬНО: 1 стрим на страницу
-    per_page = 1
-
     total = len(items)
     pages = max(1, (total + per_page - 1) // per_page)
     page = max(0, min(page, pages - 1))
