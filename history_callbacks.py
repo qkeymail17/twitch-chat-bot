@@ -3,7 +3,6 @@ from telegram.ext import ContextTypes
 import database as db
 from ui import CB_UI_HISTORY, CB_HIST_PAGE, CB_HIST_VOD_PREFIX
 from history_view import _send_history_cards
-from ui import build_history_page
 
 
 async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -14,7 +13,7 @@ async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     if data == CB_UI_HISTORY:
-        items = db.get_history_for_user(user_id, limit=50, offset=0)
+        items = db.get_history_for_user(user_id, limit=10, offset=0)
         if not items:
             await q.message.reply_text("История пуста.")
             return
@@ -29,23 +28,17 @@ async def history_page_callback(update: Update, context: ContextTypes.DEFAULT_TY
     data = q.data or ""
     if not data.startswith(CB_HIST_PAGE):
         return
-
     try:
         page = int(data[len(CB_HIST_PAGE):])
     except ValueError:
         return
 
-    items = db.get_history_for_user(update.effective_user.id, limit=50, offset=0)
+    items = db.get_history_for_user(update.effective_user.id, limit=10, offset=0)
     if not items:
+        await q.message.reply_text("История пуста.")
         return
 
-    text, kb = build_history_page(items, page=page, per_page=1)
-
-    await q.message.edit_text(
-        text=text,
-        parse_mode="HTML",
-        reply_markup=kb,
-    )
+    await _send_history_cards(q.message.chat_id, context, items, page)
 
 
 async def history_vod_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -60,7 +53,7 @@ async def history_vod_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     except ValueError:
         return
 
-    items = db.get_history_for_user(update.effective_user.id, limit=50, offset=0)
+    items = db.get_history_for_user(update.effective_user.id, limit=10, offset=0)
     if idx < 0 or idx >= len(items):
         await q.message.reply_text("Запрос не найден.")
         return
