@@ -1,15 +1,15 @@
 from telegram import InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-from ui import build_history_page
 
 
 async def _send_history_cards(chat_id: int, context: ContextTypes.DEFAULT_TYPE, items: list, page: int):
     """Send a single history card (one stream per page) with combined action + navigation buttons.
 
-    This replaces the previous behaviour of sending multiple messages (one per card)
-    and a separate 'navigation' message. Now one message contains card buttons and
-    navigation row, so it can be edited in-place when user switches pages.
+    Импорты делаем локально, чтобы избежать циклических зависимостей при старте.
     """
+
+    # локальные импорты
+    from ui import build_history_page
 
     # build page with a single item per page
     cards, nav_kb = build_history_page(items, page=page, per_page=1)
@@ -22,10 +22,9 @@ async def _send_history_cards(chat_id: int, context: ContextTypes.DEFAULT_TYPE, 
     text, card_kb = cards[0]
 
     # merge card keyboard and navigation keyboard into a single InlineKeyboardMarkup
-    combined_kb = None
-    if card_kb and nav_kb:
+    if card_kb is not None and nav_kb is not None:
         combined_kb = InlineKeyboardMarkup(card_kb.inline_keyboard + nav_kb.inline_keyboard)
-    elif card_kb:
+    elif card_kb is not None:
         combined_kb = card_kb
     else:
         combined_kb = nav_kb
