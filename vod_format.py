@@ -224,6 +224,9 @@ async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str,
             fmt=fmt,
         )
 
+        if fmt == "html_online" and public_html_url:
+            meta["html_url"] = public_html_url
+
         cache_id = db.upsert_cache(
             vod_id=vod_id,
             fmt=fmt,
