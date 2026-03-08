@@ -22,11 +22,13 @@ def _format_button(it: dict, idx: int) -> InlineKeyboardButton:
 
 
 def _fmt_date_ru(dt: str) -> str:
-    # ожидается формат "YYYY-MM-DD HH:MM UTC"
+    # "YYYY-MM-DD HH:MM UTC" → "DD Ммм YYYY HH:MM UTC"
     try:
+        months = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"]
         date_part, time_part, tz = dt.split(" ")
         y, m, d = date_part.split("-")
-        return f"{d}.{m}.{y} {time_part} {tz}"
+        m_txt = months[int(m) - 1]
+        return f"{d} {m_txt} {y} {time_part} {tz}"
     except Exception:
         return dt
 
@@ -46,6 +48,7 @@ def build_history_page(items: list[dict], page: int, per_page: int):
         idx = start + i
 
         channel = html.escape(it.get("channel") or "—")
+        vod_title = html.escape(it.get("title") or "Без названия")
         dt_raw = _fmt_dt_utc(it.get("created_at"))
         dt = _fmt_date_ru(dt_raw)
         duration = _fmt_len(it.get("length_seconds"))
@@ -54,6 +57,7 @@ def build_history_page(items: list[dict], page: int, per_page: int):
 
         text = (
             f"🟣 {channel}\n"
+            f"🎬 {vod_title}\n"
             f"⏱ {duration} • 💬 {msgs} • 👥 {users}\n"
             f"🗓 {dt}"
         )
