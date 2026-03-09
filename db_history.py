@@ -7,10 +7,22 @@ from db_core import _connect
 def add_user_history(user_id: int, cache_id: int):
     con = _connect()
     cur = con.cursor()
+    # проверка дубликата: тот же VOD и тот же формат
     cur.execute("""
-    INSERT INTO user_history(user_id, cache_id, processed_at)
-    VALUES(?,?,?)
-    """, (int(user_id), int(cache_id), time.time()))
+    SELECT 1
+    FROM user_history uh
+    JOIN vod_cache vc ON vc.id = uh.cache_id
+    WHERE uh.user_id = ?
+      AND vc.vod_id = (SELECT vod_id FROM vod_cache WHERE id = ?)
+      AND vc.format = (SELECT format FROM vod_cache WHERE id = ?)
+    LIMIT 1
+    """, (int(user_id), int(cache_id), int(cache_id)))
+
+    if cur.fetchone() is None:
+        cur.execute("""
+        INSERT INTO user_history(user_id, cache_id, processed_at)
+        VALUES(?,?,?)
+        """, (int(user_id), int(cache_id), time.time()))
     con.commit()
     con.close()
 
