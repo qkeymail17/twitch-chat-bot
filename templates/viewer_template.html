@@ -159,6 +159,7 @@ const rows = DATA.rows || [];
 
 const MODE=meta.mode||"online";
 const LOCAL_EMOTES = meta.local_emotes || {};
+const CDN_EMOTES = meta.cdn_emotes || {};
 const TWITCH_CHANNEL_ID=meta.channel_id||null;
 
 const elTitle=document.getElementById("title");
@@ -276,28 +277,32 @@ const parts=String(text||"").split(/(\s+)/);
 
 for(const p of parts){
 
-if(MODE==="local" && LOCAL_EMOTES[p]){
-
-const img=document.createElement("img");
-img.src=LOCAL_EMOTES[p];
-img.alt=p;
-img.title=p;
-img.className="emote";
-el.appendChild(img);
-
-}else if(emotes.has(p)){
-
-const img=document.createElement("img");
-img.src=emotes.get(p);
-img.alt=p;
-img.title=p;
-img.className="emote";
-el.appendChild(img);
-
-}else{
-
-el.appendChild(document.createTextNode(p));
-
+if(LOCAL_EMOTES[p]){
+  const img=document.createElement("img");
+  img.src=LOCAL_EMOTES[p];
+  img.alt=p;
+  img.title=p;
+  img.className="emote";
+  el.appendChild(img);
+}
+else if(CDN_EMOTES[p]){
+  const img=document.createElement("img");
+  img.src=CDN_EMOTES[p];
+  img.alt=p;
+  img.title=p;
+  img.className="emote";
+  el.appendChild(img);
+}
+else if(emotes.has(p)){
+  const img=document.createElement("img");
+  img.src=emotes.get(p);
+  img.alt=p;
+  img.title=p;
+  img.className="emote";
+  el.appendChild(img);
+}
+else{
+  el.appendChild(document.createTextNode(p));
 }
 
 }

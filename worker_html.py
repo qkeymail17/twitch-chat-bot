@@ -29,6 +29,7 @@ async def build_html_result(
     sent_files: List[Dict[str, str]] = []
     public_html_url: Optional[str] = None
     local_emotes = {}
+    cdn_emotes: Dict[str, str] = {}
 
     if fmt == "html_local":
         combined_map: Dict[str, str] = {}
@@ -63,6 +64,37 @@ async def build_html_result(
             uri = await download_as_data_uri(session, combined_map[name])
             if uri:
                 local_emotes[name] = uri
+        if fmt == "html_online":
+            combined_map: Dict[str, str] = {}
+
+            # 7TV
+            if meta.channel_id:
+                m = await fetch_7tv_emote_map(session, meta.channel_id)
+                combined_map.update(m)
+
+            # BTTV
+            if meta.channel_id:
+                m = await fetch_bttv_emote_map(session, meta.channel_id)
+                combined_map.update(m)
+
+            # FFZ
+            if meta.channel:
+                m = await fetch_ffz_emote_map(session, meta.channel)
+                combined_map.update(m)
+
+            # Twitch Global
+            m = await fetch_twitch_global_emote_map(session)
+            combined_map.update(m)
+
+            # Twitch Channel
+            if meta.channel_id:
+                m = await fetch_twitch_channel_emote_map(session, meta.channel_id)
+                combined_map.update(m)
+
+            targets = [t for t in token_counter if t in combined_map]
+
+            for name in targets:
+                cdn_emotes[name] = combined_map[name]
 
     html_text = render_viewer_html(
         chat_rows=chat_rows,
@@ -73,6 +105,7 @@ async def build_html_result(
         mode=("online" if fmt == "html_online" else "local"),
         channel_id=meta.channel_id,
         local_emotes=local_emotes,
+        cdn_emotes=cdn_emotes,
     )
 
     if fmt == "html_online":
