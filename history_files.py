@@ -23,21 +23,18 @@ async def history_files_callback(update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     try:
-        idx = int(data[len("ui:histfiles:"):])
+        cache_id = int(data[len("ui:histfiles:"):])
     except ValueError:
         return
 
-    items = db.get_history_for_user(update.effective_user.id, limit=10, offset=0)
-    if idx < 0 or idx >= len(items):
+    cached = db.get_cache_by_id(cache_id)
+    if not cached:
         await q.message.reply_text("Запрос не найден.")
         return
 
-    vod_id = items[idx]["vod_id"]
-    fmt = items[idx]["fmt"]
-    cached = db.get_cache(vod_id, fmt)
-
-    # Готовим данные карточки
-    hist = items[idx]
+    hist = cached
+    vod_id = cached.get("vod_id")
+    fmt = cached.get("fmt")
 
     meta_raw = cached.get("meta") if cached else None
     stats_raw = cached.get("stats") if cached else None
