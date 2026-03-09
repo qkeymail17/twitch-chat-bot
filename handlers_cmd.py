@@ -31,6 +31,6 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if get_pending(context):
         clear_pending(context)
-        await msg.reply_text("Ок, отменил.")
+        await msg.reply_text("Процесс отменен.")
     else:
         await msg.reply_text("Нечего отменять.")

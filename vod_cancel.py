@@ -9,6 +9,6 @@ async def pending_cancel_callback(update: Update, context: ContextTypes.DEFAULT_
     await q.answer()
     if get_pending(context):
         clear_pending(context)
-        await q.message.reply_text("Ок, отменил.")
+        await q.message.reply_text("Процесс отменен.")
     else:
         await q.message.reply_text("Нечего отменять.")

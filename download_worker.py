@@ -74,7 +74,7 @@ async def download_and_send(
                 writer.write_row([t, created_at, user, text])
 
             elif fmt in ("html_online", "html_local"):
-                chat_rows.append({"t": t, "user": user, "text": text})
+                chat_rows.append({"t": t, "u": user, "m": text})
 
                 if fmt == "html_local":
                     cnt = token_counter

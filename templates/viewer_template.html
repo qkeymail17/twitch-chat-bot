@@ -347,11 +347,11 @@ try{
 function matches(r,q,u){
 
 if(u){
-if(!r.user||r.user.toLowerCase().indexOf(u)===-1)return false;
+if(!r.u||r.u.toLowerCase().indexOf(u)===-1)return false;
 }
 
 if(q){
-if(!r.text||r.text.toLowerCase().indexOf(q)===-1)return false;
+if(!r.m||r.m.toLowerCase().indexOf(q)===-1)return false;
 }
 
 return true;
@@ -399,13 +399,13 @@ for (let i = rendered; i < end; i++) {
 
   const userEl = document.createElement("span");
   userEl.className = "user";
-  userEl.textContent = r.user || "—";
-  userEl.style.color = colorForUser(r.user);
+  userEl.textContent = r.u || "—";
+  userEl.style.color = colorForUser(r.u);
 
   const msgEl = document.createElement("span");
   msgEl.className = "msg";
 
-renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+renderTextWithEmotes(msgEl, r.m || "", EMOTES);
 
 if(SHOW_TIME) rowEl.appendChild(timeEl);
 rowEl.appendChild(userEl);
