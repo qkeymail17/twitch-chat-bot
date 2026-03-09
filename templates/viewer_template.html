@@ -397,12 +397,18 @@ for (let i = rendered; i < end; i++) {
   const msgEl = document.createElement("span");
   msgEl.className = "msg";
 
-if (MODE === "online" && EMOTES && EMOTES.size) {
+// сначала пробуем локальные эмоуты (если есть)
+if (Object.keys(LOCAL_EMOTES).length > 0) {
   renderTextWithEmotes(msgEl, r.text || "", EMOTES);
-} else if (MODE === "local") {
-  // local_emotes проверяются внутри renderTextWithEmotes через LOCAL_EMOTES
+}
+// иначе работаем как раньше
+else if (MODE === "online" && EMOTES && EMOTES.size) {
   renderTextWithEmotes(msgEl, r.text || "", EMOTES);
-} else {
+}
+else if (MODE === "local") {
+  renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+}
+else {
   msgEl.textContent = r.text || "";
 }
 
