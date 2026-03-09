@@ -10,14 +10,14 @@ def _format_button(it: dict, idx: int):
     if fmt == "html_online":
         url = it.get("html_url")
         if url:
-            return InlineKeyboardButton("🌐 Чат HTML ссылка", url=url)
+            return InlineKeyboardButton("🌐 Чат", url=url)
 
     if fmt == "html_local":
-        return InlineKeyboardButton("📄 Чат HTML файл", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("📄 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "txt":
-        return InlineKeyboardButton("📝 Чат TXT файл", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("📝 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "csv":
-        return InlineKeyboardButton("📊 Чат CSV файл", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("📊 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
     return InlineKeyboardButton("📁 Файлы", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
@@ -59,12 +59,23 @@ def build_history_page(items: list[dict], page: int, per_page: int):
 
         msgs = it.get("messages") or 0
         users = it.get("unique_users") or 0
+        fmt = it.get("fmt") or "—"
+
+        fmt_map = {
+            "html_online": "🌐 HTML ссылка",
+            "html_local": "📄 HTML файл",
+            "txt": "📝 TXT файл",
+            "csv": "📊 CSV файл",
+        }
+
+        fmt_text = fmt_map.get(fmt, "📁 Файлы")
 
         text = (
             f"🟣 {channel}\n"
             f"🎬 {vod_title}\n"
             f"⏱ {duration} • 💬 {msgs} • 👥 {users}\n"
-            f"🗓 {dt}"
+            f"🗓 {dt}\n"
+            f"{fmt_text}"
         )
 
         buttons = []
