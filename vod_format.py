@@ -100,9 +100,19 @@ async def _send_card_with_buttons(context, chat_id, item, html_url=None):
         row.append(vod_btn)
         final_kb = InlineKeyboardMarkup([row])
     else:
-        base_rows = list(kb.inline_keyboard) if kb else []
+        base_rows = []
+
+        cache_id = item.get("cache_id")
+        if cache_id:
+            base_rows.append([
+                InlineKeyboardButton("Чат", callback_data=f"ui:files:{cache_id}")
+            ])
+
         if html_url:
-            base_rows = base_rows + [[InlineKeyboardButton(CHAT_HTML_LINK, url=html_url)]]
+            base_rows.append([
+                InlineKeyboardButton(CHAT_HTML_LINK, url=html_url)
+            ])
+
         final_kb = InlineKeyboardMarkup(base_rows) if base_rows else None
 
     await context.bot.send_message(
