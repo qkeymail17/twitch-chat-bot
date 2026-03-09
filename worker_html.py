@@ -59,12 +59,13 @@ async def build_html_result(
 
     targets = []
     for t in token_counter:
-        if t in combined_map:
-            targets.append(t)
-        elif t.capitalize() in combined_map:
-            targets.append(t.capitalize())
-        elif t.upper() in combined_map:
-            targets.append(t.upper())
+        clean = t.strip()
+        if clean in combined_map:
+            targets.append(clean)
+        elif clean.capitalize() in combined_map:
+            targets.append(clean.capitalize())
+        elif clean.upper() in combined_map:
+            targets.append(clean.upper())
 
     if fmt == "html_local":
         for name in targets:
