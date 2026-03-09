@@ -11,7 +11,7 @@ from handlers_state import (
 )
 from handlers_history import send_cached_files
 from ui_history import build_history_page
-from ui_labels import CHAT_GENERIC, VOD_LINK
+from ui_labels import CHAT_GENERIC, VOD_LINK, CHAT_HTML_LINK
 
 
 def _make_item(meta, stats, vod_url, fmt):
@@ -50,9 +50,21 @@ async def _edit_progress_message_with_card(context, chat_id: int, message_id: in
         row.append(vod_btn)
         final_kb = InlineKeyboardMarkup([row])
     else:
-        base_rows = list(kb.inline_keyboard) if kb else []
+        base_rows = []
+
+        # кнопка ЧАТ с привязкой к cache_id
+        cache_id = item.get("cache_id")
+        if cache_id:
+            base_rows.append([
+                InlineKeyboardButton("Чат", callback_data=f"ui:files:{cache_id}")
+            ])
+
+        # кнопка HTML (если есть)
         if html_url:
-            base_rows = base_rows + [[InlineKeyboardButton(BTN_CHAT_HTML, url=html_url)]]
+            base_rows.append([
+                InlineKeyboardButton(CHAT_HTML_LINK, url=html_url)
+            ])
+
         final_kb = InlineKeyboardMarkup(base_rows) if base_rows else None
 
     try:
@@ -80,8 +92,8 @@ async def _send_card_with_buttons(context, chat_id, item, html_url=None):
     fmt = item.get("fmt")
 
     if fmt == "html_online":
-        html_btn = InlineKeyboardButton(BTN_CHAT_HTML, url=html_url) if html_url else None
-        vod_btn = InlineKeyboardButton(BTN_VOD_LINK, url=item.get("vod_url"))
+        html_btn = InlineKeyboardButton(CHAT_HTML_LINK, url=html_url) if html_url else None
+        vod_btn = InlineKeyboardButton(VOD_LINK, url=item.get("vod_url"))
         row = []
         if html_btn:
             row.append(html_btn)
@@ -90,7 +102,7 @@ async def _send_card_with_buttons(context, chat_id, item, html_url=None):
     else:
         base_rows = list(kb.inline_keyboard) if kb else []
         if html_url:
-            base_rows = base_rows + [[InlineKeyboardButton(BTN_CHAT_HTML, url=html_url)]]
+            base_rows = base_rows + [[InlineKeyboardButton(CHAT_HTML_LINK, url=html_url)]]
         final_kb = InlineKeyboardMarkup(base_rows) if base_rows else None
 
     await context.bot.send_message(
@@ -217,6 +229,7 @@ async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str,
         db.add_user_history(user_id, cache_id)
 
         item = _make_item(meta, stats, vod_url, fmt)
+        item["cache_id"] = cache_id
         html_url = public_html_url if fmt == "html_online" else None
 
         await _edit_progress_message_with_card(

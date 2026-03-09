@@ -88,25 +88,17 @@ async def history_files_callback(update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # Сначала отправляем файлы
-    import logging
-
     files = cached.get("files")
-    logging.warning(f"FILES RAW: {files} TYPE={type(files)}")
-
     if isinstance(files, str):
         try:
             files = json.loads(files)
-            logging.warning(f"FILES JSON LOADED: {files}")
-        except Exception as e:
-            logging.warning(f"FILES JSON ERROR: {e}")
+        except Exception:
             files = None
 
     if not files:
-        logging.warning("FILES EMPTY AFTER PARSE")
         await q.message.reply_text("Файлы не найдены.")
         return
 
-    logging.warning(f"SENDING FILES: count={len(files)}")
     await send_cached_files(context, q.message.chat_id, files)
 
     # Потом карточку
