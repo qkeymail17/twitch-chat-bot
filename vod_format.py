@@ -174,6 +174,7 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
 
         item = _make_item(safe_meta, safe_stats, vod_url, fmt)
+        item["cache_id"] = int(cached["id"])
         html_url = html_url if fmt == "html_online" else None
 
         try:
