@@ -280,7 +280,7 @@ const clean = p.replace(/[\u200B-\u200D\uFEFF]/g, '');
 
 if(LOCAL_EMOTES[clean]){
   const img=document.createElement("img");
-  img.src=LOCAL_EMOTES[p];
+  img.src=LOCAL_EMOTES[clean];
   img.alt=p;
   img.title=p;
   img.className="emote";
@@ -288,7 +288,7 @@ if(LOCAL_EMOTES[clean]){
 }
 else if(CDN_EMOTES[clean]){
   const img=document.createElement("img");
-  img.src=CDN_EMOTES[p];
+  img.src=CDN_EMOTES[clean];
   img.alt=p;
   img.title=p;
   img.className="emote";
@@ -296,7 +296,7 @@ else if(CDN_EMOTES[clean]){
 }
 else if(emotes.has(clean)){
   const img=document.createElement("img");
-  img.src=emotes.get(p);
+  img.src=emotes.get(clean);
   img.alt=p;
   img.title=p;
   img.className="emote";
