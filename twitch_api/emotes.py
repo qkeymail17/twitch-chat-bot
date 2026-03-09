@@ -168,14 +168,6 @@ async def fetch_twitch_channel_emote_map(session: aiohttp.ClientSession, channel
 
 
 # =========================
-# Twitch Channel
-# =========================
-
-async def fetch_twitch_channel_emote_map(session: aiohttp.ClientSession, channel_id: str) -> Dict[str, str]:
-    return {}
-
-
-# =========================
 # Downloader (общий)
 # =========================
 
