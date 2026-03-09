@@ -276,7 +276,9 @@ function renderTextWithEmotes(el,text,emotes){
 const parts=String(text||"").split(/(\s+)/);
 
 for(const p of parts){
-const clean = p.replace(/[\u200B-\u200D\uFEFF]/g, '');
+const clean = p
+  .replace(/[\u200B-\u200D\uFEFF]/g, '')
+  .replace(/[\r\n\t]/g, '');
 
 if(LOCAL_EMOTES[clean]){
   const img=document.createElement("img");
