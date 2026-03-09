@@ -58,15 +58,13 @@ async def build_html_result(
         m = await fetch_twitch_channel_emote_map(session, meta.channel_id)
         combined_map.update(m)
 
-    targets = []
-    for t in token_counter:
-        clean = t.strip()
-        if clean in combined_map:
-            targets.append(clean)
-        elif clean.capitalize() in combined_map:
-            targets.append(clean.capitalize())
-        elif clean.upper() in combined_map:
-            targets.append(clean.upper())
+    targets = set()
+
+    for row in chat_rows:
+        text = row.get("text") or ""
+        for word in text.split():
+            if word in combined_map:
+                targets.add(word)
 
     if fmt == "html_local":
         for name in targets:
