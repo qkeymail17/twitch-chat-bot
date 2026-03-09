@@ -77,9 +77,11 @@ def build_history_page(items: list[dict], page: int, per_page: int):
         if main_btn:
             buttons.append(main_btn)
 
-        buttons.append(
-            InlineKeyboardButton(VOD_LINK, callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
-        )
+        vod_url = it.get("vod_url")
+        if vod_url:
+            buttons.append(
+                InlineKeyboardButton(VOD_LINK, url=vod_url)
+            )
 
         kb = InlineKeyboardMarkup([buttons])
         cards.append((text, kb))
