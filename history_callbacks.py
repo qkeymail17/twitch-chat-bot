@@ -33,11 +33,12 @@ async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception:
             return
 
-        await send_cached_files(
-            chat_id=q.message.chat_id,
-            context=context,
-            cache_id=cache_id,
-        )
+        files = db.get_files_by_cache_id(cache_id)
+        if not files:
+            await q.message.reply_text("Файлы не найдены.")
+            return
+
+        await send_cached_files(context, q.message.chat_id, files)
         return
 
     if data.startswith(CB_HIST_PAGE):
