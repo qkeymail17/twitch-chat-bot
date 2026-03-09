@@ -4,7 +4,14 @@ from collections import Counter
 
 from html_renderer import render_viewer_html
 from html_publisher import publish_html
-from twitch_api import fetch_7tv_emote_map, download_as_data_uri
+from twitch_api import (
+    fetch_7tv_emote_map,
+    fetch_bttv_emote_map,
+    fetch_ffz_emote_map,
+    fetch_twitch_global_emote_map,
+    fetch_twitch_channel_emote_map,
+    download_as_data_uri,
+)
 
 
 async def build_html_result(
@@ -23,12 +30,37 @@ async def build_html_result(
     public_html_url: Optional[str] = None
     local_emotes = {}
 
-    if fmt == "html_local" and meta.channel_id:
-        emote_map = await fetch_7tv_emote_map(session, meta.channel_id)
-        targets = [t for t in token_counter if t in emote_map]
+    if fmt == "html_local":
+        combined_map: Dict[str, str] = {}
+
+        # 7TV
+        if meta.channel_id:
+            m = await fetch_7tv_emote_map(session, meta.channel_id)
+            combined_map.update(m)
+
+        # BTTV
+        if meta.channel_id:
+            m = await fetch_bttv_emote_map(session, meta.channel_id)
+            combined_map.update(m)
+
+        # FFZ (нужно имя канала)
+        if meta.channel:
+            m = await fetch_ffz_emote_map(session, meta.channel)
+            combined_map.update(m)
+
+        # Twitch Global
+        m = await fetch_twitch_global_emote_map(session)
+        combined_map.update(m)
+
+        # Twitch Channel
+        if meta.channel_id:
+            m = await fetch_twitch_channel_emote_map(session, meta.channel_id)
+            combined_map.update(m)
+
+        targets = [t for t in token_counter if t in combined_map]
 
         for name in targets:
-            uri = await download_as_data_uri(session, emote_map[name])
+            uri = await download_as_data_uri(session, combined_map[name])
             if uri:
                 local_emotes[name] = uri
 
