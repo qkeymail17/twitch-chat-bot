@@ -13,6 +13,7 @@ def render_viewer_html(
     mode: str = "online",
     channel_id: str | None = None,
     local_emotes: dict | None = None,
+    cdn_emotes: dict | None = None,
 ) -> str:
     template_path = Path(TEMPLATES_DIR) / "viewer_template.html"
     template = template_path.read_text(encoding="utf-8")
@@ -26,6 +27,7 @@ def render_viewer_html(
             "mode": mode,
             "channel_id": channel_id,
             "local_emotes": local_emotes or {},
+            "cdn_emotes": cdn_emotes or {},
         },
         "rows": chat_rows,
     }
