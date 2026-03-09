@@ -54,6 +54,11 @@ async def download_and_send(
 
     progress = make_progress_updater(context, chat_id, progress_message_id, meta_dict, vod_url, fmt)
 
+    # throttling progress updates
+    last_progress_time = time.monotonic()
+    progress_interval_s = 0.5
+    progress_every_n = 200
+
     try:
         await progress(messages, len(users), done=False)
 
@@ -75,7 +80,13 @@ async def download_and_send(
                     for tok in text.split():
                         token_counter[tok] += 1
 
-            await progress(messages, len(users), done=False)
+            now = time.monotonic()
+            if (
+                messages % progress_every_n == 0
+                or now - last_progress_time >= progress_interval_s
+            ):
+                last_progress_time = now
+                await progress(messages, len(users), done=False)
 
         if writer:
             writer.close()
