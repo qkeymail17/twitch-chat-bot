@@ -33,7 +33,7 @@ async def gql_fetch_comments(
                     cursor=cursor,
                     start_offset=start_offset,
                 )
-                delay_s = max(FETCH_DELAY_BASE, delay_s * 0.9)
+                delay_s = max(FETCH_DELAY_BASE * 0.35, delay_s * 0.75)
                 break
             except (aiohttp.ClientError, asyncio.TimeoutError, RuntimeError) as e:
                 if attempt == GQL_MAX_RETRIES - 1:
@@ -57,4 +57,6 @@ async def gql_fetch_comments(
         if not has_next or not next_cursor:
             return
         cursor = next_cursor
-        await asyncio.sleep(delay_s)
+
+        if delay_s > FETCH_DELAY_BASE * 0.4:
+            await asyncio.sleep(delay_s)
