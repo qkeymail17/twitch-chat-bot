@@ -132,6 +132,42 @@ async def fetch_twitch_global_emote_map(session: aiohttp.ClientSession) -> Dict[
 
 
 # =========================
+# Twitch Channel (Subscriber via twitchemotes)
+# =========================
+
+async def fetch_twitch_channel_emote_map(session: aiohttp.ClientSession, channel_id: str) -> Dict[str, str]:
+    """Twitch subscriber emotes (unofficial via twitchemotes.com)"""
+    if not channel_id:
+        return {}
+
+    out: Dict[str, str] = {}
+
+    try:
+        url = f"https://twitchemotes.com/channels/{channel_id}"
+        async with session.get(url) as r:
+            if r.status != 200:
+                return {}
+            html = await r.text()
+
+        # Ищем все вхождения вида:
+        # <img src="https://static-cdn.jtvnw.net/emoticons/v1/EMOTE_ID/1.0" ... alt="EMOTE_NAME">
+        import re
+
+        pattern = re.compile(
+            r'<img[^>]+src="https://static-cdn\.jtvnw\.net/emoticons/v1/(\d+)/1\.0"[^>]+alt="([^"]+)"',
+            re.IGNORECASE
+        )
+
+        for emote_id, name in pattern.findall(html):
+            out[name] = f"https://static-cdn.jtvnw.net/emoticons/v1/{emote_id}/1.0"
+
+        return out
+
+    except Exception:
+        return {}
+
+
+# =========================
 # Twitch Channel
 # =========================
 
