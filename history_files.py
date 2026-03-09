@@ -27,14 +27,20 @@ async def history_files_callback(update, context: ContextTypes.DEFAULT_TYPE):
     except ValueError:
         return
 
-    cached = db.get_cache_by_id(cache_id)
-    if not cached:
+    cached_row = db.get_cache_by_id(cache_id)
+    if not cached_row:
         await q.message.reply_text("Запрос не найден.")
         return
 
+    vod_id = cached_row.get("vod_id")
+    fmt = cached_row.get("fmt")
+
+    cached = db.get_cache(vod_id, fmt)
+    if not cached:
+        await q.message.reply_text("Файлы не найдены.")
+        return
+
     hist = cached
-    vod_id = cached.get("vod_id")
-    fmt = cached.get("fmt")
 
     meta_raw = cached.get("meta") if cached else None
     stats_raw = cached.get("stats") if cached else None
