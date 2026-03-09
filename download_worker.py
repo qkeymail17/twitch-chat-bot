@@ -77,8 +77,9 @@ async def download_and_send(
                 chat_rows.append({"t": t, "user": user, "text": text})
 
                 if fmt == "html_local":
+                    cnt = token_counter
                     for tok in text.split():
-                        token_counter[tok] += 1
+                        cnt[tok] += 1
 
             now = time.monotonic()
             if (
