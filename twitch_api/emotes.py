@@ -1,5 +1,6 @@
 import base64
 from typing import Dict
+from .twitch_global_emotes import TWITCH_GLOBAL_EMOTES
 
 import aiohttp
 
@@ -120,23 +121,14 @@ async def fetch_ffz_emote_map(session: aiohttp.ClientSession, channel_name: str)
 
 
 # =========================
-# Twitch Global
+# Twitch Global (dictionary-based)
 # =========================
 
 async def fetch_twitch_global_emote_map(session: aiohttp.ClientSession) -> Dict[str, str]:
     out: Dict[str, str] = {}
-    try:
-        async with session.get("https://api.twitchemotes.com/api/v4/channels/0") as r:
-            if r.status != 200:
-                return {}
-            data = await r.json()
-
-        for e in data.get("emotes", []):
-            out[e["code"]] = f"https://static-cdn.jtvnw.net/emoticons/v2/{e['id']}/default/dark/1.0"
-
-        return out
-    except Exception:
-        return {}
+    for name, eid in TWITCH_GLOBAL_EMOTES.items():
+        out[name] = f"https://static-cdn.jtvnw.net/emoticons/v2/{eid}/default/dark/1.0"
+    return out
 
 
 # =========================
@@ -144,21 +136,7 @@ async def fetch_twitch_global_emote_map(session: aiohttp.ClientSession) -> Dict[
 # =========================
 
 async def fetch_twitch_channel_emote_map(session: aiohttp.ClientSession, channel_id: str) -> Dict[str, str]:
-    out: Dict[str, str] = {}
-    if not channel_id:
-        return out
-    try:
-        async with session.get(f"https://api.twitchemotes.com/api/v4/channels/{channel_id}") as r:
-            if r.status != 200:
-                return {}
-            data = await r.json()
-
-        for e in data.get("emotes", []):
-            out[e["code"]] = f"https://static-cdn.jtvnw.net/emoticons/v2/{e['id']}/default/dark/1.0"
-
-        return out
-    except Exception:
-        return {}
+    return {}
 
 
 # =========================
