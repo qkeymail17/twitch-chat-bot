@@ -88,7 +88,18 @@ async def history_files_callback(update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # Сначала отправляем файлы
-    await send_cached_files(context, q.message.chat_id, cached["files"])
+    files = cached.get("files")
+    if isinstance(files, str):
+        try:
+            files = json.loads(files)
+        except Exception:
+            files = None
+
+    if not files:
+        await q.message.reply_text("Файлы не найдены.")
+        return
+
+    await send_cached_files(context, q.message.chat_id, files)
 
     # Потом карточку
     cards, _ = build_history_page([item], page=0, per_page=1)
