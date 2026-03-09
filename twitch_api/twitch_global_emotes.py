@@ -1,6 +1,6 @@
 TWITCH_GLOBAL_EMOTES = {
     "Kappa": "25",
-    "PogChamp": "88",
+    "PogChamp": "305954156",
     "LUL": "425618",
     "BibleThump": "86",
     "ResidentSleeper": "245",
