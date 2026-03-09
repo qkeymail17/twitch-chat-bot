@@ -1,3 +1,4 @@
+print("WORKER_HTML_LOADED")
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 from collections import Counter
