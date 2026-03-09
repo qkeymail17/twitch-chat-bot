@@ -14,11 +14,14 @@ def _format_button(it: dict, idx: int):
             return InlineKeyboardButton(CHAT_GENERIC, url=url)
 
     if fmt == "html_local":
-        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        cache_id = it.get("id")
+        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{cache_id}")
     if fmt == "txt":
-        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        cache_id = it.get("id")
+        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{cache_id}")
     if fmt == "csv":
-        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        cache_id = it.get("id")
+        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{cache_id}")
 
     return InlineKeyboardButton(FILES, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 

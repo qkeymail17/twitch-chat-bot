@@ -22,7 +22,23 @@ async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return await history_vod_callback(update, context)
 
     if data.startswith(CB_HIST_FILES_PREFIX):
-        return  # обрабатывается в другом месте
+        await q.answer()
+
+        import database as db
+        from ui import CB_HIST_FILES_PREFIX
+        from history_files import send_cached_files
+
+        try:
+            cache_id = int(data[len(CB_HIST_FILES_PREFIX):])
+        except Exception:
+            return
+
+        await send_cached_files(
+            chat_id=q.message.chat_id,
+            context=context,
+            cache_id=cache_id,
+        )
+        return
 
     if data.startswith(CB_HIST_PAGE):
         return await history_page_callback(update, context)
