@@ -182,6 +182,9 @@ async def fetch_twitch_channel_emote_map(
     except Exception:
         return {}
 
+    if not sets:
+        return {}
+
     emotes = {}
     for s in sets:
         for e in s.get("emotes", []):
