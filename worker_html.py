@@ -12,7 +12,7 @@ from twitch_api import (
     fetch_twitch_channel_emote_map,
     download_as_data_uri,
 )
-import logging
+
 
 async def build_html_result(
     context,
@@ -26,7 +26,6 @@ async def build_html_result(
     chat_rows: List[Dict],
     token_counter: Counter,
 ):
-    logging.warning(f"CHANNEL_ID DEBUG: {meta.channel_id} ({type(meta.channel_id)})")
     sent_files: List[Dict[str, str]] = []
     public_html_url: Optional[str] = None
     local_emotes = {}
