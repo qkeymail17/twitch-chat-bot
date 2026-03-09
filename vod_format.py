@@ -14,7 +14,7 @@ from ui_history import build_history_page
 
 
 # ===== UI CONSTANTS =====
-BTN_CHAT_HTML = "🌐 Чат HTML ссылка"
+BTN_CHAT_HTML = "📖 Чат"
 BTN_VOD_LINK = "🔗 Ссылка VOD"
 
 
