@@ -7,10 +7,10 @@
 from typing import Optional
 
 # Кнопки / лейблы
-CHAT_HTML_LINK = "🌐 Чат HTML ссылка"
-CHAT_HTML_FILE = "📄 Чат HTML файл"
-CHAT_TXT_FILE = "📝 Чат TXT файл"
-CHAT_CSV_FILE = "📊 Чат CSV файл"
+CHAT_HTML_LINK = "🌐 HTML ссылка"
+CHAT_HTML_FILE = "📄 HTML файл"
+CHAT_TXT_FILE = "📝 TXT файл"
+CHAT_CSV_FILE = "📊 CSV файл"
 CHAT_GENERIC = "📖 Чат"           # общий вариант, если нужно
 FILES = "📁 Файлы"
 VOD_LINK = "🔗 Ссылка VOD"
