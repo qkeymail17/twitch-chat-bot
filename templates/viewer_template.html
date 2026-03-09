@@ -276,8 +276,9 @@ function renderTextWithEmotes(el,text,emotes){
 const parts=String(text||"").split(/(\s+)/);
 
 for(const p of parts){
+const clean = p.replace(/[\u200B-\u200D\uFEFF]/g, '');
 
-if(LOCAL_EMOTES[p]){
+if(LOCAL_EMOTES[clean]){
   const img=document.createElement("img");
   img.src=LOCAL_EMOTES[p];
   img.alt=p;
@@ -285,7 +286,7 @@ if(LOCAL_EMOTES[p]){
   img.className="emote";
   el.appendChild(img);
 }
-else if(CDN_EMOTES[p]){
+else if(CDN_EMOTES[clean]){
   const img=document.createElement("img");
   img.src=CDN_EMOTES[p];
   img.alt=p;
@@ -293,7 +294,7 @@ else if(CDN_EMOTES[p]){
   img.className="emote";
   el.appendChild(img);
 }
-else if(emotes.has(p)){
+else if(emotes.has(clean)){
   const img=document.createElement("img");
   img.src=emotes.get(p);
   img.alt=p;
