@@ -22,7 +22,7 @@ async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return await history_vod_callback(update, context)
 
     if data.startswith(CB_HIST_FILES_PREFIX):
-        return  # обрабатывается в history_files_callback
+        return  # обрабатывается в другом месте
 
     if data.startswith(CB_HIST_PAGE):
         return await history_page_callback(update, context)

@@ -113,7 +113,7 @@ def get_cache_by_id(cache_id: int):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute("SELECT * FROM vod_cache WHERE id = ?", (cache_id,))
+    cur.execute("SELECT * FROM cache WHERE id = ?", (cache_id,))
     row = cur.fetchone()
     conn.close()
     return dict(row) if row else None
