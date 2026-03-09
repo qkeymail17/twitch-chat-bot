@@ -25,12 +25,11 @@ def build_progress_text(meta: dict, vod_url: str, fmt: str, messages: int, uniqu
 
 def about_text() -> str:
     return (
-        "— Самый функциональный формат — 🌐 HTML\n"
+        "— Лучший формат — 🌐 HTML\n"
         "— Форматы TXT и CSV добавлены для галочки.\n\n"
         "🍏 Важно для iPhone:\n"
         "📄 HTML файл (который скачивается документом) не открывается в iOS. (насколько я понял)\n"
         "Используй вариант 🌐 HTML ссылка — он работает восхитительно.\n\n"
-        "\n"
         "Как пользоваться:\n\n"
         "Отправь ссылку на VOD\n"
         "<code>https://www.twitch.tv/videos/0123456789</code>\n"
