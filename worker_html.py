@@ -76,6 +76,7 @@ async def build_html_result(
     if fmt == "html_online":
         for name in targets:
             cdn_emotes[name] = combined_map[name]
+            print("EMOTE:", name)
 
     html_text = render_viewer_html(
         chat_rows=chat_rows,
