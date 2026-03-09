@@ -135,36 +135,65 @@ async def fetch_twitch_global_emote_map(session: aiohttp.ClientSession) -> Dict[
 # Twitch Channel (Subscriber via twitchemotes)
 # =========================
 
-async def fetch_twitch_channel_emote_map(session: aiohttp.ClientSession, channel_id: str) -> Dict[str, str]:
-    """Twitch subscriber emotes (unofficial via twitchemotes.com)"""
+async def fetch_twitch_channel_emote_map(
+    session: aiohttp.ClientSession,
+    channel_id: str,
+) -> Dict[str, str]:
+    """Fetch Twitch subscriber emotes via public GraphQL: name -> URL"""
     if not channel_id:
         return {}
 
-    out: Dict[str, str] = {}
+    url = "https://gql.twitch.tv/gql"
+
+    headers = {
+        "Client-ID": "kimne78kx3ncx6brgo4mv6wki5h1ko",  # публичный web client
+        "Content-Type": "application/json",
+    }
+
+    payload = [{
+        "operationName": "ChannelEmotes",
+        "variables": {"channelID": channel_id},
+        "query": """
+        query ChannelEmotes($channelID: ID!) {
+          channel(id: $channelID) {
+            localEmoteSets {
+              emotes {
+                id
+                token
+              }
+            }
+          }
+        }
+        """
+    }]
 
     try:
-        url = f"https://twitchemotes.com/channels/{channel_id}"
-        async with session.get(url) as r:
-            if r.status != 200:
+        async with session.post(url, headers=headers, json=payload, timeout=10) as resp:
+            if resp.status != 200:
+                logging.warning(f"Twitch channel emotes HTTP {resp.status}")
                 return {}
-            html = await r.text()
+            data = await resp.json()
+    except Exception as e:
+        logging.warning(f"Twitch channel emotes error: {e}")
+        return {}
 
-        # Ищем все вхождения вида:
-        # <img src="https://static-cdn.jtvnw.net/emoticons/v1/EMOTE_ID/1.0" ... alt="EMOTE_NAME">
-        import re
-
-        pattern = re.compile(
-            r'<img[^>]+src="https://static-cdn\.jtvnw\.net/emoticons/v1/(\d+)/1\.0"[^>]+alt="([^"]+)"',
-            re.IGNORECASE
-        )
-
-        for emote_id, name in pattern.findall(html):
-            out[name] = f"https://static-cdn.jtvnw.net/emoticons/v1/{emote_id}/1.0"
-
-        return out
-
+    try:
+        sets = data[0]["data"]["channel"]["localEmoteSets"]
     except Exception:
         return {}
+
+    emotes = {}
+    for s in sets:
+        for e in s.get("emotes", []):
+            name = e.get("token")
+            emote_id = e.get("id")
+            if name and emote_id:
+                emotes[name] = (
+                    f"https://static-cdn.jtvnw.net/emoticons/v2/"
+                    f"{emote_id}/default/dark/3.0"
+                )
+
+    return emotes
 
 
 # =========================
