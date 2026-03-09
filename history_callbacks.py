@@ -22,24 +22,7 @@ async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return await history_vod_callback(update, context)
 
     if data.startswith(CB_HIST_FILES_PREFIX):
-        await q.answer()
-
-        import database as db
-        from ui import CB_HIST_FILES_PREFIX
-        from history_files import send_cached_files
-
-        try:
-            cache_id = int(data[len(CB_HIST_FILES_PREFIX):])
-        except Exception:
-            return
-
-        files = db.get_files_by_cache_id(cache_id)
-        if not files:
-            await q.message.reply_text("Файлы не найдены.")
-            return
-
-        await send_cached_files(context, q.message.chat_id, files)
-        return
+        return  # обрабатывается в history_files_callback
 
     if data.startswith(CB_HIST_PAGE):
         return await history_page_callback(update, context)
