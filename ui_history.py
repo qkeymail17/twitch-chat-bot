@@ -10,14 +10,14 @@ def _format_button(it: dict, idx: int):
     if fmt == "html_online":
         url = it.get("html_url")
         if url:
-            return InlineKeyboardButton("🌐 Чат", url=url)
+            return InlineKeyboardButton("📖 Чат", url=url)
 
     if fmt == "html_local":
-        return InlineKeyboardButton("📄 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("📖 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "txt":
-        return InlineKeyboardButton("📝 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("📖 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "csv":
-        return InlineKeyboardButton("📊 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton("📖 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
     return InlineKeyboardButton("📁 Файлы", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
