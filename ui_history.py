@@ -23,7 +23,8 @@ def _format_button(it: dict, idx: int):
         cache_id = it.get("id")
         return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{cache_id}")
 
-    return InlineKeyboardButton(FILES, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+    cache_id = it.get("id")
+    return InlineKeyboardButton(FILES, callback_data=f"{CB_HIST_FILES_PREFIX}{cache_id}")
 
 
 def _fmt_date_ru(dt: str) -> str:
