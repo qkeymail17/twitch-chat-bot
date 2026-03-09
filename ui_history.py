@@ -2,6 +2,7 @@ import html
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from ui_constants import *
 from ui_formatters import _fmt_dt_utc, _fmt_len
+from ui_labels import CHAT_GENERIC, FILES, VOD_LINK, label_for_fmt
 
 
 def _format_button(it: dict, idx: int):
@@ -10,16 +11,16 @@ def _format_button(it: dict, idx: int):
     if fmt == "html_online":
         url = it.get("html_url")
         if url:
-            return InlineKeyboardButton("📖 Чат", url=url)
+            return InlineKeyboardButton(CHAT_GENERIC, url=url)
 
     if fmt == "html_local":
-        return InlineKeyboardButton("📖 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "txt":
-        return InlineKeyboardButton("📖 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
     if fmt == "csv":
-        return InlineKeyboardButton("📖 Чат", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
-    return InlineKeyboardButton("📁 Файлы", callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+    return InlineKeyboardButton(FILES, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 
 
 def _fmt_date_ru(dt: str) -> str:
@@ -61,14 +62,7 @@ def build_history_page(items: list[dict], page: int, per_page: int):
         users = it.get("unique_users") or 0
         fmt = it.get("fmt") or "—"
 
-        fmt_map = {
-            "html_online": "🌐 HTML ссылка",
-            "html_local": "📄 HTML файл",
-            "txt": "📝 TXT файл",
-            "csv": "📊 CSV файл",
-        }
-
-        fmt_text = fmt_map.get(fmt, "📁 Файлы")
+        fmt_text = label_for_fmt(fmt)
 
         text = (
             f"🟣 {channel}\n"
@@ -84,7 +78,7 @@ def build_history_page(items: list[dict], page: int, per_page: int):
             buttons.append(main_btn)
 
         buttons.append(
-            InlineKeyboardButton("🔗 Ссылка VOD", callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
+            InlineKeyboardButton(VOD_LINK, callback_data=f"{CB_HIST_VOD_PREFIX}{idx}")
         )
 
         kb = InlineKeyboardMarkup([buttons])

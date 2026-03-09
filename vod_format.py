@@ -11,11 +11,7 @@ from handlers_state import (
 )
 from handlers_history import send_cached_files
 from ui_history import build_history_page
-
-
-# ===== UI CONSTANTS =====
-BTN_CHAT_HTML = "📖 Чат"
-BTN_VOD_LINK = "🔗 Ссылка VOD"
+from ui_labels import CHAT_GENERIC, VOD_LINK
 
 
 def _make_item(meta, stats, vod_url, fmt):
@@ -46,8 +42,8 @@ async def _edit_progress_message_with_card(context, chat_id: int, message_id: in
     fmt = item.get("fmt")
 
     if fmt == "html_online":
-        html_btn = InlineKeyboardButton(BTN_CHAT_HTML, url=html_url) if html_url else None
-        vod_btn = InlineKeyboardButton(BTN_VOD_LINK, url=item.get("vod_url"))
+        html_btn = InlineKeyboardButton(CHAT_GENERIC, url=html_url) if html_url else None
+        vod_btn = InlineKeyboardButton(VOD_LINK, url=item.get("vod_url"))
         row = []
         if html_btn:
             row.append(html_btn)

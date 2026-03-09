@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 import database as db
 import json
 from ui_history import build_history_page
+from ui_labels import CHAT_GENERIC
 
 
 async def send_cached_files(context, chat_id: int, files: list[dict]):
@@ -66,7 +67,7 @@ async def history_files_callback(update, context: ContextTypes.DEFAULT_TYPE):
         cards, _ = build_history_page([item], page=0, per_page=1)
         text, kb = cards[0]
 
-        extra_rows = [[InlineKeyboardButton("📖 Чат", url=html_url)]]
+        extra_rows = [[InlineKeyboardButton(CHAT_GENERIC, url=html_url)]]
         merged = (kb.inline_keyboard if kb else []) + extra_rows
         kb_final = InlineKeyboardMarkup(merged)
 
@@ -93,7 +94,7 @@ async def history_files_callback(update, context: ContextTypes.DEFAULT_TYPE):
     html_url = item.get("html_url")
     extra_rows = []
     if html_url:
-        extra_rows.append([InlineKeyboardButton("📖 Чат", url=html_url)])
+        extra_rows.append([InlineKeyboardButton(CHAT_GENERIC, url=html_url)])
 
     merged = (kb.inline_keyboard if kb else []) + extra_rows
     kb_final = InlineKeyboardMarkup(merged) if merged else None
