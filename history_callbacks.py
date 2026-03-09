@@ -14,7 +14,7 @@ async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     from history_view import _send_history_cards
 
     if data == CB_UI_HISTORY:
-        items = db.get_history_for_user(user_id, limit=50, offset=0)
+        items = db.get_history_for_user(user_id, limit=10, offset=0)
         await _send_history_cards(chat_id=q.message.chat_id, context=context, items=items, page=0)
         return
 
@@ -41,7 +41,7 @@ async def history_vod_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     except Exception:
         return
 
-    items = db.get_history_for_user(update.effective_user.id, limit=50, offset=0)
+    items = db.get_history_for_user(update.effective_user.id, limit=10, offset=0)
     if idx < 0 or idx >= len(items):
         try:
             await q.message.reply_text("Запрос не найден.")
@@ -78,7 +78,7 @@ async def history_page_callback(update: Update, context: ContextTypes.DEFAULT_TY
     # build_history_page может быть в ui — импорт локально
     from ui import build_history_page
 
-    items = db.get_history_for_user(update.effective_user.id, limit=50, offset=0)
+    items = db.get_history_for_user(update.effective_user.id, limit=10, offset=0)
     cards, nav_kb = build_history_page(items, page=page, per_page=1)
 
     if not cards:
