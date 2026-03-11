@@ -327,6 +327,7 @@ const clean = p
 if(LOCAL_EMOTES[clean]){
   const img=document.createElement("img");
   img.src=LOCAL_EMOTES[clean];
+  img.crossOrigin="anonymous";
   img.alt=p;
   img.title=p;
   img.className="emote";
@@ -335,6 +336,7 @@ if(LOCAL_EMOTES[clean]){
 else if(CDN_EMOTES[clean]){
   const img=document.createElement("img");
   img.src=CDN_EMOTES[clean];
+  img.crossOrigin="anonymous";
   img.alt=p;
   img.title=p;
   img.className="emote";
@@ -343,6 +345,7 @@ else if(CDN_EMOTES[clean]){
 else if(emotes.has(clean)){
   const img=document.createElement("img");
   img.src=emotes.get(clean);
+  img.crossOrigin="anonymous";
   img.alt=p;
   img.title=p;
   img.className="emote";
@@ -560,7 +563,13 @@ wrap.appendChild(clone);
 document.body.appendChild(wrap);
 
 await new Promise(r=>setTimeout(r,50));
-const canvas=await html2canvas(wrap,{backgroundColor:null});
+await waitImages(wrap);
+const canvas=await html2canvas(wrap,{
+  backgroundColor:null,
+  useCORS:true,
+  allowTaint:false,
+  scale:2
+});
 document.body.removeChild(wrap);
 
 const url = canvas.toDataURL("image/png");
@@ -598,6 +607,16 @@ const cb=r.querySelector(".selbox");
 if(cb) cb.checked=false;
 });
 });
+
+async function waitImages(root){
+  const imgs=[...root.querySelectorAll("img")];
+  await Promise.all(imgs.map(img=>{
+    if(img.complete) return Promise.resolve();
+    return new Promise(res=>{
+      img.onload=img.onerror=res;
+    });
+  }));
+}
 
 applyFilters();
 
