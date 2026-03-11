@@ -26,12 +26,16 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
 .page{width:100%;display:flex;justify-content:center;padding:16px}
-.chat{width:100%;max-width:390px;margin:0 auto;}
+.chat{
+  width:100%;
+  max-width:none;
+  margin:0;
+}
 
 /* header / controls (mobile first) */
 header{
   width:100%;
-  max-width:390px;
+  max-width:none;
   background:#18181b;
   border-bottom:1px solid var(--border);
   padding:12px;
@@ -63,6 +67,8 @@ header{
 #list{
   width:100%;
   max-width:390px;
+  margin-left:auto;
+  margin-right:auto;
   background:#1f1f23;
   min-height:100vh;
   padding-bottom:40px;
