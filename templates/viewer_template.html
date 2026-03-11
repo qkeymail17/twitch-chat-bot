@@ -27,8 +27,15 @@ margin:0;
 background:#0e0e10;
 color:var(--text);
 font-family:var(--sans);
+}
+
+.page{
 display:flex;
 justify-content:center;
+}
+.chat{
+width:100%;
+max-width:390px;
 }
 
 header{
@@ -173,6 +180,8 @@ vertical-align:middle;
 </head>
 
 <body>
+<div class="page">
+<div class="chat">
 
 <header>
 <div class="meta">
@@ -667,5 +676,7 @@ applyFilters();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</div>
+</div>
 </body>
 </html>
