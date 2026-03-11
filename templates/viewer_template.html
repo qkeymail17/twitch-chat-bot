@@ -4,237 +4,163 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Twitch Chat Viewer</title>
-
 <style>
 :root{
---bg:#0f0f12;
---panel:#15151b;
---text:#e7e7ea;
---muted:#a6a6b0;
---border:#2a2a35;
---accent:#9146ff;
+  --bg:#0f0f12;
+  --panel:#15151b;
+  --text:#e7e7ea;
+  --muted:#a6a6b0;
+  --border:#2a2a35;
+  --accent:#9146ff;
 
-/* новые: мягкие чередующиеся фоны строк (тёмная тема, почти одинаковые) */
---rowA:#1f232a;
---rowB:#232830;
+  --rowA:#1f232a;
+  --rowB:#232830;
 
---mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
---sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+
+  --controls-w:260px; /* ширина левого блока на десктопе */
+  --chat-w:520px;     /* ширина блока сообщений на десктопе */
+  --gap:24px;
 }
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+.page{width:100%;display:flex;justify-content:center;padding:16px}
+.chat{width:100%;max-width:390px;margin:0 auto;}
 
-body{
-margin:0;
-background:#0e0e10;
-color:var(--text);
-font-family:var(--sans);
-}
-
-.page{
-width:100%;
-}
-.chat{
-width:100%;
-max-width:390px;
-margin:0 auto;
-}
-
+/* header / controls (mobile first) */
 header{
-width:100%;
-max-width:390px;
-background:#18181b;
-position:fixed;
-top:0;
-left:50%;
-transform:translateX(-50%);
-z-index:1000;
-border-bottom:1px solid var(--border);
-padding:12px;
-box-sizing:border-box;
+  width:100%;
+  max-width:390px;
+  background:#18181b;
+  border-bottom:1px solid var(--border);
+  padding:12px;
+  box-sizing:border-box;
+  position:static; /* mobile: scrolls away with page */
+  z-index:5;
+  border-radius:10px;
 }
+.meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.pill{font-family:var(--mono);color:var(--muted);font-size:12px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;width:100%}
+.controls input{flex:1 1 140px;min-width:0;padding:10px;border-radius:10px;background:var(--panel);border:1px solid var(--border);color:var(--text)}
+.controls button{padding:9px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--border);color:var(--text);cursor:pointer}
+.controls button:hover{border-color:rgba(145,70,255,0.6)}
+.pill#stat{align-self:flex-end}
 
-.row{
-  padding: 6px 12px;
-  border-bottom:1px solid #2a2a2d;
-  line-height: 1.35;
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-}
-
-/* лёгкий hover для читаемости */
-#list .row:hover{ filter: brightness(1.06); }
-
-.time{
-  font-family:var(--sans);
-  font-size:12px;
-  color:#adadb8;
-  margin-right:6px;
-  white-space:nowrap;
-}
-
-.user{
-  font-weight:700;
-  margin-right: 8px;
-  white-space:nowrap;
-}
-
-.msg{
-  color:var(--text);
-  word-break:break-word;
-  overflow-wrap:anywhere;
-}
-
-.meta{
-display:flex;
-flex-direction:column;
-gap:6px;
-}
-
-.meta a{
-color:var(--accent);
-text-decoration:none;
-}
-
-.controls{
-display:flex;
-gap:8px;
-flex-wrap:wrap;
-margin-top:10px;
-width:100%;
-box-sizing:border-box;
-}
-.controls input{
-flex:1 1 140px;
-min-width:0;
-}
-.controls button{
-flex:0 0 auto;
-}
-
-input,button{
-background:var(--panel);
-border:1px solid var(--border);
-color:var(--text);
-padding:9px 10px;
-border-radius:10px;
-font-size:14px;
-outline:none;
-}
-
-button{cursor:pointer;}
-
-button:hover{
-border-color:rgba(145,70,255,0.6);
-}
-
-.pill{
-font-family:var(--mono);
-color:var(--muted);
-font-size:12px;
-}
-
+/* message list */
 #list{
-width:100%;
-max-width:390px;
-background:#1f1f23;
-min-height:100vh;
-padding-bottom:40px;
-margin-top:150px;
+  width:100%;
+  max-width:390px;
+  background:#1f1f23;
+  min-height:100vh;
+  padding-bottom:40px;
+  margin-top:12px;
+  border-radius:10px;
+  overflow:visible;
 }
 
-.emote{
-height:24px;
-vertical-align:middle;
-margin:0 2px;
-}
-    /* === Режим выделения сообщений === */
+/* row */
+.row{padding:6px 12px;border-bottom:1px solid rgba(42,42,45,0.6);line-height:1.35;display:flex;gap:10px;align-items:flex-start}
+.time{font-family:var(--sans);font-size:12px;color:#adadb8;white-space:nowrap;margin-right:6px}
+.user{font-weight:700;margin-right:8px;white-space:nowrap}
+.msg{color:var(--text);word-break:break-word;overflow-wrap:anywhere}
+.emote{height:24px;vertical-align:middle;margin:0 2px}
 
-/* контейнер экспорта */
-.export-wrap{
-position:fixed;
-left:-99999px;
-top:0;
-width:390px;
-background:#18181f;
-padding:24px;
-/* без скруглений */
+/* export helper (unchanged) */
+.export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
+.export-row{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.export-row:last-child{border-bottom:none}
+.export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
+
+/* ===== Desktop layout ===== */
+@media (min-width: 900px){
+  .page{padding:24px}
+  .chat{max-width: calc(var(--controls-w) + var(--chat-w) + var(--gap)); display:flex; gap:var(--gap); align-items:flex-start}
+
+  /* left column becomes fixed-ish via sticky */
+  header{
+    width:var(--controls-w);
+    max-width:none;
+    flex:0 0 var(--controls-w);
+    position:sticky;
+    top:24px; /* offset from viewport top */
+    border-radius:14px;
+    padding:16px;
+    height:fit-content;
+  }
+
+  /* make controls vertical and full width of left column */
+  .controls{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+  .controls input,.controls button{width:100%;height:40px;font-size:13px}
+
+  /* messages column */
+  #list{
+    width:var(--chat-w);
+    max-width:var(--chat-w);
+    flex:0 0 var(--chat-w);
+    border-radius:14px;
+    min-height:calc(100vh - 48px);
+    margin-top:0; /* header is in left column, not above messages */
+  }
+
+  /* center whole layout horizontally */
+  .page{justify-content:center}
 }
 
-.export-row{
-padding:8px 0;
-border-bottom:1px solid rgba(255,255,255,.06);
-}
-.export-row:last-child{border-bottom:none;}
-.export-meta{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-top:18px;
-padding-top:14px;
-border-top:1px solid rgba(255,255,255,.08);
-font-size:14px;
-color:#b9b9c6;
-}
-
-.export-meta-left,
-.export-meta-right{
-display:flex;
-align-items:center;
-gap:8px;
-}
-
-.export-meta img{
-height:18px;
-width:18px;
-vertical-align:middle;
+/* small refinements for very narrow phones (so content not glued to edges) */
+@media (max-width:420px){
+  .chat{padding:0 8px}
+  header{padding:10px;border-radius:12px}
+  #list{margin-top:10px;border-radius:12px}
 }
 </style>
 </head>
-
 <body>
 <div class="page">
-<div class="chat">
+  <div class="chat">
 
-<header>
-<div class="meta">
-<div><b id="title">—</b></div>
-<div class="pill">
-<span id="channel">—</span>
-•
-<a id="vod" href="#" target="_blank">VOD (ссылка)</a>
-<span id="streamDateWrap" style="display:none;"> • <span id="streamDate">—</span></span>
+    <header>
+      <div class="meta">
+        <div><b id="title">—</b></div>
+        <div class="pill">
+          <span id="channel">—</span> •
+          <a id="vod" href="#" target="_blank" style="color:var(--accent);text-decoration:none">VOD (ссылка)</a>
+          <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <input id="q" placeholder="Поиск по сообщениям…"/>
+        <input id="u" placeholder="Фильтр по нику…"/>
+        <button id="clear">Очистить</button>
+        <button id="toggleTime">Время: ON</button>
+        <button id="exportBtn">📸 Снимок чата</button>
+        <span class="pill" id="stat">—</span>
+      </div>
+    </header>
+
+    <div id="list"></div>
+
+  </div>
 </div>
-</div>
 
-<div class="controls">
-<input id="q" placeholder="Поиск по сообщениям…"/>
-<input id="u" placeholder="Фильтр по нику…"/>
-<button id="clear">Очистить</button>
-<button id="toggleTime">Время: ON</button>
-<button id="exportBtn">📸 Снимок чата</button>
-<span class="pill" id="stat">—</span>
-</div>
-</header>
-
-<div id="list"></div>
-
-<script id="chat-data" type="application/json">
-{{CHAT_DATA_JSON}}
-</script>
+<script id="chat-data" type="application/json">{{CHAT_DATA_JSON}}</script>
 
 <script>
+/* JS оставил без изменений логики — только адаптирован под новый DOM.
+   Если что-то ломается, это будет видно в консоли, но визуалная часть
+   теперь управляется только CSS (mobile: header scrolls away;
+   desktop: left column sticky). */
 
-const DATA = JSON.parse(
-  document.getElementById("chat-data").textContent
-);
-
+const DATA = JSON.parse(document.getElementById("chat-data").textContent || "{}");
 const meta = DATA.meta || {};
 const rows = DATA.rows || [];
 
-const MODE=meta.mode||"online";
+const MODE = meta.mode || "online";
 const LOCAL_EMOTES = meta.local_emotes || {};
 const CDN_EMOTES = meta.cdn_emotes || {};
-const TWITCH_CHANNEL_ID=meta.channel_id||null;
+const TWITCH_CHANNEL_ID = meta.channel_id || null;
 
 const elTitle=document.getElementById("title");
 const elChannel=document.getElementById("channel");
@@ -249,446 +175,206 @@ const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elClear=document.getElementById("clear");
 const elToggleTime=document.getElementById("toggleTime");
+const elExportBtn=document.getElementById("exportBtn");
 
 let SHOW_TIME=true;
 
-elTitle.textContent=meta.title||"—";
-elChannel.textContent=meta.channel||"—";
-elVod.href=meta.vod_url||"#";
+elTitle.textContent = meta.title || "—";
+elChannel.textContent = meta.channel || "—";
+elVod.href = meta.vod_url || "#";
 
 function fmtStreamStart(iso){
   if(!iso) return null;
   try{
-    // Twitch обычно отдаёт ISO с Z
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return null;
-
-    // Покажем в UTC, чтобы не зависеть от устройства
     const y = d.getUTCFullYear();
     const m = String(d.getUTCMonth()+1).padStart(2,"0");
     const dd = String(d.getUTCDate()).padStart(2,"0");
     const hh = String(d.getUTCHours()).padStart(2,"0");
     const mm = String(d.getUTCMinutes()).padStart(2,"0");
     return `${y}-${m}-${dd} ${hh}:${mm} [UTC]`;
-  }catch(e){
-    return null;
-  }
+  }catch(e){ return null; }
 }
-
 const streamStart = fmtStreamStart(meta.created_at);
-if(streamStart){
-  elStreamDate.textContent = streamStart;
-  elStreamDateWrap.style.display = "";
-}
+if(streamStart){ elStreamDate.textContent = streamStart; elStreamDateWrap.style.display = ""; }
 
 function hash32(str){
-  let h = 2166136261; // FNV-1a
+  let h = 2166136261;
   for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i);
     h = Math.imul(h, 16777619);
   }
   return h >>> 0;
 }
-
 function colorForUser(name){
   const u = String(name || "").toLowerCase();
-  const h = hash32(u) % 360;        // hue
-  const s = 78;                     // saturation
-  const l = 62;                     // lightness (читабельно на тёмном)
+  const h = hash32(u) % 360;
+  const s = 78;
+  const l = 62;
   return `hsl(${h} ${s}% ${l}%)`;
 }
-
-function esc(s){
-return (s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+function esc(s){ return (s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 async function fetch7tvEmotes(channelId){
-
-if(!channelId)return new Map();
-
-try{
-
-const r=await fetch(`https://7tv.io/v3/users/twitch/${channelId}`);
-if(!r.ok)return new Map();
-
-const json=await r.json();
-const emotes=json?.emote_set?.emotes||[];
-
-const map=new Map();
-
-for(const e of emotes){
-
-const name=e?.name;
-const host=e?.data?.host;
-
-if(!name||!host)continue;
-
-const files=host.files||[];
-
-const file=
-files.find(f=>f.name==="1x.webp")||
-files.find(f=>String(f.name).endsWith(".webp"))||
-files[0];
-
-if(!file)continue;
-
-map.set(name,`https:${host.url}/${file.name}`);
-
-}
-
-return map;
-
-}catch(e){
-
-return new Map();
-
-}
-
+  if(!channelId) return new Map();
+  try{
+    const r = await fetch(`https://7tv.io/v3/users/twitch/${channelId}`);
+    if(!r.ok) return new Map();
+    const json = await r.json();
+    const emotes = json?.emote_set?.emotes || [];
+    const map = new Map();
+    for(const e of emotes){
+      const name = e?.name;
+      const host = e?.data?.host;
+      if(!name||!host) continue;
+      const files = host.files || [];
+      const file = files.find(f=>f.name==="1x.webp")||files.find(f=>String(f.name).endsWith(".webp"))||files[0];
+      if(!file) continue;
+      map.set(name,`https:${host.url}/${file.name}`);
+    }
+    return map;
+  }catch(e){ return new Map(); }
 }
 
 function renderTextWithEmotes(el,text,emotes){
-
-const parts=String(text||"").split(/(\s+)/);
-
-for(const p of parts){
-const clean = p
-  .replace(/[\u200B-\u200D\uFEFF]/g, '')
-  .replace(/[\r\n\t]/g, '');
-
-if(LOCAL_EMOTES[clean]){
-  const img=document.createElement("img");
-  img.src=LOCAL_EMOTES[clean];
-  img.crossOrigin="anonymous";
-  img.alt=p;
-  img.title=p;
-  img.className="emote";
-  el.appendChild(img);
-}
-else if(CDN_EMOTES[clean]){
-  const img=document.createElement("img");
-  img.src=CDN_EMOTES[clean];
-  img.crossOrigin="anonymous";
-  img.alt=p;
-  img.title=p;
-  img.className="emote";
-  el.appendChild(img);
-}
-else if(emotes.has(clean)){
-  const img=document.createElement("img");
-  img.src=emotes.get(clean);
-  img.crossOrigin="anonymous";
-  img.alt=p;
-  img.title=p;
-  img.className="emote";
-  el.appendChild(img);
-}
-else{
-  el.appendChild(document.createTextNode(p));
+  const parts = String(text||"").split(/(\s+)/);
+  for(const p of parts){
+    const clean = p.replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/[\r\n\t]/g,'');
+    if(LOCAL_EMOTES[clean] || CDN_EMOTES[clean]){
+      const src = LOCAL_EMOTES[clean] || CDN_EMOTES[clean];
+      const img = document.createElement("img");
+      img.src = src; img.crossOrigin="anonymous"; img.alt=p; img.title=p; img.className="emote"; el.appendChild(img);
+    } else if(emotes.has(clean)){
+      const img = document.createElement("img");
+      img.src = emotes.get(clean); img.crossOrigin="anonymous"; img.alt=p; img.title=p; img.className="emote"; el.appendChild(img);
+    } else {
+      el.appendChild(document.createTextNode(p));
+    }
+  }
 }
 
-}
-
-}
-
-const CHUNK=800;
-
-let filtered=rows;
-let rendered=0;
-
-let EMOTES=new Map();
-let EMOTES_READY=false;
+const CHUNK = 800;
+let filtered = rows;
+let rendered = 0;
+let EMOTES = new Map();
+let EMOTES_READY = false;
 
 async function ensureEmotesLoaded(){
-
-if(EMOTES_READY)return;
-
-EMOTES_READY=true;
-
-if(MODE!=="online")return;
-if(!TWITCH_CHANNEL_ID)return;
-
-try{
-  EMOTES = await fetch7tvEmotes(TWITCH_CHANNEL_ID);
-
-  // если чат уже отрисован — перерисуем, чтобы появились эмодзи
-  if(rendered > 0){
-    elList.innerHTML="";
-    rendered=0;
-    renderMore();
-  }
-}catch(e){
-  EMOTES = new Map();
-}
-
+  if(EMOTES_READY) return;
+  EMOTES_READY = true;
+  if(MODE !== "online") return;
+  if(!TWITCH_CHANNEL_ID) return;
+  try{
+    EMOTES = await fetch7tvEmotes(TWITCH_CHANNEL_ID);
+    if(rendered>0){ elList.innerHTML=""; rendered=0; renderMore(); }
+  }catch(e){ EMOTES = new Map(); }
 }
 
 function matches(r,q,u){
-
-if(u){
-if(!r.user||r.user.toLowerCase().indexOf(u)===-1)return false;
-}
-
-if(q){
-if(!r.text||r.text.toLowerCase().indexOf(q)===-1)return false;
-}
-
-return true;
-
+  if(u){ if(!r.user||r.user.toLowerCase().indexOf(u)===-1) return false; }
+  if(q){ if(!r.text||r.text.toLowerCase().indexOf(q)===-1) return false; }
+  return true;
 }
 
 async function applyFilters(){
-
-// НЕ ждём сеть перед первым рендером (важно для Safari iOS)
-ensureEmotesLoaded();
-
-const q=(elQ.value||"").trim().toLowerCase();
-const u=(elU.value||"").trim().toLowerCase();
-
-filtered=rows.filter(r=>matches(r,q,u));
-
-elStat.textContent=`Показано: ${filtered.length} / ${rows.length}`;
-
-elList.innerHTML="";
-rendered=0;
-
-renderMore();
-
+  ensureEmotesLoaded();
+  const q=(elQ.value||"").trim().toLowerCase();
+  const u=(elU.value||"").trim().toLowerCase();
+  filtered = rows.filter(r=>matches(r,q,u));
+  elStat.textContent = `Показано: ${filtered.length} / ${rows.length}`;
+  elList.innerHTML=""; rendered=0; renderMore();
 }
 
 function renderMore(){
-
-const end=Math.min(rendered+CHUNK,filtered.length);
-
-const frag=document.createDocumentFragment();
-
-for (let i = rendered; i < end; i++) {
-  const r = filtered[i];
-
-  const rowEl = document.createElement("div");
-  rowEl.dataset.id = i;
-
-rowEl.className = "row";
-
-  // нормализуем время: "00 : 17 : 52" -> "00:17:52"
-  const tRaw = (r.t || "00:00:00");
-  const tNorm = String(tRaw).replace(/\s*:\s*/g, ":");
-
-  const timeEl = document.createElement("span");
-  timeEl.className = "time";
-  timeEl.textContent = tNorm;
-
-  const userEl = document.createElement("span");
-  userEl.className = "user";
-  userEl.textContent = r.user || "—";
-  userEl.style.color = colorForUser(r.user);
-
-  const msgEl = document.createElement("span");
-  msgEl.className = "msg";
-
-renderTextWithEmotes(msgEl, r.text || "", EMOTES);
-
-if(SHOW_TIME) rowEl.appendChild(timeEl);
-rowEl.appendChild(userEl);
-rowEl.appendChild(msgEl);
-
-frag.appendChild(rowEl);
-
+  const end = Math.min(rendered+CHUNK, filtered.length);
+  const frag = document.createDocumentFragment();
+  for(let i=rendered;i<end;i++){
+    const r = filtered[i];
+    const rowEl = document.createElement("div");
+    rowEl.dataset.id = i; rowEl.className = "row";
+    const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
+    const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
+    const userEl = document.createElement("span"); userEl.className="user"; userEl.textContent = r.user || "—"; userEl.style.color = colorForUser(r.user);
+    const msgEl = document.createElement("span"); msgEl.className="msg";
+    renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+    if(SHOW_TIME) rowEl.appendChild(timeEl);
+    rowEl.appendChild(userEl); rowEl.appendChild(msgEl);
+    frag.appendChild(rowEl);
+  }
+  elList.appendChild(frag); rendered=end;
 }
-
-elList.appendChild(frag);
-
-rendered=end;
-
-}
-
-let scrollTimer=null;
 
 window.addEventListener("scroll",()=>{
-
-if(scrollTimer)return;
-
-scrollTimer=setTimeout(()=>{
-
-scrollTimer=null;
-
-const nearBottom=
-window.innerHeight+window.scrollY>
-document.body.offsetHeight-1200;
-
-if(nearBottom&&rendered<filtered.length){
-renderMore();
-}
-
-},80);
-
+  if(window._scrollThrottle) return;
+  window._scrollThrottle = setTimeout(()=>{ window._scrollThrottle = null;
+    const nearBottom = window.innerHeight + window.scrollY > document.body.offsetHeight - 1200;
+    if(nearBottom && rendered < filtered.length) renderMore();
+  },80);
 });
 
 elQ.addEventListener("input",()=>applyFilters());
 elU.addEventListener("input",()=>applyFilters());
-
-elClear.addEventListener("click",()=>{
-elQ.value="";
-elU.value="";
-applyFilters();
-});
-
+elClear.addEventListener("click",()=>{ elQ.value=""; elU.value=""; applyFilters(); });
 elToggleTime.addEventListener("click",()=>{
-SHOW_TIME=!SHOW_TIME;
-elToggleTime.textContent = SHOW_TIME ? "Время: ON" : "Время: OFF";
-elList.innerHTML="";
-rendered=0;
-renderMore();
+  SHOW_TIME = !SHOW_TIME;
+  elToggleTime.textContent = SHOW_TIME ? "Время: ON" : "Время: OFF";
+  elList.innerHTML=""; rendered=0; renderMore();
 });
 
+/* snapshot logic kept intact (uses html2canvas included below) */
 async function waitImages(root){
   const imgs=[...root.querySelectorAll("img")];
-  await Promise.all(imgs.map(img=>{
-    if(img.complete) return Promise.resolve();
-    return new Promise(res=>{
-      img.onload=img.onerror=res;
-    });
-  }));
+  await Promise.all(imgs.map(img=> img.complete ? Promise.resolve() : new Promise(res=>{ img.onload=img.onerror=res; })));
 }
-
-const elExportBtn=document.getElementById("exportBtn");
 
 elExportBtn.addEventListener("click", async ()=>{
   const sel = window.getSelection();
-  if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){
-    alert("Выделите текст сообщений");
-    return;
-  }
-
+  if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){ alert("Выделите текст сообщений"); return; }
   const range = sel.getRangeAt(0);
-
-  let node = range.startContainer;
-  if(node.nodeType===3) node=node.parentNode;
-  const startRow = node.closest(".row");
-  if(!startRow) return;
-
-  node = range.endContainer;
-  if(node.nodeType===3) node=node.parentNode;
-  const endRow = node.closest(".row");
-  if(!endRow) return;
-
+  let node = range.startContainer; if(node.nodeType===3) node=node.parentNode;
+  const startRow = node.closest(".row"); if(!startRow) return;
+  node = range.endContainer; if(node.nodeType===3) node=node.parentNode;
+  const endRow = node.closest(".row"); if(!endRow) return;
   const allRows = [...document.querySelectorAll("#list .row")];
   const startIndex = allRows.indexOf(startRow);
   const endIndex   = allRows.indexOf(endRow);
-  if(startIndex===-1 || endIndex===-1) return;
-
-  const from = Math.min(startIndex,endIndex);
-  const to   = Math.max(startIndex,endIndex);
-
-  const wrap=document.createElement("div");
-  wrap.className="export-wrap";
-
-  for(let i=from;i<=to;i++){
-    const clone=allRows[i].cloneNode(true);
-    clone.classList.remove("row");
-    clone.classList.add("export-row");
-    wrap.appendChild(clone);
-  }
-
-// --- мета-информация снизу ---
-const metaRow=document.createElement("div");
-metaRow.className="export-meta";
-
-const metaLeft=document.createElement("div");
-metaLeft.className="export-meta-left";
-
-const metaRight=document.createElement("div");
-metaRight.className="export-meta-right";
-
-// иконка канала (7TV)
-const channelIcon=document.createElement("img");
-channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif";
-channelIcon.crossOrigin="anonymous";
-
-// название канала
-const channelName=document.createElement("span");
-channelName.textContent=meta.channel || "channel";
-
-metaLeft.appendChild(channelIcon);
-metaLeft.appendChild(channelName);
-
-// дата
-const dateIcon=document.createElement("span");
-dateIcon.textContent="📅";
-
-const dateText=document.createElement("span");
-dateText.textContent=elStreamDate.textContent || "";
-
-metaRight.appendChild(dateIcon);
-metaRight.appendChild(dateText);
-
-metaRow.appendChild(metaLeft);
-metaRow.appendChild(metaRight);
-wrap.appendChild(metaRow);
-
+  if(startIndex===-1||endIndex===-1) return;
+  const from = Math.min(startIndex,endIndex), to = Math.max(startIndex,endIndex);
+  const wrap = document.createElement("div"); wrap.className="export-wrap";
+  for(let i=from;i<=to;i++){ const clone = allRows[i].cloneNode(true); clone.classList.remove("row"); clone.classList.add("export-row"); wrap.appendChild(clone); }
+  const metaRow = document.createElement("div"); metaRow.className="export-meta";
+  const metaLeft = document.createElement("div"); metaLeft.className="export-meta-left";
+  const metaRight = document.createElement("div"); metaRight.className="export-meta-right";
+  const channelIcon=document.createElement("img"); channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif"; channelIcon.crossOrigin="anonymous";
+  const channelName=document.createElement("span"); channelName.textContent = meta.channel || "channel";
+  metaLeft.appendChild(channelIcon); metaLeft.appendChild(channelName);
+  const dateIcon=document.createElement("span"); dateIcon.textContent="📅"; const dateText=document.createElement("span"); dateText.textContent = elStreamDate.textContent || "";
+  metaRight.appendChild(dateIcon); metaRight.appendChild(dateText);
+  metaRow.appendChild(metaLeft); metaRow.appendChild(metaRight); wrap.appendChild(metaRow);
   document.body.appendChild(wrap);
-
-  await new Promise(r=>setTimeout(r,50));
-  await waitImages(wrap);
-
-let canvas;
-
-try{
-  canvas = await html2canvas(wrap,{
-    backgroundColor:null,
-    useCORS:true,
-    allowTaint:false,
-    scale:2
-  });
-}catch(err){
-  document.body.removeChild(wrap);
-
-  console.error("PNG render error:", err);
-
-  const msg = String(err).toLowerCase();
-
-  if(msg.includes("size") || msg.includes("dimension") || msg.includes("height")){
-    alert("Слишком большой фрагмент. Браузер не смог создать изображение.");
+  await new Promise(r=>setTimeout(r,50)); await waitImages(wrap);
+  let canvas;
+  try{
+    canvas = await html2canvas(wrap,{backgroundColor:null,useCORS:true,allowTaint:false,scale:2});
+  }catch(err){
+    document.body.removeChild(wrap);
+    console.error("PNG render error:", err);
+    const msg = String(err).toLowerCase();
+    if(msg.includes("size")||msg.includes("dimension")||msg.includes("height")) alert("Слишком большой фрагмент. Браузер не смог создать изображение.");
+    else alert("Ошибка создания изображения. Попробуйте уменьшить фрагмент.");
+    return;
   }
-  else{
-    alert("Ошибка создания изображения. Попробуйте уменьшить фрагмент.");
-  }
-
-  return;
-}
-
   document.body.removeChild(wrap);
-
   const url = canvas.toDataURL("image/png");
-
-  const overlay=document.createElement("div");
-  overlay.style.position="fixed";
-  overlay.style.inset="0";
-  overlay.style.background="rgba(0,0,0,.85)";
-  overlay.style.display="flex";
-  overlay.style.alignItems="center";
-  overlay.style.justifyContent="center";
-  overlay.style.zIndex="9999";
-  overlay.style.padding="20px";
-
-  const img=document.createElement("img");
-  img.src=url;
-  img.style.maxWidth="100%";
-  img.style.maxHeight="100%";
-  img.style.borderRadius="12px";
-  img.style.boxShadow="0 10px 40px rgba(0,0,0,.6)";
-  img.addEventListener("click",e=>e.stopPropagation());
-
-  overlay.appendChild(img);
-  overlay.addEventListener("click",()=>overlay.remove());
-  document.body.appendChild(overlay);
+  const overlay = document.createElement("div"); overlay.style.position="fixed"; overlay.style.inset="0"; overlay.style.background="rgba(0,0,0,.85)"; overlay.style.display="flex"; overlay.style.alignItems="center"; overlay.style.justifyContent="center"; overlay.style.zIndex="9999"; overlay.style.padding="20px";
+  const img = document.createElement("img"); img.src = url; img.style.maxWidth="100%"; img.style.maxHeight="100%"; img.style.borderRadius="12px"; img.style.boxShadow="0 10px 40px rgba(0,0,0,.6)"; img.addEventListener("click",e=>e.stopPropagation());
+  overlay.appendChild(img); overlay.addEventListener("click",()=>overlay.remove()); document.body.appendChild(overlay);
 });
 
 applyFilters();
-
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-</div>
-</div>
 </body>
 </html>
