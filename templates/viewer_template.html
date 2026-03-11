@@ -601,12 +601,31 @@ wrap.appendChild(metaRow);
   await new Promise(r=>setTimeout(r,50));
   await waitImages(wrap);
 
-  const canvas=await html2canvas(wrap,{
+let canvas;
+
+try{
+  canvas = await html2canvas(wrap,{
     backgroundColor:null,
     useCORS:true,
     allowTaint:false,
     scale:2
   });
+}catch(err){
+  document.body.removeChild(wrap);
+
+  console.error("PNG render error:", err);
+
+  const msg = String(err).toLowerCase();
+
+  if(msg.includes("size") || msg.includes("dimension") || msg.includes("height")){
+    alert("Слишком большой фрагмент. Браузер не смог создать изображение.");
+  }
+  else{
+    alert("Ошибка создания изображения. Попробуйте уменьшить фрагмент.");
+  }
+
+  return;
+}
 
   document.body.removeChild(wrap);
 
