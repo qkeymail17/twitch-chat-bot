@@ -569,6 +569,7 @@ elExportBtn.addEventListener("click", async ()=>{
   img.style.maxHeight="100%";
   img.style.borderRadius="12px";
   img.style.boxShadow="0 10px 40px rgba(0,0,0,.6)";
+  img.addEventListener("click",e=>e.stopPropagation());
 
   overlay.appendChild(img);
   overlay.addEventListener("click",()=>overlay.remove());
