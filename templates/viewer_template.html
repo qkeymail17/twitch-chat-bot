@@ -40,12 +40,13 @@ max-width:390px;
 
 header{
 width:100%;
-max-width:390px;;
+max-width:390px;
 background:#18181b;
-position:sticky;
+position:fixed;
 top:0;
-z-index:10;
-background:#18181b;
+left:50%;
+transform:translateX(-50%);
+z-index:1000;
 border-bottom:1px solid var(--border);
 padding:12px;
 box-sizing:border-box;
@@ -134,10 +135,11 @@ font-size:12px;
 
 #list{
 width:100%;
-max-width:390px;;
+max-width:390px;
 background:#1f1f23;
 min-height:100vh;
 padding-bottom:40px;
+margin-top:150px;
 }
 
 .emote{
