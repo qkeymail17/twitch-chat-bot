@@ -24,40 +24,41 @@
 
 body{
 margin:0;
-background:var(--bg);
+background:#0e0e10;
 color:var(--text);
 font-family:var(--sans);
+display:flex;
+justify-content:center;
 }
 
 header{
+width:390px;
+background:#18181b;
 position:sticky;
 top:0;
 z-index:10;
-background:linear-gradient(180deg,rgba(21,21,27,0.98),rgba(21,21,27,0.92));
+background:#18181b;
 border-bottom:1px solid var(--border);
 padding:12px;
 }
 
 .row{
   padding: 6px 12px;
-  border-bottom:1px solid rgba(42,42,53,0.55);
+  border-bottom:1px solid #2a2a2d;
   line-height: 1.35;
   display:flex;
   gap:10px;
   align-items:flex-start;
 }
 
-/* новые: чередование строк */
-#list .row:nth-child(odd){ background: var(--rowA); }
-#list .row:nth-child(even){ background: var(--rowB); }
-
 /* лёгкий hover для читаемости */
 #list .row:hover{ filter: brightness(1.06); }
 
 .time{
-  font-family:var(--mono);
-  color:var(--muted);
-  margin-right: 6px;
+  font-family:var(--sans);
+  font-size:12px;
+  color:#adadb8;
+  margin-right:6px;
   white-space:nowrap;
 }
 
@@ -113,7 +114,12 @@ color:var(--muted);
 font-size:12px;
 }
 
-#list{padding-bottom:40px;}
+#list{
+width:390px;
+background:#1f1f23;
+min-height:100vh;
+padding-bottom:40px;
+}
 
 .emote{
 height:24px;
@@ -446,7 +452,7 @@ rowEl.className = "row";
 
   const timeEl = document.createElement("span");
   timeEl.className = "time";
-  timeEl.textContent = `[${tNorm}]`;
+  timeEl.textContent = tNorm;
 
   const userEl = document.createElement("span");
   userEl.className = "user";
