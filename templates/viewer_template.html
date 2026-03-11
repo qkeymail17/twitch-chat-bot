@@ -102,7 +102,25 @@ header{
   }
 
   /* make controls vertical and full width of left column */
-  .controls{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.controls{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:12px;
+  align-items:stretch;
+}
+
+.controls input{
+  flex:0 0 auto;
+  height:32px !important;
+  padding:4px 10px !important;
+  line-height:1.2;
+}
+
+.controls button{
+  flex:0 0 auto;
+  height:32px;
+}
 .controls button{
   width:100%;
   height:32px;
