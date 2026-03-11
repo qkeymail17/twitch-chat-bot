@@ -192,7 +192,6 @@ header{
       <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
-        <button id="clear">Очистить</button>
         <button id="toggleTime">Время: ON</button>
         <button id="exportBtn">📸 Снимок чата</button>
         <span class="pill" id="stat">—</span>
@@ -232,7 +231,6 @@ const elStreamDateWrap=document.getElementById("streamDateWrap");
 
 const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
-const elClear=document.getElementById("clear");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
 
@@ -374,7 +372,6 @@ window.addEventListener("scroll",()=>{
 
 elQ.addEventListener("input",()=>applyFilters());
 elU.addEventListener("input",()=>applyFilters());
-elClear.addEventListener("click",()=>{ elQ.value=""; elU.value=""; applyFilters(); });
 elToggleTime.addEventListener("click",()=>{
   SHOW_TIME = !SHOW_TIME;
   elToggleTime.textContent = SHOW_TIME ? "Время: ON" : "Время: OFF";
