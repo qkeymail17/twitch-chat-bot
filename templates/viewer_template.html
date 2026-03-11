@@ -44,7 +44,17 @@ header{
 .meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 .pill{font-family:var(--mono);color:var(--muted);font-size:12px}
 .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;width:100%}
-.controls input{flex:1 1 140px;min-width:0;padding:10px;border-radius:10px;background:var(--panel);border:1px solid var(--border);color:var(--text)}
+.controls input{
+  flex:1 1 140px;
+  min-width:0;
+  height:32px;
+  padding:4px 10px;
+  border-radius:8px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:13px;
+}
 .controls button{padding:9px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--border);color:var(--text);cursor:pointer}
 .controls button:hover{border-color:rgba(145,70,255,0.6)}
 .pill#stat{align-self:flex-end}
