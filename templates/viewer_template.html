@@ -243,7 +243,6 @@ const TWITCH_CHANNEL_ID = meta.channel_id || null;
 
 const elTitle=document.getElementById("title");
 const elChannel=document.getElementById("channel");
-const elVod=document.getElementById("vod");
 const elStat=document.getElementById("stat");
 const elList=document.getElementById("list");
 
@@ -260,7 +259,6 @@ let SHOW_TIME=true;
 
 elTitle.textContent = meta.title || "—";
 elChannel.textContent = meta.channel || "—";
-elVod.href = meta.vod_url || "#";
 elVodBtn.addEventListener("click",()=>{
   if(meta.vod_url){
     window.open(meta.vod_url,"_blank");
