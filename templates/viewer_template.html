@@ -47,7 +47,23 @@ header{
 }
 .meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 .pill{font-family:var(--mono);color:var(--muted);font-size:12px}
-.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;width:100%}
+.controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+  width:100%;
+}
+.controls #q{grid-column:1}
+.controls #u{grid-column:2}
+
+.controls #toggleTime{grid-column:1}
+.controls #exportBtn{grid-column:2}
+
+.controls #stat{
+  grid-column:1 / span 2;
+  justify-self:end;
+}
 .controls input{
   flex:1 1 140px;
   min-width:0;
@@ -72,7 +88,7 @@ header{
   background:#1f1f23;
   min-height:100vh;
   padding-bottom:40px;
-  margin-top:12px;
+  margin-top:0;
   border-radius:0;
   overflow:visible;
 }
@@ -171,7 +187,7 @@ header{
 @media (max-width:420px){
   .chat{padding:0 8px}
   header{padding:10px;border-radius:12px}
-  #list{margin-top:10px;border-radius:12px}
+  #list{margin-top:0;border-radius:0}
 }
 </style>
 </head>
