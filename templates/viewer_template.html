@@ -42,6 +42,9 @@ padding:12px;
   padding: 6px 12px;
   border-bottom:1px solid rgba(42,42,53,0.55);
   line-height: 1.35;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
 }
 
 /* новые: чередование строк */
@@ -117,6 +120,40 @@ height:24px;
 vertical-align:middle;
 margin:0 2px;
 }
+    /* === Режим выделения сообщений === */
+
+.selbox{
+display:none;
+flex:0 0 auto;
+margin-top:2px;
+margin-right:6px;
+}
+
+.sel-mode .selbox{display:block;}
+
+.row.sel-mode{cursor:pointer;}
+.row.selected{
+outline:2px solid var(--accent);
+background:#2a2240 !important;
+}
+
+/* контейнер экспорта */
+.export-wrap{
+position:fixed;
+left:-99999px;
+top:0;
+width:820px;
+background:#18181f;
+padding:24px;
+border-radius:18px;
+box-shadow:0 20px 60px rgba(0,0,0,.55);
+}
+
+.export-row{
+padding:8px 0;
+border-bottom:1px solid rgba(255,255,255,.06);
+}
+.export-row:last-child{border-bottom:none;}
 </style>
 </head>
 
@@ -138,6 +175,8 @@ margin:0 2px;
 <input id="u" placeholder="Фильтр по нику…"/>
 <button id="clear">Очистить</button>
 <button id="toggleTime">Время: ON</button>
+<button id="selModeBtn">Выделить</button>
+<button id="exportBtn" disabled>Скачать PNG</button>
 <span class="pill" id="stat">—</span>
 </div>
 </header>
@@ -175,6 +214,11 @@ const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elClear=document.getElementById("clear");
 const elToggleTime=document.getElementById("toggleTime");
+const elSelModeBtn=document.getElementById("selModeBtn");
+const elExportBtn=document.getElementById("exportBtn");
+
+let SELECT_MODE=false;
+let selectedSet=new Set();
 let SHOW_TIME=true;
 
 elTitle.textContent=meta.title||"—";
@@ -387,7 +431,14 @@ for (let i = rendered; i < end; i++) {
   const r = filtered[i];
 
   const rowEl = document.createElement("div");
-  rowEl.className = "row";
+  rowEl.dataset.id = i;
+
+const sel=document.createElement("input");
+sel.type="checkbox";
+sel.className="selbox";
+sel.tabIndex=-1;
+rowEl.appendChild(sel);
+rowEl.className = SELECT_MODE ? "row sel-mode" : "row";
 
   // нормализуем время: "00 : 17 : 52" -> "00:17:52"
   const tRaw = (r.t || "00:00:00");
@@ -411,6 +462,21 @@ if(SHOW_TIME) rowEl.appendChild(timeEl);
 rowEl.appendChild(userEl);
 rowEl.appendChild(msgEl);
 
+rowEl.addEventListener("click",()=>{
+if(!SELECT_MODE)return;
+
+if(selectedSet.has(i)){
+  selectedSet.delete(i);
+  rowEl.classList.remove("selected");
+  sel.checked=false;
+}else{
+  selectedSet.add(i);
+  rowEl.classList.add("selected");
+  sel.checked=true;
+}
+
+elExportBtn.disabled = selectedSet.size===0;
+});
 frag.appendChild(rowEl);
 
 }
@@ -460,9 +526,65 @@ rendered=0;
 renderMore();
 });
 
+elSelModeBtn.addEventListener("click",()=>{
+SELECT_MODE=!SELECT_MODE;
+selectedSet.clear();
+elExportBtn.disabled=true;
+
+document.querySelectorAll(".row").forEach(r=>{
+r.classList.toggle("sel-mode",SELECT_MODE);
+r.classList.remove("selected");
+const cb=r.querySelector(".selbox");
+if(cb) cb.checked=false;
+});
+
+elSelModeBtn.textContent=SELECT_MODE?"Отмена":"Выделить";
+});
+
+elExportBtn.addEventListener("click",async()=>{
+if(!selectedSet.size)return;
+
+const wrap=document.createElement("div");
+wrap.className="export-wrap";
+
+[...selectedSet].sort((a,b)=>a-b).forEach(id=>{
+const orig=document.querySelector(`.row[data-id="${id}"]`);
+if(!orig)return;
+const clone=orig.cloneNode(true);
+clone.classList.remove("row","selected","sel-mode");
+clone.classList.add("export-row");
+clone.querySelector(".selbox")?.remove();
+wrap.appendChild(clone);
+});
+
+document.body.appendChild(wrap);
+
+await new Promise(r=>setTimeout(r,50));
+const canvas=await html2canvas(wrap,{backgroundColor:null});
+document.body.removeChild(wrap);
+
+const a=document.createElement("a");
+a.href=canvas.toDataURL("image/png");
+a.download=`chat_export_${selectedSet.size}.png`;
+a.click();
+
+/* сброс режима */
+SELECT_MODE=false;
+selectedSet.clear();
+elExportBtn.disabled=true;
+elSelModeBtn.textContent="Выделить";
+
+document.querySelectorAll(".row").forEach(r=>{
+r.classList.remove("sel-mode","selected");
+const cb=r.querySelector(".selbox");
+if(cb) cb.checked=false;
+});
+});
+
 applyFilters();
 
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
 </html>
