@@ -127,7 +127,7 @@ margin:0 2px;
 position:fixed;
 left:-99999px;
 top:0;
-width:820px;
+width:390px;
 background:#18181f;
 padding:24px;
 /* без скруглений */
@@ -138,6 +138,29 @@ padding:8px 0;
 border-bottom:1px solid rgba(255,255,255,.06);
 }
 .export-row:last-child{border-bottom:none;}
+.export-meta{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:18px;
+padding-top:14px;
+border-top:1px solid rgba(255,255,255,.08);
+font-size:14px;
+color:#b9b9c6;
+}
+
+.export-meta-left,
+.export-meta-right{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.export-meta img{
+height:18px;
+width:18px;
+vertical-align:middle;
+}
 </style>
 </head>
 
@@ -536,6 +559,42 @@ elExportBtn.addEventListener("click", async ()=>{
     clone.classList.add("export-row");
     wrap.appendChild(clone);
   }
+
+// --- мета-информация снизу ---
+const metaRow=document.createElement("div");
+metaRow.className="export-meta";
+
+const metaLeft=document.createElement("div");
+metaLeft.className="export-meta-left";
+
+const metaRight=document.createElement("div");
+metaRight.className="export-meta-right";
+
+// иконка канала (7TV)
+const channelIcon=document.createElement("img");
+channelIcon.src="https://7tv.app/emotes/01H1P0YF7G0008W9SSAM2XE7GF/1x.webp";
+channelIcon.crossOrigin="anonymous";
+
+// название канала
+const channelName=document.createElement("span");
+channelName.textContent=meta.channel || "channel";
+
+metaLeft.appendChild(channelIcon);
+metaLeft.appendChild(channelName);
+
+// дата
+const dateIcon=document.createElement("span");
+dateIcon.textContent="🗓";
+
+const dateText=document.createElement("span");
+dateText.textContent=elStreamDate.textContent || "";
+
+metaRight.appendChild(dateIcon);
+metaRight.appendChild(dateText);
+
+metaRow.appendChild(metaLeft);
+metaRow.appendChild(metaRight);
+wrap.appendChild(metaRow);
 
   document.body.appendChild(wrap);
 
