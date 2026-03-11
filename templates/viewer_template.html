@@ -64,6 +64,11 @@ header{
   grid-column:1 / span 2;
   justify-self:end;
 }
+
+.controls #vodBtn{
+  grid-column:1 / span 2;
+}
+
 .controls input{
   flex:1 1 140px;
   min-width:0;
@@ -199,8 +204,7 @@ header{
       <div class="meta">
         <div><b id="title">—</b></div>
         <div class="pill">
-          <span id="channel">—</span> •
-          <a id="vod" href="#" target="_blank" style="color:var(--accent);text-decoration:none">Ссылка VOD</a>
+          <span id="channel">—</span>
           <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
         </div>
       </div>
@@ -208,8 +212,9 @@ header{
       <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
-        <button id="toggleTime">Время: ON</button>
+        <button id="toggleTime">⏱️ Время: ON</button>
         <button id="exportBtn">📸 Снимок чата</button>
+        <button id="vodBtn">🔗 Ссылка VOD</button>
         <span class="pill" id="stat">—</span>
       </div>
     </header>
@@ -223,7 +228,7 @@ header{
 
 <script>
 /* JS оставил без изменений логики — только адаптирован под новый DOM.
-   Если что-то ломается, это будет видно в консоли, но визуалная часть
+   Если что-то ломается, это будет видно в консоли, но визуальная часть
    теперь управляется только CSS (mobile: header scrolls away;
    desktop: left column sticky). */
 
@@ -249,12 +254,18 @@ const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
+const elVodBtn=document.getElementById("vodBtn");
 
 let SHOW_TIME=true;
 
 elTitle.textContent = meta.title || "—";
 elChannel.textContent = meta.channel || "—";
 elVod.href = meta.vod_url || "#";
+elVodBtn.addEventListener("click",()=>{
+  if(meta.vod_url){
+    window.open(meta.vod_url,"_blank");
+  }
+});
 
 function fmtStreamStart(iso){
   if(!iso) return null;
@@ -390,7 +401,7 @@ elQ.addEventListener("input",()=>applyFilters());
 elU.addEventListener("input",()=>applyFilters());
 elToggleTime.addEventListener("click",()=>{
   SHOW_TIME = !SHOW_TIME;
-  elToggleTime.textContent = SHOW_TIME ? "Время: ON" : "Время: OFF";
+  elToggleTime.textContent = SHOW_TIME ? "⏱️ Время: ON" : "⏱️ Время: OFF";
   elList.innerHTML=""; rendered=0; renderMore();
 });
 
