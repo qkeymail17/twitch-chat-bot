@@ -98,6 +98,15 @@ display:flex;
 gap:8px;
 flex-wrap:wrap;
 margin-top:10px;
+width:100%;
+box-sizing:border-box;
+}
+.controls input{
+flex:1 1 140px;
+min-width:0;
+}
+.controls button{
+flex:0 0 auto;
 }
 
 input,button{
@@ -651,7 +660,8 @@ try{
   const overlay=document.createElement("div");
   overlay.style.position="fixed";
   overlay.style.inset="0";
-  overlay.style.background="rgba(0,0,0,.85)";
+  overlay.style.background="rgba(0,0,0,.55)";
+  overlay.style.backdropFilter="blur(2px)";
   overlay.style.display="flex";
   overlay.style.alignItems="center";
   overlay.style.justifyContent="center";
