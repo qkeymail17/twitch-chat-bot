@@ -564,7 +564,27 @@ const canvas=await html2canvas(wrap,{backgroundColor:null});
 document.body.removeChild(wrap);
 
 const url = canvas.toDataURL("image/png");
-window.open(url, "_blank");
+
+const overlay=document.createElement("div");
+overlay.style.position="fixed";
+overlay.style.inset="0";
+overlay.style.background="rgba(0,0,0,.85)";
+overlay.style.display="flex";
+overlay.style.alignItems="center";
+overlay.style.justifyContent="center";
+overlay.style.zIndex="9999";
+overlay.style.padding="20px";
+
+const img=document.createElement("img");
+img.src=url;
+img.style.maxWidth="100%";
+img.style.maxHeight="100%";
+img.style.borderRadius="12px";
+img.style.boxShadow="0 10px 40px rgba(0,0,0,.6)";
+
+overlay.appendChild(img);
+overlay.addEventListener("click",()=>overlay.remove());
+document.body.appendChild(overlay);
 
 /* сброс режима */
 SELECT_MODE=false;
