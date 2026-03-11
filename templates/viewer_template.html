@@ -27,26 +27,28 @@ margin:0;
 background:#0e0e10;
 color:var(--text);
 font-family:var(--sans);
-display:flex;
-justify-content:center;
 }
 
 .page{
-  display:flex;
-  justify-content:center;
+display:flex;
+justify-content:center;
 }
-
 .chat{
 width:100%;
-max-width:520px;
-margin:0 auto;
-display:block;
+max-width:390px;
 }
 
 header{
-  width:100%;
-  background:#18181b;
-  padding:12px;
+width:100%;
+max-width:390px;;
+background:#18181b;
+position:sticky;
+top:0;
+z-index:10;
+background:#18181b;
+border-bottom:1px solid var(--border);
+padding:12px;
+box-sizing:border-box;
 }
 
 .row{
@@ -112,9 +114,9 @@ input,button{
 background:var(--panel);
 border:1px solid var(--border);
 color:var(--text);
-padding:6px 10px;
+padding:9px 10px;
 border-radius:10px;
-font-size:13px;
+font-size:14px;
 outline:none;
 }
 
@@ -131,11 +133,11 @@ font-size:12px;
 }
 
 #list{
-  flex:1;
-  background:#1f1f23;
-  border-radius:14px;
-  min-height:100vh;
-  padding-bottom:40px;
+width:100%;
+max-width:390px;;
+background:#1f1f23;
+min-height:100vh;
+padding-bottom:40px;
 }
 
 .emote{
@@ -183,58 +185,6 @@ gap:8px;
 height:18px;
 width:18px;
 vertical-align:middle;
-}
-
-/* ===== Desktop layout ===== */
-@media (min-width: 900px){
-
-  .page{
-    display:flex;
-    justify-content:center;
-    padding:24px;
-  }
-
-  .chat{
-    max-width:1100px;
-    display:flex;
-    gap:24px;
-  }
-
-  header{
-    width:260px;
-    flex:0 0 260px;
-    position:sticky;
-    top:24px;
-    height:fit-content;
-    border-radius:14px;
-    padding:16px;
-  }
-
-  #list{
-    width:520px;
-    flex:0 0 520px;
-    border-radius:14px;
-  }
-
-  .controls{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    margin-top:16px;
-  }
-
-.controls input{
-width:100%;
-height:36px;
-font-size:13px;
-}
-
-.controls button{
-width:100%;
-height:34px;
-font-size:13px;
-}
-
 }
 </style>
 </head>
