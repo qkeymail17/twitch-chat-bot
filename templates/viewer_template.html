@@ -49,7 +49,7 @@ header{
 .pill{font-family:var(--mono);color:var(--muted);font-size:12px}
 .controls{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr 1fr 1fr;
   gap:8px;
   margin-top:8px;
   width:100%;
@@ -59,14 +59,11 @@ header{
 
 .controls #toggleTime{grid-column:1}
 .controls #exportBtn{grid-column:2}
+.controls #vodBtn{grid-column:3}
 
 .controls #stat{
   grid-column:1 / span 2;
   justify-self:end;
-}
-
-.controls #vodBtn{
-  grid-column:1 / span 2;
 }
 
 .controls input{
