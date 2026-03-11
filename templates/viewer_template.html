@@ -563,10 +563,8 @@ await new Promise(r=>setTimeout(r,50));
 const canvas=await html2canvas(wrap,{backgroundColor:null});
 document.body.removeChild(wrap);
 
-const a=document.createElement("a");
-a.href=canvas.toDataURL("image/png");
-a.download=`chat_export_${selectedSet.size}.png`;
-a.click();
+const url = canvas.toDataURL("image/png");
+window.open(url, "_blank");
 
 /* сброс режима */
 SELECT_MODE=false;
