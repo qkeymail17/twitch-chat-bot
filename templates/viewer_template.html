@@ -48,6 +48,7 @@ z-index:10;
 background:#18181b;
 border-bottom:1px solid var(--border);
 padding:12px;
+box-sizing:border-box;
 }
 
 .row{
@@ -660,8 +661,7 @@ try{
   const overlay=document.createElement("div");
   overlay.style.position="fixed";
   overlay.style.inset="0";
-  overlay.style.background="rgba(0,0,0,.55)";
-  overlay.style.backdropFilter="blur(2px)";
+  overlay.style.background="rgba(0,0,0,.85)";
   overlay.style.display="flex";
   overlay.style.alignItems="center";
   overlay.style.justifyContent="center";
