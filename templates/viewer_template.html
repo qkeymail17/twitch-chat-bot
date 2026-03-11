@@ -30,25 +30,27 @@ font-family:var(--sans);
 }
 
 .page{
-display:flex;
-justify-content:center;
+  display:flex;
+  justify-content:center;
 }
+
 .chat{
-width:100%;
-max-width:390px;
+  width:100%;
+  max-width:1100px;
+  display:flex;
+  gap:24px;
 }
 
 header{
-width:100%;
-max-width:390px;;
-background:#18181b;
-position:sticky;
-top:0;
-z-index:10;
-background:#18181b;
-border-bottom:1px solid var(--border);
-padding:12px;
-box-sizing:border-box;
+  width:260px;
+  flex:0 0 260px;
+  position:sticky;
+  top:24px;
+  height:fit-content;
+  background:#18181b;
+  border:1px solid #2a2a35;
+  border-radius:14px;
+  padding:16px;
 }
 
 .row{
@@ -133,11 +135,11 @@ font-size:12px;
 }
 
 #list{
-width:100%;
-max-width:390px;;
-background:#1f1f23;
-min-height:100vh;
-padding-bottom:40px;
+  flex:1;
+  background:#1f1f23;
+  border-radius:14px;
+  min-height:100vh;
+  padding-bottom:40px;
 }
 
 .emote{
