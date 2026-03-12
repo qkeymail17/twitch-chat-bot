@@ -330,11 +330,7 @@ async function snapshotSelected(){
 
 function jumpBottom(){
 
-  const rows = DOM.list.querySelectorAll(".row");
-
-  if(rows.length){
-    STATE.scrollStack.push(rows[0].dataset.user + ":" + rows[0].textContent);
-  }
+  STATE.scrollStack.push(DOM.viewer.scrollTop);
 
   while(STATE.rendered < STATE.rowsFiltered.length){
     renderMore();
@@ -350,18 +346,8 @@ function jumpTop(){
     return;
   }
 
-  const marker = STATE.scrollStack.pop();
-  const rows = DOM.list.querySelectorAll(".row");
-
-  for(const r of rows){
-    const id = r.dataset.user + ":" + r.textContent;
-    if(id === marker){
-      r.scrollIntoView();
-      return;
-    }
-  }
-
-  DOM.viewer.scrollTop = 0;
+  const prev = STATE.scrollStack.pop();
+  DOM.viewer.scrollTop = prev;
 }
 
 /* init */
