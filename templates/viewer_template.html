@@ -85,7 +85,7 @@ function loadDataFromScript(){
   STATE.meta = parsed.meta || {};
   STATE.rowsAll = parsed.rows || [];
   STATE.rowsFiltered = [...STATE.rowsAll];
-  dDOM.stat.textContent = `Показано: ${STATE.rowsFiltered.length} / ${STATE.rowsAll.length}`;
+  DOM.stat.textContent = `Показано: ${STATE.rowsFiltered.length} / ${STATE.rowsAll.length}`;
 }
 
 /* fetch 7tv emotes (simple) */
@@ -184,8 +184,8 @@ async function snapshotSelected(){
 /* init */
 async function init(){
   loadDataFromScript();
-  document.getElementById("q").addEventListener("input",()=>applyFilters());
-  document.getElementById("u").addEventListener("input",()=>applyFilters());
+  DOM.q.addEventListener("input",()=>applyFilters());
+  DOM.u.addEventListener("input",()=>applyFilters());
   document.getElementById("toggleTime").addEventListener("click",()=>{
     STATE.showTime = !STATE.showTime;
     DOM.toggleTime.textContent = `Время: ${STATE.showTime? 'ON':'OFF'}`;
