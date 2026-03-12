@@ -22,22 +22,21 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
   border-bottom:1px solid rgba(255,255,255,0.03);
   font-size:14px;
   line-height:1.35;
-
-  display:flex;
-  align-items:flex-start;
-  gap:6px;
-
   white-space:pre-wrap;
 }
 .time{
-  flex:0 0 64px;
+  display:inline-block;
+  width:64px;
   font-family:var(--mono);
   color:var(--muted);
 }
-.user{font-weight:600;margin-right:6px}
+.user{
+  font-weight:600;
+  margin-right:6px;
+  white-space:nowrap;
+}
 .body{
-  flex:1;
-  min-width:0;
+  display:inline;
 }
 .emote{height:22px;vertical-align:-4px;margin:0 2px}
 .small{font-size:12px;color:var(--muted)}
