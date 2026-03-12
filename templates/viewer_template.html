@@ -60,6 +60,15 @@ const STATE = {
   meta: {}
 };
 
+/* DOM cache */
+const DOM = {
+  list: document.getElementById("list"),
+  q: document.getElementById("q"),
+  u: document.getElementById("u"),
+  stat: document.getElementById("stat"),
+  toggleTime: document.getElementById("toggleTime")
+};
+
 /* helpers */
 function esc(s){ return (s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function colorForUser(name){ let h=0; for(let i=0;i<(name||"").length;i++) h=(h*31+name.charCodeAt(i))%360; return `hsl(${h} 70% 60%)`; }
@@ -76,7 +85,7 @@ function loadDataFromScript(){
   STATE.meta = parsed.meta || {};
   STATE.rowsAll = parsed.rows || [];
   STATE.rowsFiltered = [...STATE.rowsAll];
-  document.getElementById("stat").textContent = `Показано: ${STATE.rowsFiltered.length} / ${STATE.rowsAll.length}`;
+  dDOM.stat.textContent = `Показано: ${STATE.rowsFiltered.length} / ${STATE.rowsAll.length}`;
 }
 
 /* fetch 7tv emotes (simple) */
@@ -130,7 +139,7 @@ function renderMessage(row){
 
 /* chunked render */
 function renderMore(){
-  const list = document.getElementById("list");
+  const list = DOM.list;
   const end = Math.min(STATE.rendered + STATE.chunk, STATE.rowsFiltered.length);
   const frag = document.createDocumentFragment();
   for(let i=STATE.rendered;i<end;i++) frag.appendChild(renderMessage(STATE.rowsFiltered[i]));
@@ -144,8 +153,8 @@ function applyFilters(){
   const u = (document.getElementById("u").value||"").trim().toLowerCase();
   STATE.rowsFiltered = STATE.rowsAll.filter(r=>byFilter(r,q,u));
   STATE.rendered = 0;
-  document.getElementById("list").innerHTML = "";
-  document.getElementById("stat").textContent = `Показано: ${STATE.rowsFiltered.length} / ${STATE.rowsAll.length}`;
+  DOM.list.innerHTML = "";
+  DOM.stat.textContent = `Показано: ${STATE.rowsFiltered.length} / ${STATE.rowsAll.length}`;
   renderMore();
 }
 
@@ -179,8 +188,8 @@ async function init(){
   document.getElementById("u").addEventListener("input",()=>applyFilters());
   document.getElementById("toggleTime").addEventListener("click",()=>{
     STATE.showTime = !STATE.showTime;
-    document.getElementById("toggleTime").textContent = `Время: ${STATE.showTime? 'ON':'OFF'}`;
-    document.getElementById("list").innerHTML = ""; STATE.rendered = 0; renderMore();
+    DOM.toggleTime.textContent = `Время: ${STATE.showTime? 'ON':'OFF'}`;
+    DOM.list.innerHTML = ""; STATE.rendered = 0; renderMore();
   });
   document.getElementById("exportBtn").addEventListener("click", snapshotSelected);
   document.getElementById("loadEmotes").addEventListener("click", async ()=>{
@@ -189,7 +198,7 @@ async function init(){
     STATE.emotes = await fetch7tvEmotes(id);
     alert(`Загружено эмотов: ${STATE.emotes.size}`);
     // re-render visible area to replace tokens with images
-    document.getElementById("list").innerHTML=""; STATE.rendered=0; renderMore();
+    DOM.list.innerHTML=""; STATE.rendered=0; renderMore();
   });
   document.getElementById("openVod").addEventListener("click", ()=>{ if(STATE.meta.vod_url) window.open(STATE.meta.vod_url,"_blank"); else alert("нет vod_url в meta"); });
 
