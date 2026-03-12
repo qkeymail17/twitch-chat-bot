@@ -128,10 +128,9 @@ header{
 
 /* row */
 .row{
-  padding:2px 12px;
-  line-height:1.4;
+  padding:1px 12px;
   display:flex;
-  gap:6px;
+  gap:8px;
   align-items:baseline;
 }
 .time{
@@ -139,12 +138,11 @@ header{
   font-size:11px;
   color:#6f6f7a;
   white-space:nowrap;
-  margin-right:6px;
   letter-spacing:0.2px;
 }
 .user{
   font-weight:600;
-  margin-right:4px;
+  margin-right:2px;
   white-space:nowrap;
 }
 .user::after{
@@ -153,11 +151,17 @@ header{
   margin-right:4px;
 }
 .msg{
-  color:#e7e7ea;
+  color:#efeff1;
+  font-size:13px;
+  line-height:1.45;
   word-break:break-word;
   overflow-wrap:anywhere;
 }
-.emote{height:24px;vertical-align:middle;margin:0 2px}
+.emote{
+  height:24px;
+  vertical-align:-4px;
+  margin:0 1px;
+}
 
 /* export helper (unchanged) */
 .export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
