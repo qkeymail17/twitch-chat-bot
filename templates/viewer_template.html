@@ -127,16 +127,36 @@ header{
 }
 
 /* row */
-.row{padding:4px 12px;line-height:1.35;display:flex;gap:6px;align-items:baseline}
+.row{
+  padding:2px 12px;
+  line-height:1.4;
+  display:flex;
+  gap:6px;
+  align-items:baseline;
+}
 .time{
   font-family:var(--mono);
   font-size:11px;
-  color:#7f7f8a;
+  color:#6f6f7a;
   white-space:nowrap;
+  margin-right:6px;
+  letter-spacing:0.2px;
+}
+.user{
+  font-weight:600;
+  margin-right:4px;
+  white-space:nowrap;
+}
+.user::after{
+  content: ":";
+  color:#e7e7ea;
   margin-right:4px;
 }
-.user{font-weight:700;margin-right:6px;white-space:nowrap}
-.msg{color:var(--text);word-break:break-word;overflow-wrap:anywhere;margin-left:2px}
+.msg{
+  color:#e7e7ea;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+}
 .emote{height:24px;vertical-align:middle;margin:0 2px}
 
 /* export helper (unchanged) */
@@ -411,7 +431,7 @@ function renderMore(){
     rowEl.dataset.id = i; rowEl.className = "row";
     const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
     const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
-    const userEl = document.createElement("span"); userEl.className="user"; userEl.textContent = (r.user || "—") + ":"; userEl.style.color = colorForUser(r.user);
+    const userEl = document.createElement("span"); userEl.className="user"; userEl.textContent = r.user || "—"; userEl.style.color = colorForUser(r.user);
     const msgEl = document.createElement("span"); msgEl.className="msg";
     renderTextWithEmotes(msgEl, r.text || "", EMOTES);
     if(SHOW_TIME) rowEl.appendChild(timeEl);
