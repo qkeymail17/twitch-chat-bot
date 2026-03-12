@@ -51,6 +51,14 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
 .emote{height:22px;vertical-align:-4px;margin:0 2px}
 .small{font-size:12px;color:var(--muted)}
 .mention{color:#8cc7ff;font-weight:500;}
+.link{
+  color:#6fb3ff;
+  text-decoration:none;
+}
+
+.link:hover{
+  text-decoration:underline;
+}
 </style>
 </head>
 <body>
@@ -63,6 +71,8 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
       <button id="exportBtn">Снимок (выделение)</button>
       <button id="loadEmotes">Загрузить 7TV эмоты</button>
       <button id="openVod">Открыть VOD</button>
+      <button id="jumpTop">⬆️</button>
+      <button id="jumpBottom">⬇️</button>
     </div>
     <div class="small" id="stat">—</div>
   </div>
@@ -86,6 +96,7 @@ const STATE = {
   emotes: new Map(),
   showTime: true,
   meta: {}
+  scrollStack: [],
 };
 
 /* DOM cache */
@@ -147,6 +158,9 @@ function parseFragments(text){
     else if(token.startsWith("@") && token.length > 1){
       fragments.push({type:"mention", value:token});
     }
+    else if(/^https?:\/\//i.test(token)){
+      fragments.push({type:"link", value:token});
+    }
     else{
       fragments.push({type:"text", value:p});
     }
@@ -175,6 +189,16 @@ function renderTextWithEmotes(container,text){
       span.className = "mention";
       span.textContent = f.value;
       container.appendChild(span);
+    }
+
+    else if(f.type === "link"){
+      const a = document.createElement("a");
+      a.href = f.value;
+      a.textContent = f.value;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.className = "link";
+      container.appendChild(a);
     }
 
     else{
@@ -286,6 +310,37 @@ async function snapshotSelected(){
   document.body.removeChild(wrap);
 }
 
+function jumpBottom(){
+
+  const rows = DOM.list.querySelectorAll(".row");
+  if(rows.length){
+    STATE.scrollStack.push(rows[0].dataset.user + ":" + rows[0].textContent);
+  }
+
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function jumpTop(){
+
+  if(STATE.scrollStack.length === 0){
+    window.scrollTo(0,0);
+    return;
+  }
+
+  const marker = STATE.scrollStack.pop();
+  const rows = DOM.list.querySelectorAll(".row");
+
+  for(const r of rows){
+    const id = r.dataset.user + ":" + r.textContent;
+    if(id === marker){
+      r.scrollIntoView();
+      return;
+    }
+  }
+
+  window.scrollTo(0,0);
+}
+
 /* init */
 async function init(){
   loadDataFromScript();
@@ -306,7 +361,8 @@ async function init(){
     DOM.list.innerHTML=""; STATE.rendered=0; renderMore();
   });
   document.getElementById("openVod").addEventListener("click", ()=>{ if(STATE.meta.vod_url) window.open(STATE.meta.vod_url,"_blank"); else alert("нет vod_url в meta"); });
-
+  document.getElementById("jumpBottom").addEventListener("click", jumpBottom);
+  document.getElementById("jumpTop").addEventListener("click", jumpTop);
   // infinite scroll loader
   window.addEventListener("scroll", ()=>{ if(window.innerHeight+window.scrollY > document.body.offsetHeight-900) renderMore(); });
 
