@@ -331,7 +331,8 @@ async function snapshotSelected(){
 
 function jumpBottom(){
 
-  const first = DOM.list.querySelector(".row");
+  const first = [...DOM.list.querySelectorAll(".row")]
+  .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
   if(first){
     STATE.scrollStack.push(Number(first.dataset.idx));
   }
