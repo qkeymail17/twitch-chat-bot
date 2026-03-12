@@ -24,6 +24,9 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
   line-height:1.35;
   white-space:pre-wrap;
 }
+.row:hover{
+  background:rgba(255,255,255,0.04);
+}
 .time{
   display:inline-block;
   width:64px;
@@ -32,7 +35,7 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
 }
 .user{
   font-weight:600;
-  margin-right:6px;
+  margin-right:4px;
   white-space:nowrap;
 }
 .body{
@@ -184,7 +187,7 @@ function renderTime(row){
 function renderUser(row){
   const u = document.createElement("span");
   u.className = "user";
-  u.textContent = row.user || "—";
+  u.textContent = (row.user || "—") + ":";
   u.style.color = colorForUser(row.user);
   return u;
 }
