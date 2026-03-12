@@ -87,7 +87,6 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
       <input id="u" placeholder="Фильтр по нику… (u)"/>
       <button id="toggleTime">Время: ON</button>
       <button id="exportBtn">Снимок (выделение)</button>
-      <button id="loadEmotes">Загрузить 7TV эмоты</button>
       <button id="openVod">Открыть VOD</button>
       <button id="jumpTop">⬆️</button>
       <button id="jumpBottom">⬇️</button>
@@ -332,8 +331,13 @@ async function snapshotSelected(){
 function jumpBottom(){
 
   const rows = DOM.list.querySelectorAll(".row");
+
   if(rows.length){
     STATE.scrollStack.push(rows[0].dataset.user + ":" + rows[0].textContent);
+  }
+
+  while(STATE.rendered < STATE.rowsFiltered.length){
+    renderMore();
   }
 
   DOM.viewer.scrollTop = DOM.viewer.scrollHeight;
@@ -357,12 +361,18 @@ function jumpTop(){
     }
   }
 
-  window.scrollTo(0,0);
+  DOM.viewer.scrollTop = 0;
 }
 
 /* init */
 async function init(){
+
   loadDataFromScript();
+
+  if(STATE.meta.channel_id){
+      STATE.emotes = await fetch7tvEmotes(STATE.meta.channel_id);
+  }
+
   DOM.q.addEventListener("input",()=>applyFilters());
   DOM.u.addEventListener("input",()=>applyFilters());
   document.getElementById("toggleTime").addEventListener("click",()=>{
@@ -371,14 +381,6 @@ async function init(){
     DOM.list.innerHTML = ""; STATE.rendered = 0; renderMore();
   });
   document.getElementById("exportBtn").addEventListener("click", snapshotSelected);
-  document.getElementById("loadEmotes").addEventListener("click", async ()=>{
-    const id = STATE.meta.channel_id || prompt("channel id для 7TV:");
-    if(!id) return alert("нет id");
-    STATE.emotes = await fetch7tvEmotes(id);
-    alert(`Загружено эмотов: ${STATE.emotes.size}`);
-    // re-render visible area to replace tokens with images
-    DOM.list.innerHTML=""; STATE.rendered=0; renderMore();
-  });
   document.getElementById("openVod").addEventListener("click", ()=>{ if(STATE.meta.vod_url) window.open(STATE.meta.vod_url,"_blank"); else alert("нет vod_url в meta"); });
   document.getElementById("jumpBottom").addEventListener("click", jumpBottom);
   document.getElementById("jumpTop").addEventListener("click", jumpTop);
