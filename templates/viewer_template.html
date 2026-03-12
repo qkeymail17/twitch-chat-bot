@@ -79,13 +79,8 @@ header{
   grid-row:2;
 }
 
-.controls #toggleTag{
-  grid-column:1 / span 3;
-  grid-row:3;
-}
-
 .controls #stat{
-  grid-column:4 / span 3;
+  grid-column:1 / span 6;
   grid-row:3;
   justify-self:end;
 }
@@ -274,11 +269,7 @@ header{
         <button id="vodBtn">🔗 Ссылка VOD</button>
         <button id="exportBtn">📸 Снимок чата</button>
         <button id="toggleTime">⏱️ Время: ON</button>
-        <button id="toggleTag">
-  <img src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif" style="height:18px;margin-right:6px">
-  Тег на снимке: ON
-</button>
-<span class="pill" id="stat">—</span>
+        <span class="pill" id="stat">—</span>
       </div>
     </header>
 
@@ -317,10 +308,8 @@ const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
 const elVodBtn=document.getElementById("vodBtn");
-const elToggleTag=document.getElementById("toggleTag");
 
 let SHOW_TIME=true;
-let SHOW_TAG=true;
 
 elTitle.textContent = meta.title || "—";
 elChannel.textContent = meta.channel || "—";
@@ -464,26 +453,8 @@ elQ.addEventListener("input",()=>applyFilters());
 elU.addEventListener("input",()=>applyFilters());
 elToggleTime.addEventListener("click",()=>{
   SHOW_TIME = !SHOW_TIME;
-
-  elToggleTime.textContent = SHOW_TIME
-    ? "⏱️ Время: ON"
-    : "⏱️ Время: OFF";
-
-  elToggleTime.style.opacity = SHOW_TIME ? "1" : "0.5";
-
-  elList.innerHTML="";
-  rendered=0;
-  renderMore();
-});
-
-elToggleTag.addEventListener("click",()=>{
-  SHOW_TAG = !SHOW_TAG;
-
-  elToggleTag.innerHTML =
-    `<img src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif" style="height:18px;margin-right:6px">
-     Тег на снимке: ${SHOW_TAG ? "ON" : "OFF"}`;
-
-  elToggleTag.style.opacity = SHOW_TAG ? "1" : "0.5";
+  elToggleTime.textContent = SHOW_TIME ? "⏱️ Время: ON" : "⏱️ Время: OFF";
+  elList.innerHTML=""; rendered=0; renderMore();
 });
 
 /* snapshot logic kept intact (uses html2canvas included below) */
@@ -510,18 +481,9 @@ elExportBtn.addEventListener("click", async ()=>{
   const metaRow = document.createElement("div"); metaRow.className="export-meta";
   const metaLeft = document.createElement("div"); metaLeft.className="export-meta-left";
   const metaRight = document.createElement("div"); metaRight.className="export-meta-right";
-const channelIcon=document.createElement("img");
-channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif";
-channelIcon.crossOrigin="anonymous";
-
-const channelName=document.createElement("span");
-channelName.textContent = meta.channel || "channel";
-
-if(SHOW_TAG){
-  metaLeft.appendChild(channelIcon);
-}
-
-metaLeft.appendChild(channelName);
+  const channelIcon=document.createElement("img"); channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif"; channelIcon.crossOrigin="anonymous";
+  const channelName=document.createElement("span"); channelName.textContent = meta.channel || "channel";
+  metaLeft.appendChild(channelIcon); metaLeft.appendChild(channelName);
   const dateIcon=document.createElement("span"); dateIcon.textContent="📅"; const dateText=document.createElement("span"); dateText.textContent = elStreamDate.textContent || "";
   metaRight.appendChild(dateIcon); metaRight.appendChild(dateText);
   metaRow.appendChild(metaLeft); metaRow.appendChild(metaRight); wrap.appendChild(metaRow);
