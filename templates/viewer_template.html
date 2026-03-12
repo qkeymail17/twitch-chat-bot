@@ -346,6 +346,11 @@ function jumpBottom(){
 
 function jumpTop(){
 
+  if(STATE.scrollStack.length === 0){
+    DOM.viewer.scrollTop = 0;
+    return;
+  }
+
   const first = [...DOM.list.querySelectorAll(".row")]
     .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
 
@@ -353,14 +358,10 @@ function jumpTop(){
     STATE.scrollStack.push(Number(first.dataset.idx));
   }
 
-  if(STATE.scrollStack.length === 0){
-    DOM.viewer.scrollTop = 0;
-    return;
-  }
-
   const idx = STATE.scrollStack.pop();
 
   const target = DOM.list.querySelector(`.row[data-idx="${idx}"]`);
+
   if(target){
     target.scrollIntoView({block:"start"});
     return;
