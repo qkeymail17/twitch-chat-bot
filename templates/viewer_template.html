@@ -89,20 +89,18 @@ header{
   padding:6px 12px;
   border-bottom:1px solid rgba(42,42,45,0.6);
   display:grid;
-  grid-template-columns:56px 1fr; /* 56px — ширина колонки времени (как в скрине) */
-  gap:8px;
+  grid-template-columns:60px 1fr;
+  column-gap:8px;
   align-items:flex-start;
   line-height:1.35;
 }
 
 .time{
   grid-column:1;
-  font-family:var(--sans);
+  font-family:var(--mono);
   font-size:13px;
   color:#7f7f8a;
   white-space:nowrap;
-  width:auto;
-  flex-shrink:0;
   letter-spacing:0.2px;
 }
 
@@ -119,11 +117,11 @@ header{
   margin-right:4px;
 }
 .msg{
-  grid-column:2;
+  grid-column:1 / span 2;
+  padding-left:68px;
   color:var(--text);
   word-break:break-word;
-  overflow-wrap:anywhere;
-  display:block; /* чтобы переносы были корректны */
+  overflow-wrap:break-word;
 }
 .emote{
   height:24px;
@@ -240,7 +238,7 @@ header{
         <button id="exportBtn">📸 Снимок чата</button>
         <button id="toggleTime">⏱️ Время: ON</button>
         <button id="toggleTag">
-  <img src=".../1x.avif" style="height:18px;margin-right:6px">
+  <img src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif" style="height:18px;margin-right:6px">
 Подпись: ON
 </button>
 <span class="pill" id="stat">—</span>
@@ -404,7 +402,7 @@ function renderMore(){
   for(let i=rendered;i<end;i++){
     const r = filtered[i];
     const rowEl = document.createElement("div");
-    rowEl.dataset.id = i; rowEl.className = "row";
+    rowEl.className = "row";
     const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
     const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
     const userEl = document.createElement("span"); userEl.className="user"; userEl.textContent = r.user || "—"; userEl.style.color = colorForUser(r.user);
@@ -417,9 +415,6 @@ if(replyName){
   const repEl = document.createElement("span");
   repEl.className = "reply";
   repEl.textContent = `↳ @${String(replyName)}: `; // стрелка и ник — компактно
-  repEl.style.color = "var(--muted)";
-  repEl.style.fontSize = "12px";
-  repEl.style.marginRight = "6px";
   msgEl.appendChild(repEl);
 }
 
@@ -460,8 +455,7 @@ elToggleTag.addEventListener("click",()=>{
   SHOW_TAG = !SHOW_TAG;
 
   elToggleTag.innerHTML =
-  `<img src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif" style="height:18px;margin-right:6px">
-   Подпись: ${SHOW_TAG ? "ON" : "OFF"}`;
+  `<img src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif" style="height:18px;margin-right:6px"> Подпись: ${SHOW_TAG ? "ON" : "OFF"}`;
 
   elToggleTag.style.opacity = SHOW_TAG ? "1" : "0.5";
 });
