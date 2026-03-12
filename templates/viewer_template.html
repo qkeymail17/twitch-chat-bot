@@ -140,7 +140,7 @@ function loadDataFromScript(){
   const raw = document.getElementById("chat-data").textContent || "{}";
   const parsed = JSON.parse(raw);
   STATE.meta = parsed.meta || {};
-  STATE.rowsAll = parsed.rows || [];
+  STATE.rowsAll = (parsed.rows || []).map((r,i)=>({...r,__idx:i}));
   STATE.rowsFiltered = [...STATE.rowsAll];
   DOM.stat.textContent = `Показано: ${STATE.rowsFiltered.length} / ${STATE.rowsAll.length}`;
 }
@@ -273,6 +273,7 @@ function renderMessage(row){
   const el = document.createElement("div");
   el.className = "row";
   el.dataset.user = row.user || "";
+  el.dataset.idx = row.__idx;
 
   if(STATE.showTime){
     el.appendChild(renderTime(row));
@@ -330,7 +331,10 @@ async function snapshotSelected(){
 
 function jumpBottom(){
 
-  STATE.scrollStack.push(DOM.viewer.scrollTop);
+  const first = DOM.list.querySelector(".row");
+  if(first){
+    STATE.scrollStack.push(Number(first.dataset.idx));
+  }
 
   while(STATE.rendered < STATE.rowsFiltered.length){
     renderMore();
@@ -346,8 +350,15 @@ function jumpTop(){
     return;
   }
 
-  const prev = STATE.scrollStack.pop();
-  DOM.viewer.scrollTop = prev;
+  const idx = STATE.scrollStack.pop();
+
+  const target = DOM.list.querySelector(`.row[data-idx="${idx}"]`);
+  if(target){
+    target.scrollIntoView({block:"start"});
+    return;
+  }
+
+  DOM.viewer.scrollTop = 0;
 }
 
 /* init */
