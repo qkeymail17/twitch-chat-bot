@@ -207,32 +207,24 @@ header{
   align-items:stretch;
 }
 
-.controls input{
-  flex:0 0 auto;
-  height:32px !important;
-  padding:4px 10px !important;
-  line-height:1.2;
-}
-
 .controls button{
   flex:0 0 auto;
+  width:100%;
   height:32px;
+  font-size:13px;
   display:flex;
   align-items:center;
   justify-content:center;
   padding:0 12px;
 }
-.controls button{
-  width:100%;
-  height:32px;
-  font-size:13px;
-}
 
 .controls input{
+  flex:0 0 auto;
   width:100%;
   height:32px;
   padding:4px 10px;
   font-size:13px;
+  line-height:1.2;
 }
 
   /* messages column */
@@ -273,9 +265,9 @@ header{
       <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
-        <button id="toggleTime">⏱️ Время: ON</button>
-        <button id="exportBtn">📸 Снимок чата</button>
         <button id="vodBtn">🔗 Ссылка VOD</button>
+        <button id="exportBtn">📸 Снимок чата</button>
+        <button id="toggleTime">⏱️ Время: ON</button>
         <span class="pill" id="stat">—</span>
       </div>
     </header>
