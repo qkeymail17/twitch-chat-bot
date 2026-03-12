@@ -127,15 +127,21 @@ header{
 }
 
 /* row */
-.row{padding:6px 12px;line-height:1.35;display:flex;gap:10px;align-items:flex-start}
-.time{font-family:var(--sans);font-size:12px;color:#adadb8;white-space:nowrap;margin-right:6px}
-.user{font-weight:700;margin-right:8px;white-space:nowrap}
-.msg{color:var(--text);word-break:break-word;overflow-wrap:anywhere}
+.row{padding:4px 12px;line-height:1.35;display:flex;gap:6px;align-items:baseline}
+.time{
+  font-family:var(--mono);
+  font-size:11px;
+  color:#7f7f8a;
+  white-space:nowrap;
+  margin-right:4px;
+}
+.user{font-weight:700;margin-right:6px;white-space:nowrap}
+.msg{color:var(--text);word-break:break-word;overflow-wrap:anywhere;margin-left:2px}
 .emote{height:24px;vertical-align:middle;margin:0 2px}
 
 /* export helper (unchanged) */
 .export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
-.export-row{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.export-row{padding:6px 0;border-bottom:none}
 .export-row:last-child{border-bottom:none}
 .export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
 .export-meta-left{
@@ -405,7 +411,7 @@ function renderMore(){
     rowEl.dataset.id = i; rowEl.className = "row";
     const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
     const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
-    const userEl = document.createElement("span"); userEl.className="user"; userEl.textContent = r.user || "—"; userEl.style.color = colorForUser(r.user);
+    const userEl = document.createElement("span"); userEl.className="user"; userEl.textContent = (r.user || "—") + ":"; userEl.style.color = colorForUser(r.user);
     const msgEl = document.createElement("span"); msgEl.className="msg";
     renderTextWithEmotes(msgEl, r.text || "", EMOTES);
     if(SHOW_TIME) rowEl.appendChild(timeEl);
