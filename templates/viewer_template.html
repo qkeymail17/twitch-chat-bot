@@ -47,75 +47,27 @@ header{
 }
 .meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 .pill{font-family:var(--mono);color:var(--muted);font-size:12px}
+/* Заменить текущие .controls и позиции #q,#u,#vodBtn,#exportBtn,#toggleTime,#toggleTag (mobile) */
 .controls{
   display:grid;
-  grid-template-columns:repeat(6,1fr);
+  grid-template-columns:repeat(4,1fr);
   gap:8px;
   margin-top:8px;
   width:100%;
 }
-.controls #q{
-  grid-column:1 / span 3;
-  grid-row:1;
-}
 
-.controls #u{
-  grid-column:4 / span 3;
-  grid-row:1;
-}
+/* inputs occupy top row (по 2 колонки каждый) */
+.controls #q{ grid-column:1 / span 2; grid-row:1; }
+.controls #u{ grid-column:3 / span 2; grid-row:1; }
 
-.controls #vodBtn{
-  grid-column:1 / span 2;
-  grid-row:2;
-}
+/* кнопки — в единой строке по 4 равные колонки (row 2) */
+.controls #toggleTag{ grid-column:1 / span 1; grid-row:2; }
+.controls #toggleTime{ grid-column:2 / span 1; grid-row:2; }
+.controls #vodBtn{ grid-column:3 / span 1; grid-row:2; }
+.controls #exportBtn{ grid-column:4 / span 1; grid-row:2; }
 
-.controls #exportBtn{
-  grid-column:3 / span 2;
-  grid-row:2;
-}
-
-.controls #toggleTime{
-  grid-column:5 / span 2;
-  grid-row:2;
-}
-
-.controls #toggleTag{
-  grid-column:1 / span 3;
-  grid-row:3;
-}
-
-.controls #stat{
-  grid-column:4 / span 3;
-  grid-row:3;
-  justify-self:end;
-}
-
-.controls input{
-  flex:1 1 140px;
-  min-width:0;
-  height:32px;
-  padding:4px 10px;
-  border-radius:8px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  color:var(--text);
-  font-size:13px;
-}
-.controls button{
-  width:100%;
-  height:32px;
-  padding:0 10px;
-  border-radius:10px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  color:var(--text);
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.controls button:hover{border-color:rgba(145,70,255,0.6)}
-.pill#stat{align-self:flex-end}
+/* статистика — строка 3, занимает всю ширину справа */
+.controls #stat{ grid-column:1 / span 4; grid-row:3; justify-self:end; }
 
 /* message list */
 #list{
@@ -132,27 +84,34 @@ header{
 }
 
 /* row */
+/* replace current .row/.time/.user/.msg definitions with grid-based layout */
 .row{
-  padding:1px 12px;
-  display:flex;
-  gap:4px;
-  align-items:baseline;
+  padding:6px 12px;
+  border-bottom:1px solid rgba(42,42,45,0.6);
+  display:grid;
+  grid-template-columns:56px 1fr; /* 56px — ширина колонки времени (как в скрине) */
+  gap:8px;
+  align-items:flex-start;
+  line-height:1.35;
 }
+
 .time{
+  grid-column:1;
   font-family:var(--sans);
   font-size:13px;
-  font-weight:500;
   color:#7f7f8a;
   white-space:nowrap;
-  width:56px;
+  width:auto;
   flex-shrink:0;
   letter-spacing:0.2px;
-  margin-right:6px;
 }
+
 .user{
+  grid-column:2;
   font-weight:600;
-  margin-right:2px;
+  margin-right:6px;
   white-space:nowrap;
+  display:inline;
 }
 .user::after{
   content: ":";
@@ -160,17 +119,18 @@ header{
   margin-right:4px;
 }
 .msg{
-  color:#efeff1;
-  font-size:13px;
-  line-height:1.45;
+  grid-column:2;
+  color:var(--text);
   word-break:break-word;
   overflow-wrap:anywhere;
+  display:block; /* чтобы переносы были корректны */
 }
 .emote{
   height:24px;
   vertical-align:-4px;
   margin:0 1px;
 }
+.reply{ display:inline-block; vertical-align:middle; color:var(--muted); font-size:12px; margin-right:6px; }
 
 /* export helper (unchanged) */
 .export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
@@ -252,6 +212,11 @@ header{
   .chat{padding:0 8px}
   header{padding:10px;border-radius:12px}
   #list{margin-top:0;border-radius:0}
+
+  /* увеличиваем читаемость на телефонах */
+  .time{ font-size:14px; }
+  .msg{ font-size:15px; line-height:1.45; }
+  .emote{ height:22px; } /* чуть меньше, чтобы не ломать строки */
 }
 </style>
 </head>
@@ -275,8 +240,8 @@ header{
         <button id="exportBtn">📸 Снимок чата</button>
         <button id="toggleTime">⏱️ Время: ON</button>
         <button id="toggleTag">
-  <img src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif" style="height:18px;margin-right:6px">
-  Тег на снимке: ON
+  <img src=".../1x.avif" style="height:18px;margin-right:6px">
+Подпись: ON
 </button>
 <span class="pill" id="stat">—</span>
       </div>
@@ -443,8 +408,23 @@ function renderMore(){
     const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
     const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
     const userEl = document.createElement("span"); userEl.className="user"; userEl.textContent = r.user || "—"; userEl.style.color = colorForUser(r.user);
-    const msgEl = document.createElement("span"); msgEl.className="msg";
-    renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+const msgEl = document.createElement("span");
+msgEl.className = "msg";
+
+// --- simple reply parsing: ищем возможные поля с ником-целью ---
+const replyName = r.reply_to || r.reply_user || r.reply || r.in_reply_to || r.replyNick || r.replyName;
+if(replyName){
+  const repEl = document.createElement("span");
+  repEl.className = "reply";
+  repEl.textContent = `↳ @${String(replyName)}: `; // стрелка и ник — компактно
+  repEl.style.color = "var(--muted)";
+  repEl.style.fontSize = "12px";
+  repEl.style.marginRight = "6px";
+  msgEl.appendChild(repEl);
+}
+
+// теперь рендерим сообщение с эмоутами
+renderTextWithEmotes(msgEl, r.text || "", EMOTES);
     if(SHOW_TIME) rowEl.appendChild(timeEl);
     rowEl.appendChild(userEl); rowEl.appendChild(msgEl);
     frag.appendChild(rowEl);
@@ -480,8 +460,8 @@ elToggleTag.addEventListener("click",()=>{
   SHOW_TAG = !SHOW_TAG;
 
   elToggleTag.innerHTML =
-    `<img src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif" style="height:18px;margin-right:6px">
-     Тег на снимке: ${SHOW_TAG ? "ON" : "OFF"}`;
+  `<img src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif" style="height:18px;margin-right:6px">
+   Подпись: ${SHOW_TAG ? "ON" : "OFF"}`;
 
   elToggleTag.style.opacity = SHOW_TAG ? "1" : "0.5";
 });
@@ -507,24 +487,41 @@ elExportBtn.addEventListener("click", async ()=>{
   const from = Math.min(startIndex,endIndex), to = Math.max(startIndex,endIndex);
   const wrap = document.createElement("div"); wrap.className="export-wrap";
   for(let i=from;i<=to;i++){ const clone = allRows[i].cloneNode(true); clone.classList.remove("row"); clone.classList.add("export-row"); wrap.appendChild(clone); }
-  const metaRow = document.createElement("div"); metaRow.className="export-meta";
-  const metaLeft = document.createElement("div"); metaLeft.className="export-meta-left";
-  const metaRight = document.createElement("div"); metaRight.className="export-meta-right";
-const channelIcon=document.createElement("img");
-channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif";
-channelIcon.crossOrigin="anonymous";
+  if(SHOW_TAG){
 
-const channelName=document.createElement("span");
-channelName.textContent = meta.channel || "channel";
+  const metaRow = document.createElement("div");
+  metaRow.className="export-meta";
 
-if(SHOW_TAG){
+  const metaLeft = document.createElement("div");
+  metaLeft.className="export-meta-left";
+
+  const metaRight = document.createElement("div");
+  metaRight.className="export-meta-right";
+
+  const channelIcon=document.createElement("img");
+  channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif";
+  channelIcon.crossOrigin="anonymous";
+
+  const channelName=document.createElement("span");
+  channelName.textContent = meta.channel || "channel";
+
   metaLeft.appendChild(channelIcon);
-}
+  metaLeft.appendChild(channelName);
 
-metaLeft.appendChild(channelName);
-  const dateIcon=document.createElement("span"); dateIcon.textContent="📅"; const dateText=document.createElement("span"); dateText.textContent = elStreamDate.textContent || "";
-  metaRight.appendChild(dateIcon); metaRight.appendChild(dateText);
-  metaRow.appendChild(metaLeft); metaRow.appendChild(metaRight); wrap.appendChild(metaRow);
+  const dateIcon=document.createElement("span");
+  dateIcon.textContent="📅";
+
+  const dateText=document.createElement("span");
+  dateText.textContent = elStreamDate.textContent || "";
+
+  metaRight.appendChild(dateIcon);
+  metaRight.appendChild(dateText);
+
+  metaRow.appendChild(metaLeft);
+  metaRow.appendChild(metaRight);
+
+  wrap.appendChild(metaRow);
+}
   document.body.appendChild(wrap);
   await new Promise(r=>setTimeout(r,50)); await waitImages(wrap);
   let canvas;
