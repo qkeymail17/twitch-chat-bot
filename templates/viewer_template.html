@@ -79,8 +79,13 @@ header{
   grid-row:2;
 }
 
+.controls #toggleTag{
+  grid-column:1 / span 3;
+  grid-row:3;
+}
+
 .controls #stat{
-  grid-column:1 / span 6;
+  grid-column:4 / span 3;
   grid-row:3;
   justify-self:end;
 }
@@ -127,15 +132,49 @@ header{
 }
 
 /* row */
-.row{padding:6px 12px;border-bottom:1px solid rgba(42,42,45,0.6);line-height:1.35;display:flex;gap:10px;align-items:flex-start}
-.time{font-family:var(--sans);font-size:12px;color:#adadb8;white-space:nowrap;margin-right:6px}
-.user{font-weight:700;margin-right:8px;white-space:nowrap}
-.msg{color:var(--text);word-break:break-word;overflow-wrap:anywhere}
-.emote{height:24px;vertical-align:middle;margin:0 2px}
+.row{
+  padding:1px 12px;
+  display:flex;
+  gap:4px;
+  align-items:baseline;
+}
+.time{
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:500;
+  color:#7f7f8a;
+  white-space:nowrap;
+  width:56px;
+  flex-shrink:0;
+  letter-spacing:0.2px;
+  margin-right:6px;
+}
+.user{
+  font-weight:600;
+  margin-right:2px;
+  white-space:nowrap;
+}
+.user::after{
+  content: ":";
+  color:#e7e7ea;
+  margin-right:4px;
+}
+.msg{
+  color:#efeff1;
+  font-size:13px;
+  line-height:1.45;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+}
+.emote{
+  height:24px;
+  vertical-align:-4px;
+  margin:0 1px;
+}
 
 /* export helper (unchanged) */
 .export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
-.export-row{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.export-row{padding:6px 0;border-bottom:none}
 .export-row:last-child{border-bottom:none}
 .export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
 .export-meta-left{
@@ -174,32 +213,24 @@ header{
   align-items:stretch;
 }
 
-.controls input{
-  flex:0 0 auto;
-  height:32px !important;
-  padding:4px 10px !important;
-  line-height:1.2;
-}
-
 .controls button{
   flex:0 0 auto;
+  width:100%;
   height:32px;
+  font-size:13px;
   display:flex;
   align-items:center;
   justify-content:center;
   padding:0 12px;
 }
-.controls button{
-  width:100%;
-  height:32px;
-  font-size:13px;
-}
 
 .controls input{
+  flex:0 0 auto;
   width:100%;
   height:32px;
   padding:4px 10px;
   font-size:13px;
+  line-height:1.2;
 }
 
   /* messages column */
@@ -240,10 +271,14 @@ header{
       <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
-        <button id="toggleTime">⏱️ Время: ON</button>
-        <button id="exportBtn">📸 Снимок чата</button>
         <button id="vodBtn">🔗 Ссылка VOD</button>
-        <span class="pill" id="stat">—</span>
+        <button id="exportBtn">📸 Снимок чата</button>
+        <button id="toggleTime">⏱️ Время: ON</button>
+        <button id="toggleTag">
+  <img src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif" style="height:18px;margin-right:6px">
+  Тег на снимке: ON
+</button>
+<span class="pill" id="stat">—</span>
       </div>
     </header>
 
@@ -282,8 +317,10 @@ const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
 const elVodBtn=document.getElementById("vodBtn");
+const elToggleTag=document.getElementById("toggleTag");
 
 let SHOW_TIME=true;
+let SHOW_TAG=true;
 
 elTitle.textContent = meta.title || "—";
 elChannel.textContent = meta.channel || "—";
@@ -427,8 +464,26 @@ elQ.addEventListener("input",()=>applyFilters());
 elU.addEventListener("input",()=>applyFilters());
 elToggleTime.addEventListener("click",()=>{
   SHOW_TIME = !SHOW_TIME;
-  elToggleTime.textContent = SHOW_TIME ? "⏱️ Время: ON" : "⏱️ Время: OFF";
-  elList.innerHTML=""; rendered=0; renderMore();
+
+  elToggleTime.textContent = SHOW_TIME
+    ? "⏱️ Время: ON"
+    : "⏱️ Время: OFF";
+
+  elToggleTime.style.opacity = SHOW_TIME ? "1" : "0.5";
+
+  elList.innerHTML="";
+  rendered=0;
+  renderMore();
+});
+
+elToggleTag.addEventListener("click",()=>{
+  SHOW_TAG = !SHOW_TAG;
+
+  elToggleTag.innerHTML =
+    `<img src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif" style="height:18px;margin-right:6px">
+     Тег на снимке: ${SHOW_TAG ? "ON" : "OFF"}`;
+
+  elToggleTag.style.opacity = SHOW_TAG ? "1" : "0.5";
 });
 
 /* snapshot logic kept intact (uses html2canvas included below) */
@@ -455,9 +510,18 @@ elExportBtn.addEventListener("click", async ()=>{
   const metaRow = document.createElement("div"); metaRow.className="export-meta";
   const metaLeft = document.createElement("div"); metaLeft.className="export-meta-left";
   const metaRight = document.createElement("div"); metaRight.className="export-meta-right";
-  const channelIcon=document.createElement("img"); channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif"; channelIcon.crossOrigin="anonymous";
-  const channelName=document.createElement("span"); channelName.textContent = meta.channel || "channel";
-  metaLeft.appendChild(channelIcon); metaLeft.appendChild(channelName);
+const channelIcon=document.createElement("img");
+channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif";
+channelIcon.crossOrigin="anonymous";
+
+const channelName=document.createElement("span");
+channelName.textContent = meta.channel || "channel";
+
+if(SHOW_TAG){
+  metaLeft.appendChild(channelIcon);
+}
+
+metaLeft.appendChild(channelName);
   const dateIcon=document.createElement("span"); dateIcon.textContent="📅"; const dateText=document.createElement("span"); dateText.textContent = elStreamDate.textContent || "";
   metaRight.appendChild(dateIcon); metaRight.appendChild(dateText);
   metaRow.appendChild(metaLeft); metaRow.appendChild(metaRight); wrap.appendChild(metaRow);
