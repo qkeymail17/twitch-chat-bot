@@ -92,6 +92,7 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
       <button id="jumpBottom">⬇️</button>
     </div>
     <div class="small" id="stat">—</div>
+    <div class="small" id="emoteStat"></div>
   </div>
 
   <div class="viewer">
@@ -351,13 +352,6 @@ function jumpTop(){
     return;
   }
 
-  const first = [...DOM.list.querySelectorAll(".row")]
-    .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
-
-  if(first){
-    STATE.scrollStack.push(Number(first.dataset.idx));
-  }
-
   const idx = STATE.scrollStack.pop();
 
   const target = DOM.list.querySelector(`.row[data-idx="${idx}"]`);
@@ -376,7 +370,12 @@ async function init(){
   loadDataFromScript();
 
   if(STATE.meta.channel_id){
-      STATE.emotes = await fetch7tvEmotes(STATE.meta.channel_id);
+    const el = document.getElementById("emoteStat");
+    el.textContent = "Загрузка эмоутов…";
+
+    STATE.emotes = await fetch7tvEmotes(STATE.meta.channel_id);
+
+    el.textContent = `Эмоутов: ${STATE.emotes.size}`;
   }
 
   DOM.q.addEventListener("input",()=>applyFilters());
