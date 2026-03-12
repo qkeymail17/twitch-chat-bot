@@ -12,8 +12,26 @@
 *{box-sizing:border-box}
 body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var(--text)}
 .app{display:flex;gap:20px;padding:18px;align-items:flex-start}
-.panel{width:280px;background:#1b1b1f;padding:14px;border-radius:10px}
-.viewer{flex:1;max-width:720px;background:#151517;padding:12px;border-radius:10px;overflow:auto}
+.panel{
+  width:280px;
+  background:#1b1b1f;
+  padding:14px;
+  border-radius:10px;
+
+  position:sticky;
+  top:18px;
+  height:fit-content;
+}
+.viewer{
+  flex:1;
+  max-width:720px;
+  background:#151517;
+  padding:12px;
+  border-radius:10px;
+
+  height:calc(100vh - 36px);
+  overflow-y:auto;
+}
 .controls{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .controls input, .controls button{height:36px;padding:6px 8px;border-radius:6px;border:0;background:#222;color:var(--text)}
 #list{background:transparent}
@@ -101,6 +119,7 @@ const STATE = {
 
 /* DOM cache */
 const DOM = {
+  viewer: document.querySelector(".viewer"),
   list: document.getElementById("list"),
   q: document.getElementById("q"),
   u: document.getElementById("u"),
@@ -317,13 +336,13 @@ function jumpBottom(){
     STATE.scrollStack.push(rows[0].dataset.user + ":" + rows[0].textContent);
   }
 
-  window.scrollTo(0, document.body.scrollHeight);
+  DOM.viewer.scrollTop = DOM.viewer.scrollHeight;
 }
 
 function jumpTop(){
 
   if(STATE.scrollStack.length === 0){
-    window.scrollTo(0,0);
+    DOM.viewer.scrollTop = 0;
     return;
   }
 
@@ -364,7 +383,8 @@ async function init(){
   document.getElementById("jumpBottom").addEventListener("click", jumpBottom);
   document.getElementById("jumpTop").addEventListener("click", jumpTop);
   // infinite scroll loader
-  window.addEventListener("scroll", ()=>{ if(window.innerHeight+window.scrollY > document.body.offsetHeight-900) renderMore(); });
+  DOM.viewer.addEventListener("scroll", ()=>{
+    if(DOM.viewer.scrollTop + DOM.viewer.clientHeight > DOM.viewer.scrollHeight - 400) renderMore(); });
 
   // initial render
   renderMore();
