@@ -35,12 +35,15 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
 }
 .user{
   font-weight:600;
-  margin-right:4px;
   white-space:nowrap;
 }
+.username{
+  white-space:nowrap;
+  margin-right:4px;
+}
+
 .colon{
   color:var(--text);
-  margin-right:4px;
 }
 .body{
   display:inline;
@@ -191,6 +194,7 @@ function renderTime(row){
 function renderUser(row){
 
   const wrapper = document.createElement("span");
+  wrapper.className = "username";
 
   const name = document.createElement("span");
   name.className = "user";
