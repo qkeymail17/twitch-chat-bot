@@ -38,6 +38,10 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
   margin-right:4px;
   white-space:nowrap;
 }
+.colon{
+  color:var(--text);
+  margin-right:4px;
+}
 .body{
   display:inline;
 }
@@ -185,11 +189,22 @@ function renderTime(row){
 }
 
 function renderUser(row){
-  const u = document.createElement("span");
-  u.className = "user";
-  u.textContent = (row.user || "—") + ":";
-  u.style.color = colorForUser(row.user);
-  return u;
+
+  const wrapper = document.createElement("span");
+
+  const name = document.createElement("span");
+  name.className = "user";
+  name.textContent = row.user || "—";
+  name.style.color = colorForUser(row.user);
+
+  const colon = document.createElement("span");
+  colon.className = "colon";
+  colon.textContent = ":";
+
+  wrapper.appendChild(name);
+  wrapper.appendChild(colon);
+
+  return wrapper;
 }
 
 function renderBody(row){
