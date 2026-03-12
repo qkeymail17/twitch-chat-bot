@@ -346,6 +346,13 @@ function jumpBottom(){
 
 function jumpTop(){
 
+  const first = [...DOM.list.querySelectorAll(".row")]
+    .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
+
+  if(first){
+    STATE.scrollStack.push(Number(first.dataset.idx));
+  }
+
   if(STATE.scrollStack.length === 0){
     DOM.viewer.scrollTop = 0;
     return;
