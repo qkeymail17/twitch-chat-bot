@@ -17,12 +17,31 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
 .controls{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .controls input, .controls button{height:36px;padding:6px 8px;border-radius:6px;border:0;background:#222;color:var(--text)}
 #list{background:transparent}
-.row{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:14px;line-height:1.35;white-space:pre-wrap}
-.time{display:inline-block;width:64px;font-family:var(--mono);color:var(--muted);margin-right:8px}
+.row{
+  padding:8px 6px;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  font-size:14px;
+  line-height:1.35;
+
+  display:flex;
+  align-items:flex-start;
+  gap:6px;
+
+  white-space:pre-wrap;
+}
+.time{
+  flex:0 0 64px;
+  font-family:var(--mono);
+  color:var(--muted);
+}
 .user{font-weight:600;margin-right:6px}
-.body{display:inline}
+.body{
+  flex:1;
+  min-width:0;
+}
 .emote{height:22px;vertical-align:-4px;margin:0 2px}
 .small{font-size:12px;color:var(--muted)}
+.mention{color:#8cc7ff;font-weight:500;}
 </style>
 </head>
 <body>
@@ -106,18 +125,53 @@ async function fetch7tvEmotes(channelId){
   }catch(e){ return new Map(); }
 }
 
-/* render text with emotes inline */
-function renderTextWithEmotes(container,text){
-  const parts = String(text||"").split(/(\s+)/);
+function parseFragments(text){
+  const parts = String(text || "").split(/(\s+)/);
+  const fragments = [];
+
   for(const p of parts){
     const token = p.replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/[\r\n\t]/g,'');
+
     if(STATE.emotes.has(token)){
-      const img = document.createElement("img");
-      img.className="emote"; img.src=STATE.emotes.get(token); img.alt=token;
-      container.appendChild(img);
-    } else {
-      container.appendChild(document.createTextNode(p));
+      fragments.push({type:"emote", value:token});
     }
+    else if(token.startsWith("@") && token.length > 1){
+      fragments.push({type:"mention", value:token});
+    }
+    else{
+      fragments.push({type:"text", value:p});
+    }
+  }
+
+  return fragments;
+}
+
+/* render text with emotes inline */
+function renderTextWithEmotes(container,text){
+
+  const fragments = parseFragments(text);
+
+  for(const f of fragments){
+
+    if(f.type === "emote"){
+      const img = document.createElement("img");
+      img.className = "emote";
+      img.src = STATE.emotes.get(f.value);
+      img.alt = f.value;
+      container.appendChild(img);
+    }
+
+    else if(f.type === "mention"){
+      const span = document.createElement("span");
+      span.className = "mention";
+      span.textContent = f.value;
+      container.appendChild(span);
+    }
+
+    else{
+      container.appendChild(document.createTextNode(f.value));
+    }
+
   }
 }
 
