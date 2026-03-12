@@ -121,19 +121,49 @@ function renderTextWithEmotes(container,text){
   }
 }
 
+function renderTime(row){
+  const t = document.createElement("span");
+  t.className = "time";
+  t.textContent = row.t || "00:00:00";
+  return t;
+}
+
+function renderUser(row){
+  const u = document.createElement("span");
+  u.className = "user";
+  u.textContent = row.user || "—";
+  u.style.color = colorForUser(row.user);
+  return u;
+}
+
+function renderBody(row){
+  const b = document.createElement("span");
+  b.className = "body";
+
+  if(row.reply_to){
+    const r = document.createElement("span");
+    r.className = "small";
+    r.textContent = `↳ @${row.reply_to} `;
+    b.appendChild(r);
+  }
+
+  renderTextWithEmotes(b, row.text || "");
+  return b;
+}
+
 /* render single message DOM — keep minimal and semantic */
 function renderMessage(row){
-  const el = document.createElement("div"); el.className="row"; el.dataset.user = row.user||"";
+  const el = document.createElement("div");
+  el.className = "row";
+  el.dataset.user = row.user || "";
+
   if(STATE.showTime){
-    const t = document.createElement("span"); t.className="time"; t.textContent = (row.t||"00:00:00");
-    el.appendChild(t);
+    el.appendChild(renderTime(row));
   }
-  const u = document.createElement("span"); u.className="user"; u.textContent = row.user||"—"; u.style.color = colorForUser(row.user);
-  el.appendChild(u);
-  const b = document.createElement("span"); b.className="body";
-  if(row.reply_to){ const r = document.createElement("span"); r.className="small"; r.textContent = `↳ @${row.reply_to} `; b.appendChild(r); }
-  renderTextWithEmotes(b, row.text||"");
-  el.appendChild(b);
+
+  el.appendChild(renderUser(row));
+  el.appendChild(renderBody(row));
+
   return el;
 }
 
