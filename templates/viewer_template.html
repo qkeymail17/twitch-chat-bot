@@ -114,8 +114,7 @@ const STATE = {
   emotes: new Map(),
   showTime: true,
   meta: {},
-  scrollStack: [],
-  lastJump: null,
+  savedPos: null,
 };
 
 /* DOM cache */
@@ -333,14 +332,12 @@ async function snapshotSelected(){
 
 function jumpBottom(){
 
-  const first = [...DOM.list.querySelectorAll(".row")]
-    .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
+  if(STATE.savedPos === null){
+    const first = [...DOM.list.querySelectorAll(".row")]
+      .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
 
-  if(first && STATE.lastJump !== "down"){
-    STATE.scrollStack.push(Number(first.dataset.idx));
+    if(first) STATE.savedPos = Number(first.dataset.idx);
   }
-
-  STATE.lastJump = "down";
 
   while(STATE.rendered < STATE.rowsFiltered.length){
     renderMore();
@@ -351,25 +348,19 @@ function jumpBottom(){
 
 function jumpTop(){
 
-  if(STATE.scrollStack.length === 0){
-    DOM.viewer.scrollTop = 0;
-    STATE.lastJump = "up";
+  if(STATE.savedPos !== null){
+
+    const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
+
+    if(target){
+      target.scrollIntoView({block:"start"});
+    }
+
+    STATE.savedPos = null;
     return;
   }
 
-  const idx = STATE.scrollStack[STATE.scrollStack.length - 1];
-
-  const target = DOM.list.querySelector(`.row[data-idx="${idx}"]`);
-
-  if(target){
-    target.scrollIntoView({block:"start"});
-  }
-
-  if(STATE.lastJump === "up"){
-    STATE.scrollStack.pop();
-  }
-
-  STATE.lastJump = "up";
+  DOM.viewer.scrollTop = 0;
 }
 
 /* init */
