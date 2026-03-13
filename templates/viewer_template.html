@@ -115,7 +115,7 @@ const STATE = {
   showTime: true,
   meta: {},
   savedPos: null,
-  jumpMode: null,
+  jumpState: null,
 };
 
 /* DOM cache */
@@ -340,12 +340,11 @@ function jumpBottom(){
     if(first) STATE.savedPos = Number(first.dataset.idx);
   }
 
-  if(STATE.jumpMode === "down"){
+  if(STATE.jumpState === "bottom"){
     STATE.savedPos = null;
-    STATE.jumpMode = null;
-  }else{
-    STATE.jumpMode = "down";
   }
+
+  STATE.jumpState = "bottom";
 
   while(STATE.rendered < STATE.rowsFiltered.length){
     renderMore();
@@ -356,7 +355,7 @@ function jumpBottom(){
 
 function jumpTop(){
 
-  if(STATE.savedPos !== null && STATE.jumpMode !== "up"){
+  if(STATE.savedPos !== null && STATE.jumpState !== "top"){
 
     const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
 
@@ -364,17 +363,12 @@ function jumpTop(){
       target.scrollIntoView({block:"start"});
     }
 
-    STATE.jumpMode = "up";
-    return;
-  }
-
-  if(STATE.jumpMode === "up"){
-    STATE.jumpMode = null;
-    DOM.viewer.scrollTop = 0;
+    STATE.jumpState = "top";
     return;
   }
 
   DOM.viewer.scrollTop = 0;
+  STATE.jumpState = "top";
 }
 
 /* init */
