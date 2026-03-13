@@ -343,19 +343,20 @@ async function snapshotSelected(){
 
 function jumpBottom(){
 
-  if(STATE.savedIdx !== null){
+  const atBottom =
+    DOM.viewer.scrollTop + DOM.viewer.clientHeight >= DOM.viewer.scrollHeight - 2;
 
-    if(DOM.viewer.scrollTop + DOM.viewer.clientHeight >= DOM.viewer.scrollHeight - 2){
-      STATE.savedIdx = null;
+  if(STATE.savedIdx !== null && !atBottom){
+    const target = DOM.list.querySelector(`[data-idx="${STATE.savedIdx}"]`);
+    if(target){
+      target.scrollIntoView({block:"start"});
+      return;
     }
-    else{
-      const target = DOM.list.querySelector(`[data-idx="${STATE.savedIdx}"]`);
-      if(target){
-        target.scrollIntoView({block:"start"});
-        return;
-      }
-    }
+  }
 
+  if(atBottom){
+    STATE.savedIdx = null;
+    return;
   }
 
   if(STATE.savedIdx === null){
@@ -372,19 +373,19 @@ function jumpBottom(){
 
 function jumpTop(){
 
-  if(STATE.savedIdx !== null){
+  const atTop = DOM.viewer.scrollTop <= 2;
 
-    if(DOM.viewer.scrollTop <= 2){
-      STATE.savedIdx = null;
+  if(STATE.savedIdx !== null && !atTop){
+    const target = DOM.list.querySelector(`[data-idx="${STATE.savedIdx}"]`);
+    if(target){
+      target.scrollIntoView({block:"start"});
+      return;
     }
-    else{
-      const target = DOM.list.querySelector(`[data-idx="${STATE.savedIdx}"]`);
-      if(target){
-        target.scrollIntoView({block:"start"});
-        return;
-      }
-    }
+  }
 
+  if(atTop){
+    STATE.savedIdx = null;
+    return;
   }
 
   DOM.viewer.scrollTop = 0;
