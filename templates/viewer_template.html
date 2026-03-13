@@ -499,7 +499,11 @@ elExportBtn.addEventListener("click", async ()=>{
   const endIndex   = allRows.indexOf(endRow);
   if(startIndex===-1||endIndex===-1) return;
   const from = Math.min(startIndex,endIndex), to = Math.max(startIndex,endIndex);
-  const wrap = document.createElement("div"); wrap.className="export-wrap";
+
+  sel.removeAllRanges();
+
+  const wrap = document.createElement("div");
+  wrap.className="export-wrap";
   for(let i=from;i<=to;i++){ const clone = allRows[i].cloneNode(true); clone.classList.remove("row"); clone.classList.add("export-row"); wrap.appendChild(clone); }
   const metaRow = document.createElement("div"); metaRow.className="export-meta";
   const metaLeft = document.createElement("div"); metaLeft.className="export-meta-left";
