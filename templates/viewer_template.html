@@ -130,6 +130,10 @@ header{
 .row{padding:6px 12px;border-bottom:1px solid rgba(42,42,45,0.6);line-height:1.35;display:flex;gap:10px;align-items:flex-start}
 .time{font-family:var(--sans);font-size:12px;color:#adadb8;white-space:nowrap;margin-right:6px}
 .user{font-weight:700;margin-right:8px;white-space:nowrap}
+.colon{
+  color:var(--text);
+  margin-right:6px;
+}
 .msg{color:var(--text);word-break:break-word;overflow-wrap:anywhere}
 .emote{height:24px;vertical-align:middle;margin:0 2px}
 
@@ -411,11 +415,14 @@ function renderMore(){
     rowEl.dataset.id = i; rowEl.className = "row";
     const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
     const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
-    const userEl = document.createElement("span"); userEl.className="user"; userEl.textContent = r.user || "—"; userEl.style.color = colorForUser(r.user);
+    const userEl = document.createElement("span");
+    const colonEl = document.createElement("span"); colonEl.className = "colon"; colonEl.textContent = ":";userEl.className="user"; userEl.textContent = r.user || "—"; userEl.style.color = colorForUser(r.user);
     const msgEl = document.createElement("span"); msgEl.className="msg";
     renderTextWithEmotes(msgEl, r.text || "", EMOTES);
     if(SHOW_TIME) rowEl.appendChild(timeEl);
-    rowEl.appendChild(userEl); rowEl.appendChild(msgEl);
+    rowEl.appendChild(userEl);
+    rowEl.appendChild(colonEl);
+    rowEl.appendChild(msgEl);
     frag.appendChild(rowEl);
   }
   elList.appendChild(frag); rendered=end;
