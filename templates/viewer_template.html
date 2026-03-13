@@ -343,10 +343,12 @@ async function snapshotSelected(){
 
 function jumpBottom(){
 
+  const atTop = DOM.viewer.scrollTop <= 2;
+
   const atBottom =
     DOM.viewer.scrollTop + DOM.viewer.clientHeight >= DOM.viewer.scrollHeight - 2;
 
-  if(STATE.savedIdx !== null && !atBottom){
+  if(STATE.savedIdx !== null && atTop){
     const target = DOM.list.querySelector(`[data-idx="${STATE.savedIdx}"]`);
     if(target){
       target.scrollIntoView({block:"start"});
