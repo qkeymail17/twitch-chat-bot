@@ -11,12 +11,7 @@
   --text:#e7e7ea;
   --muted:#a6a6b0;
   --border:#2a2a35;
-  --accent:#9146ff;
 
-  --rowA:#1f232a;
-  --rowB:#232830;
-
-  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
 
   --controls-w:260px; /* ширина левого блока на десктопе */
@@ -46,7 +41,11 @@ header{
   border-radius:0;
 }
 .meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
-.pill{font-family:var(--mono);color:var(--muted);font-size:12px}
+.pill{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  color:var(--muted);
+  font-size:12px;
+}
 .controls{
   display:grid;
   grid-template-columns:repeat(6,1fr);
@@ -123,15 +122,12 @@ header{
   padding-bottom:40px;
   margin-top:0;
   border-radius:0;
-  overflow:visible;
 }
 
 /* row */
 .row{
   padding:6px 12px;
   line-height:1.4;
-  line-height:1.4;
-  display:block;      /* <- главное: блоковая строка, элементы внутри пойдут inline */
 }
 .time{
   color:#adadb8;
@@ -139,30 +135,22 @@ header{
   margin-right:6px;
 }
 .user{
-  display:inline-block;
   font-weight:600;
   white-space:nowrap;
-  vertical-align:baseline;
-  /* margin-right удалён — двоеточие будет прилегать к нику */
 }
 .colon{
-  display:inline-block;
   color:var(--text);
   margin-right:6px;          /* пространство между ':' и началом сообщения */
-  vertical-align:baseline;
 }
 .msg{
   display:inline;            /* message — inline, будет переноситься как на скрине-экспорте */
   color:var(--text);
-  word-break:break-word;
   overflow-wrap:break-word;
 }
 .emote{vertical-align:middle;margin:0 2px}
 
 /* export helper (unchanged) */
 .export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
-.export-row{padding:8px 0;}
-.export-row:last-child{border-bottom:none}
 .export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
 .export-meta-left{
   display:flex;
@@ -354,7 +342,6 @@ function colorForUser(name){
   const l = 62;
   return `hsl(${h} ${s}% ${l}%)`;
 }
-function esc(s){ return (s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 async function fetch7tvEmotes(channelId){
   if(!channelId) return new Map();
@@ -500,7 +487,10 @@ elExportBtn.addEventListener("click", async ()=>{
 
   const wrap = document.createElement("div");
   wrap.className="export-wrap";
-  for(let i=from;i<=to;i++){ const clone = allRows[i].cloneNode(true); clone.classList.remove("row"); clone.classList.add("export-row"); wrap.appendChild(clone); }
+  for(let i=from;i<=to;i++){
+    const clone = allRows[i].cloneNode(true);
+    wrap.appendChild(clone);
+  }
   const metaRow = document.createElement("div"); metaRow.className="export-meta";
   const metaLeft = document.createElement("div"); metaLeft.className="export-meta-left";
   const metaRight = document.createElement("div"); metaRight.className="export-meta-right";
