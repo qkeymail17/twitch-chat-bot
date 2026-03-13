@@ -115,7 +115,7 @@ const STATE = {
   showTime: true,
   meta: {},
   savedPos: null,
-  direction: null,
+  lastButton: null,
 };
 
 /* DOM cache */
@@ -340,13 +340,7 @@ function jumpBottom(){
     if(first) STATE.savedPos = Number(first.dataset.idx);
   }
 
-  if(STATE.direction === "down"){
-    STATE.savedPos = null;
-  }
-
-  STATE.direction = "down";
-
-  if(STATE.savedPos !== null && STATE.direction !== "down"){
+  if(STATE.lastButton === "top" && STATE.savedPos !== null){
     const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
     if(target) target.scrollIntoView({block:"start"});
   } else {
@@ -355,23 +349,28 @@ function jumpBottom(){
     }
     DOM.viewer.scrollTop = DOM.viewer.scrollHeight;
   }
+
+  if(STATE.lastButton === "bottom"){
+    STATE.savedPos = null;
+  }
+
+  STATE.lastButton = "bottom";
 }
 
 function jumpTop(){
 
-  if(STATE.savedPos !== null && STATE.direction === "down"){
+  if(STATE.lastButton === "bottom" && STATE.savedPos !== null){
     const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
     if(target) target.scrollIntoView({block:"start"});
-    STATE.direction = "up";
-    return;
+  } else {
+    DOM.viewer.scrollTop = 0;
   }
 
-  if(STATE.direction === "up"){
+  if(STATE.lastButton === "top"){
     STATE.savedPos = null;
   }
 
-  STATE.direction = "up";
-  DOM.viewer.scrollTop = 0;
+  STATE.lastButton = "top";
 }
 
 /* init */
