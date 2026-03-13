@@ -336,39 +336,48 @@ function jumpBottom(){
   const firstVisible = [...DOM.list.querySelectorAll(".row")]
     .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
 
-  if(STATE.savedPos === null && firstVisible){
-    STATE.savedPos = Number(firstVisible.dataset.idx);
+  if(STATE.lastButton === "bottom"){
+    STATE.savedPos = null;
   }
 
   if(STATE.lastButton === "top" && STATE.savedPos !== null){
     const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
-    if(target) target.scrollIntoView({block:"start"});
-  } else {
-    while(STATE.rendered < STATE.rowsFiltered.length){
-      renderMore();
+    if(target){
+      target.scrollIntoView({block:"start"});
+      STATE.lastButton = "bottom";
+      return;
     }
-    DOM.viewer.scrollTop = DOM.viewer.scrollHeight;
   }
 
-  if(STATE.lastButton === "bottom"){
-    STATE.savedPos = null;
+  if(STATE.savedPos === null && firstVisible){
+    STATE.savedPos = Number(firstVisible.dataset.idx);
   }
+
+  while(STATE.rendered < STATE.rowsFiltered.length){
+    renderMore();
+  }
+
+  DOM.viewer.scrollTop = DOM.viewer.scrollHeight;
 
   STATE.lastButton = "bottom";
 }
 
 function jumpTop(){
 
-  if(STATE.lastButton === "bottom" && STATE.savedPos !== null){
-    const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
-    if(target) target.scrollIntoView({block:"start"});
-  } else {
-    DOM.viewer.scrollTop = 0;
-  }
-
   if(STATE.lastButton === "top"){
     STATE.savedPos = null;
   }
+
+  if(STATE.lastButton === "bottom" && STATE.savedPos !== null){
+    const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
+    if(target){
+      target.scrollIntoView({block:"start"});
+      STATE.lastButton = "top";
+      return;
+    }
+  }
+
+  DOM.viewer.scrollTop = 0;
 
   STATE.lastButton = "top";
 }
