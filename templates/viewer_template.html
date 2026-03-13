@@ -127,14 +127,40 @@ header{
 }
 
 /* row */
-.row{padding:6px 12px;border-bottom:1px solid rgba(42,42,45,0.6);line-height:1.35;display:flex;gap:10px;align-items:flex-start}
-.time{font-family:var(--sans);font-size:12px;color:#adadb8;white-space:nowrap;margin-right:6px}
-.user{font-weight:700;margin-right:8px;white-space:nowrap}
-.colon{
-  color:var(--text);
-  margin-right:6px;
+.row{
+  padding:6px 12px;
+  border-bottom:1px solid rgba(42,42,45,0.6);
+  line-height:1.35;
+  display:block;      /* <- главное: блоковая строка, элементы внутри пойдут inline */
 }
-.msg{color:var(--text);word-break:break-word;overflow-wrap:anywhere}
+.time{
+  display:inline-block;      /* inline, но по ширине не ломает поток */
+  font-family:var(--sans);
+  font-size:12px;
+  color:#adadb8;
+  white-space:nowrap;
+  margin-right:6px;
+  vertical-align:middle;
+}
+.user{
+  display:inline-block;
+  font-weight:700;
+  white-space:nowrap;
+  vertical-align:middle;
+  /* margin-right удалён — двоеточие будет прилегать к нику */
+}
+.colon{
+  display:inline-block;
+  color:var(--text);
+  margin-right:6px;          /* пространство между ':' и началом сообщения */
+  vertical-align:middle;
+}
+.msg{
+  display:inline;            /* message — inline, будет переноситься как на скрине-экспорте */
+  color:var(--text);
+  word-break:break-word;
+  overflow-wrap:anywhere;
+}
 .emote{height:24px;vertical-align:middle;margin:0 2px}
 
 /* export helper (unchanged) */
