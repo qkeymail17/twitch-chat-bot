@@ -135,7 +135,7 @@ header{
 }
 .time{
   display:inline-block;      /* inline, но по ширине не ломает поток */
-  font-family:var(--sans);
+  font-family:var(--mono);
   font-size:12px;
   color:#adadb8;
   white-space:nowrap;
@@ -442,7 +442,13 @@ function renderMore(){
     const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
     const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
     const userEl = document.createElement("span");
-    const colonEl = document.createElement("span"); colonEl.className = "colon"; colonEl.textContent = ":";userEl.className="user"; userEl.textContent = r.user || "—"; userEl.style.color = colorForUser(r.user);
+    userEl.className = "user";
+    userEl.textContent = r.user || "—";
+    userEl.style.color = colorForUser(r.user);
+
+    const colonEl = document.createElement("span");
+    colonEl.className = "colon";
+    colonEl.textContent = ":";
     const msgEl = document.createElement("span"); msgEl.className="msg";
     renderTextWithEmotes(msgEl, r.text || "", EMOTES);
     if(SHOW_TIME) rowEl.appendChild(timeEl);
