@@ -115,7 +115,7 @@ const STATE = {
   showTime: true,
   meta: {},
   savedPos: null,
-  jumpState: null,
+  direction: null,
 };
 
 /* DOM cache */
@@ -340,35 +340,38 @@ function jumpBottom(){
     if(first) STATE.savedPos = Number(first.dataset.idx);
   }
 
-  if(STATE.jumpState === "bottom"){
+  if(STATE.direction === "down"){
     STATE.savedPos = null;
   }
 
-  STATE.jumpState = "bottom";
+  STATE.direction = "down";
 
-  while(STATE.rendered < STATE.rowsFiltered.length){
-    renderMore();
+  if(STATE.savedPos !== null && STATE.direction !== "down"){
+    const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
+    if(target) target.scrollIntoView({block:"start"});
+  } else {
+    while(STATE.rendered < STATE.rowsFiltered.length){
+      renderMore();
+    }
+    DOM.viewer.scrollTop = DOM.viewer.scrollHeight;
   }
-
-  DOM.viewer.scrollTop = DOM.viewer.scrollHeight;
 }
 
 function jumpTop(){
 
-  if(STATE.savedPos !== null && STATE.jumpState !== "top"){
-
+  if(STATE.savedPos !== null && STATE.direction === "down"){
     const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
-
-    if(target){
-      target.scrollIntoView({block:"start"});
-    }
-
-    STATE.jumpState = "top";
+    if(target) target.scrollIntoView({block:"start"});
+    STATE.direction = "up";
     return;
   }
 
+  if(STATE.direction === "up"){
+    STATE.savedPos = null;
+  }
+
+  STATE.direction = "up";
   DOM.viewer.scrollTop = 0;
-  STATE.jumpState = "top";
 }
 
 /* init */
