@@ -83,11 +83,11 @@ body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var
 <div class="app">
   <div class="panel">
     <div class="controls">
-      <input id="q" placeholder="Поиск по тексту… (q)"/>
-      <input id="u" placeholder="Фильтр по нику… (u)"/>
-      <button id="toggleTime">Время: ON</button>
-      <button id="exportBtn">Снимок (выделение)</button>
-      <button id="openVod">Открыть VOD</button>
+      <input id="q" placeholder="Поиск по тексту…"/>
+      <input id="u" placeholder="Фильтр по нику…"/>
+      <button id="toggleTime">⌚️ Время: ON</button>
+      <button id="exportBtn">📷 Снимок чата</button>
+      <button id="openVod">🔗 Ссылка VOD</button>
       <button id="jumpTop">⬆️</button>
       <button id="jumpBottom">⬇️</button>
     </div>
@@ -114,6 +114,7 @@ const STATE = {
   emotes: new Map(),
   showTime: true,
   meta: {},
+  savedIdx: null,
 };
 
 /* DOM cache */
@@ -293,6 +294,19 @@ function renderMore(){
   STATE.rendered = end;
 }
 
+function getFirstVisibleIdx(){
+
+  const top = DOM.viewer.getBoundingClientRect().top;
+
+  for(const row of DOM.list.children){
+    if(row.getBoundingClientRect().top >= top){
+      return Number(row.dataset.idx);
+    }
+  }
+
+  return null;
+}
+
 /* filters */
 function applyFilters(){
   const q = (document.getElementById("q").value||"").trim().toLowerCase();
@@ -329,6 +343,26 @@ async function snapshotSelected(){
 
 function jumpBottom(){
 
+  if(STATE.savedIdx !== null){
+
+    if(DOM.viewer.scrollTop + DOM.viewer.clientHeight >= DOM.viewer.scrollHeight - 2){
+      STATE.savedIdx = null;
+    }
+    else{
+      const target = DOM.list.querySelector(`[data-idx="${STATE.savedIdx}"]`);
+      if(target){
+        target.scrollIntoView({block:"start"});
+        return;
+      }
+    }
+
+  }
+
+  if(STATE.savedIdx === null){
+    const idx = getFirstVisibleIdx();
+    if(idx !== null) STATE.savedIdx = idx;
+  }
+
   while(STATE.rendered < STATE.rowsFiltered.length){
     renderMore();
   }
@@ -337,6 +371,22 @@ function jumpBottom(){
 }
 
 function jumpTop(){
+
+  if(STATE.savedIdx !== null){
+
+    if(DOM.viewer.scrollTop <= 2){
+      STATE.savedIdx = null;
+    }
+    else{
+      const target = DOM.list.querySelector(`[data-idx="${STATE.savedIdx}"]`);
+      if(target){
+        target.scrollIntoView({block:"start"});
+        return;
+      }
+    }
+
+  }
+
   DOM.viewer.scrollTop = 0;
 }
 
