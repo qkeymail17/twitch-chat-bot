@@ -115,6 +115,7 @@ const STATE = {
   showTime: true,
   meta: {},
   savedPos: null,
+  jumpMode: null,
 };
 
 /* DOM cache */
@@ -339,6 +340,13 @@ function jumpBottom(){
     if(first) STATE.savedPos = Number(first.dataset.idx);
   }
 
+  if(STATE.jumpMode === "down"){
+    STATE.savedPos = null;
+    STATE.jumpMode = null;
+  }else{
+    STATE.jumpMode = "down";
+  }
+
   while(STATE.rendered < STATE.rowsFiltered.length){
     renderMore();
   }
@@ -348,7 +356,7 @@ function jumpBottom(){
 
 function jumpTop(){
 
-  if(STATE.savedPos !== null){
+  if(STATE.savedPos !== null && STATE.jumpMode !== "up"){
 
     const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
 
@@ -356,7 +364,13 @@ function jumpTop(){
       target.scrollIntoView({block:"start"});
     }
 
-    STATE.savedPos = null;
+    STATE.jumpMode = "up";
+    return;
+  }
+
+  if(STATE.jumpMode === "up"){
+    STATE.jumpMode = null;
+    DOM.viewer.scrollTop = 0;
     return;
   }
 
