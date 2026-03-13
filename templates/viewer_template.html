@@ -263,6 +263,10 @@ header{
 const DATA = JSON.parse(document.getElementById("chat-data").textContent || "{}");
 const meta = DATA.meta || {};
 const rows = DATA.rows || [];
+for(const r of rows){
+  r._u = (r.user || "").toLowerCase();
+  r._t = (r.text || "").toLowerCase();
+}
 
 const MODE = meta.mode || "online";
 const LOCAL_EMOTES = meta.local_emotes || {};
@@ -365,6 +369,8 @@ function renderTextWithEmotes(el,text,emotes){
 }
 
 const CHUNK = 800;
+const MAX_ROWS = 3000;
+
 let filtered = rows;
 let rendered = 0;
 let EMOTES = new Map();
@@ -382,8 +388,8 @@ async function ensureEmotesLoaded(){
 }
 
 function matches(r,q,u){
-  if(u){ if(!r.user||r.user.toLowerCase().indexOf(u)===-1) return false; }
-  if(q){ if(!r.text||r.text.toLowerCase().indexOf(q)===-1) return false; }
+  if(u){ if(r._u.indexOf(u)===-1) return false; }
+  if(q){ if(r._t.indexOf(q)===-1) return false; }
   return true;
 }
 
@@ -413,9 +419,13 @@ function renderMore(){
     frag.appendChild(rowEl);
   }
   elList.appendChild(frag); rendered=end;
+
+  while(elList.children.length > MAX_ROWS){
+    elList.removeChild(elList.firstChild);
+  }
 }
 
-window.addEventListener("scroll",()=>{
+document.addEventListener("scroll",()=>{
   if(window._scrollThrottle) return;
   window._scrollThrottle = setTimeout(()=>{ window._scrollThrottle = null;
     const nearBottom = window.innerHeight + window.scrollY > document.body.offsetHeight - 1200;
