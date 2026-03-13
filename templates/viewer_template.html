@@ -114,8 +114,6 @@ const STATE = {
   emotes: new Map(),
   showTime: true,
   meta: {},
-  savedPos: null,
-  lastButton: null,
 };
 
 /* DOM cache */
@@ -129,7 +127,6 @@ const DOM = {
 };
 
 /* helpers */
-function esc(s){ return (s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function colorForUser(name){ let h=0; for(let i=0;i<(name||"").length;i++) h=(h*31+name.charCodeAt(i))%360; return `hsl(${h} 70% 60%)`; }
 function byFilter(row,q,u){
   if(u && (!row.user || row.user.toLowerCase().indexOf(u)===-1)) return false;
@@ -274,7 +271,6 @@ function renderBody(row){
 function renderMessage(row){
   const el = document.createElement("div");
   el.className = "row";
-  el.dataset.user = row.user || "";
   el.dataset.idx = row.__idx;
 
   if(STATE.showTime){
@@ -333,53 +329,15 @@ async function snapshotSelected(){
 
 function jumpBottom(){
 
-  const firstVisible = [...DOM.list.querySelectorAll(".row")]
-    .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
-
-  if(STATE.lastButton === "top" && STATE.savedPos !== null){
-    const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
-    if(target){
-      target.scrollIntoView({block:"start"});
-      STATE.lastButton = "bottom";
-      return;
-    }
-  }
-
-  if(STATE.savedPos === null && firstVisible){
-    STATE.savedPos = Number(firstVisible.dataset.idx);
-  }
-
   while(STATE.rendered < STATE.rowsFiltered.length){
     renderMore();
   }
 
   DOM.viewer.scrollTop = DOM.viewer.scrollHeight;
-
-  if(STATE.lastButton === "bottom"){
-    STATE.savedPos = null;
-  }
-
-  STATE.lastButton = "bottom";
 }
 
 function jumpTop(){
-
-  if(STATE.lastButton === "bottom" && STATE.savedPos !== null){
-    const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
-    if(target){
-      target.scrollIntoView({block:"start"});
-      STATE.lastButton = "top";
-      return;
-    }
-  }
-
   DOM.viewer.scrollTop = 0;
-
-  if(STATE.lastButton === "top"){
-    STATE.savedPos = null;
-  }
-
-  STATE.lastButton = "top";
 }
 
 /* init */
