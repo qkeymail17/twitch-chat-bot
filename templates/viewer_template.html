@@ -115,6 +115,7 @@ const STATE = {
   showTime: true,
   meta: {},
   scrollStack: [],
+  lastJump: null,
 };
 
 /* DOM cache */
@@ -333,10 +334,13 @@ async function snapshotSelected(){
 function jumpBottom(){
 
   const first = [...DOM.list.querySelectorAll(".row")]
-  .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
-  if(first){
+    .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
+
+  if(first && STATE.lastJump !== "down"){
     STATE.scrollStack.push(Number(first.dataset.idx));
   }
+
+  STATE.lastJump = "down";
 
   while(STATE.rendered < STATE.rowsFiltered.length){
     renderMore();
@@ -349,19 +353,23 @@ function jumpTop(){
 
   if(STATE.scrollStack.length === 0){
     DOM.viewer.scrollTop = 0;
+    STATE.lastJump = "up";
     return;
   }
 
-  const idx = STATE.scrollStack.pop();
+  const idx = STATE.scrollStack[STATE.scrollStack.length - 1];
 
   const target = DOM.list.querySelector(`.row[data-idx="${idx}"]`);
 
   if(target){
     target.scrollIntoView({block:"start"});
-    return;
   }
 
-  DOM.viewer.scrollTop = 0;
+  if(STATE.lastJump === "up"){
+    STATE.scrollStack.pop();
+  }
+
+  STATE.lastJump = "up";
 }
 
 /* init */
@@ -375,7 +383,7 @@ async function init(){
 
     STATE.emotes = await fetch7tvEmotes(STATE.meta.channel_id);
 
-    el.textContent = `Эмоутов: ${STATE.emotes.size}`;
+    el.textContent = "";
   }
 
   DOM.q.addEventListener("input",()=>applyFilters());
