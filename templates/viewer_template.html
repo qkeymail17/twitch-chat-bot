@@ -336,10 +336,6 @@ function jumpBottom(){
   const firstVisible = [...DOM.list.querySelectorAll(".row")]
     .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
 
-  if(STATE.lastButton === "bottom"){
-    STATE.savedPos = null;
-  }
-
   if(STATE.lastButton === "top" && STATE.savedPos !== null){
     const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
     if(target){
@@ -359,14 +355,14 @@ function jumpBottom(){
 
   DOM.viewer.scrollTop = DOM.viewer.scrollHeight;
 
+  if(STATE.lastButton === "bottom"){
+    STATE.savedPos = null;
+  }
+
   STATE.lastButton = "bottom";
 }
 
 function jumpTop(){
-
-  if(STATE.lastButton === "top"){
-    STATE.savedPos = null;
-  }
 
   if(STATE.lastButton === "bottom" && STATE.savedPos !== null){
     const target = DOM.list.querySelector(`.row[data-idx="${STATE.savedPos}"]`);
@@ -378,6 +374,10 @@ function jumpTop(){
   }
 
   DOM.viewer.scrollTop = 0;
+
+  if(STATE.lastButton === "top"){
+    STATE.savedPos = null;
+  }
 
   STATE.lastButton = "top";
 }
