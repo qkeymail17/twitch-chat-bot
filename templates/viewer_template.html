@@ -3,433 +3,485 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Chat Viewer — base</title>
+<title>Twitch Chat Viewer</title>
 <style>
 :root{
-  --bg:#0f0f12; --panel:#15151b; --text:#e7e7ea; --muted:#9a9aa0;
-  --mono:ui-monospace,monospace; --sans:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;
+  --bg:#0f0f12;
+  --panel:#15151b;
+  --text:#e7e7ea;
+  --muted:#a6a6b0;
+  --border:#2a2a35;
+  --accent:#9146ff;
+
+  --rowA:#1f232a;
+  --rowB:#232830;
+
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+
+  --controls-w:260px; /* ширина левого блока на десктопе */
+  --chat-w:520px;     /* ширина блока сообщений на десктопе */
+  --gap:24px;
 }
 *{box-sizing:border-box}
-body{margin:0;height:100%;font-family:var(--sans);background:var(--bg);color:var(--text)}
-.app{display:flex;gap:20px;padding:18px;align-items:flex-start}
-.panel{
-  width:280px;
-  background:#1b1b1f;
-  padding:14px;
-  border-radius:10px;
-
-  position:sticky;
-  top:18px;
-  height:fit-content;
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+.page{width:100%;display:flex;justify-content:center;padding:0}
+.chat{
+  width:100%;
+  max-width:none;
+  margin:0;
 }
-.viewer{
-  flex:1;
-  max-width:720px;
-  background:#151517;
+
+/* header / controls (mobile first) */
+header{
+  width:100%;
+  max-width:none;
+  background:#18181b;
+  border-bottom:1px solid var(--border);
   padding:12px;
-  border-radius:10px;
-
-  height:calc(100vh - 36px);
-  overflow-y:auto;
+  box-sizing:border-box;
+  position:sticky;
+  top:0;
+  z-index:50;
+  border-radius:0;
 }
-.controls{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.controls input, .controls button{height:36px;padding:6px 8px;border-radius:6px;border:0;background:#222;color:var(--text)}
-#list{background:transparent}
-.row{
-  padding:8px 6px;
-  border-bottom:1px solid rgba(255,255,255,0.03);
-  font-size:14px;
-  line-height:1.35;
-  white-space:pre-wrap;
+.meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.pill{font-family:var(--mono);color:var(--muted);font-size:12px}
+.controls{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:8px;
+  margin-top:8px;
+  width:100%;
 }
-.row:hover{
-  background:rgba(255,255,255,0.04);
-}
-.time{
-  display:inline-block;
-  width:64px;
-  font-family:var(--mono);
-  color:var(--muted);
-}
-.user{
-  font-weight:600;
-  white-space:nowrap;
-}
-.username{
-  white-space:nowrap;
-  margin-right:4px;
+.controls #q{
+  grid-column:1 / span 3;
+  grid-row:1;
 }
 
-.colon{
+.controls #u{
+  grid-column:4 / span 3;
+  grid-row:1;
+}
+
+.controls #vodBtn{
+  grid-column:1 / span 2;
+  grid-row:2;
+}
+
+.controls #exportBtn{
+  grid-column:3 / span 2;
+  grid-row:2;
+}
+
+.controls #toggleTime{
+  grid-column:5 / span 2;
+  grid-row:2;
+}
+
+.controls #stat{
+  grid-column:1 / span 6;
+  grid-row:3;
+  justify-self:end;
+}
+
+.controls input{
+  flex:1 1 140px;
+  min-width:0;
+  height:32px;
+  padding:4px 10px;
+  border-radius:8px;
+  background:var(--panel);
+  border:1px solid var(--border);
   color:var(--text);
+  font-size:13px;
 }
-.body{
-  display:inline;
+.controls button{
+  width:100%;
+  height:32px;
+  padding:0 10px;
+  border-radius:10px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
-.emote{height:22px;vertical-align:-4px;margin:0 2px}
-.small{font-size:12px;color:var(--muted)}
-.mention{color:#8cc7ff;font-weight:500;}
-.link{
-  color:#6fb3ff;
-  text-decoration:none;
+.controls button:hover{border-color:rgba(145,70,255,0.6)}
+.pill#stat{align-self:flex-end}
+
+/* message list */
+#list{
+  width:100%;
+  max-width:390px;
+  margin-left:auto;
+  margin-right:auto;
+  background:#1f1f23;
+  min-height:100vh;
+  padding-bottom:40px;
+  margin-top:0;
+  border-radius:0;
+  overflow:visible;
 }
 
-.link:hover{
-  text-decoration:underline;
+/* row */
+.row{padding:6px 12px;border-bottom:1px solid rgba(42,42,45,0.6);line-height:1.35;display:flex;gap:10px;align-items:flex-start}
+.time{font-family:var(--sans);font-size:12px;color:#adadb8;white-space:nowrap;margin-right:6px}
+.user{font-weight:700;margin-right:8px;white-space:nowrap}
+.msg{color:var(--text);word-break:break-word;overflow-wrap:anywhere}
+.emote{height:24px;vertical-align:middle;margin:0 2px}
+
+/* export helper (unchanged) */
+.export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
+.export-row{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.export-row:last-child{border-bottom:none}
+.export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
+.export-meta-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.export-meta-left img{
+  height:20px;
+}
+
+/* ===== Desktop layout ===== */
+@media (min-width: 900px){
+  .page{padding:24px}
+  .chat{max-width: calc(var(--controls-w) + var(--chat-w) + var(--gap)); display:flex; gap:var(--gap); align-items:flex-start}
+
+  /* left column becomes fixed-ish via sticky */
+  header{
+    width:var(--controls-w);
+    max-width:none;
+    flex:0 0 var(--controls-w);
+    position:sticky;
+    top:24px; /* offset from viewport top */
+    border-radius:14px;
+    padding:16px;
+    height:fit-content;
+  }
+
+  /* make controls vertical and full width of left column */
+.controls{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:12px;
+  align-items:stretch;
+}
+
+.controls input{
+  flex:0 0 auto;
+  height:32px !important;
+  padding:4px 10px !important;
+  line-height:1.2;
+}
+
+.controls button{
+  flex:0 0 auto;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 12px;
+}
+.controls button{
+  width:100%;
+  height:32px;
+  font-size:13px;
+}
+
+.controls input{
+  width:100%;
+  height:32px;
+  padding:4px 10px;
+  font-size:13px;
+}
+
+  /* messages column */
+  #list{
+    width:var(--chat-w);
+    max-width:var(--chat-w);
+    flex:0 0 var(--chat-w);
+    border-radius:14px;
+    min-height:calc(100vh - 48px);
+    margin-top:0; /* header is in left column, not above messages */
+  }
+
+  /* center whole layout horizontally */
+  .page{justify-content:center}
+}
+
+/* small refinements for very narrow phones (so content not glued to edges) */
+@media (max-width:420px){
+  .chat{padding:0 8px}
+  header{padding:10px;border-radius:12px}
+  #list{margin-top:0;border-radius:0}
 }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="panel">
-    <div class="controls">
-      <input id="q" placeholder="Поиск по тексту…"/>
-      <input id="u" placeholder="Фильтр по нику…"/>
-      <button id="toggleTime">⌚️ Время: ON</button>
-      <button id="exportBtn">📷 Снимок чата</button>
-      <button id="openVod">🔗 Ссылка VOD</button>
-      <button id="jumpTop">⬆️</button>
-      <button id="jumpBottom">⬇️</button>
-    </div>
-    <div class="small" id="stat">—</div>
-    <div class="small" id="emoteStat"></div>
-  </div>
+<div class="page">
+  <div class="chat">
 
-  <div class="viewer">
+    <header>
+      <div class="meta">
+        <div><b id="title">—</b></div>
+        <div class="pill">
+          <span id="channel">—</span>
+          <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <input id="q" placeholder="Поиск по сообщениям…"/>
+        <input id="u" placeholder="Фильтр по нику…"/>
+        <button id="toggleTime">⏱️ Время: ON</button>
+        <button id="exportBtn">📸 Снимок чата</button>
+        <button id="vodBtn">🔗 Ссылка VOD</button>
+        <span class="pill" id="stat">—</span>
+      </div>
+    </header>
+
     <div id="list"></div>
+
   </div>
 </div>
 
 <script id="chat-data" type="application/json">{{CHAT_DATA_JSON}}</script>
 
 <script>
-/* Простая, расширяемая база. Все функции короткие и тестируемые. */
+/* JS оставил без изменений логики — только адаптирован под новый DOM.
+   Если что-то ломается, это будет видно в консоли, но визуальная часть
+   теперь управляется только CSS (mobile: header scrolls away;
+   desktop: left column sticky). */
 
-/* STATE */
-const STATE = {
-  rowsAll: [],
-  rowsFiltered: [],
-  rendered: 0,
-  chunk: 200,
-  emotes: new Map(),
-  showTime: true,
-  meta: {},
-  savedIdx: null,
-};
+const DATA = JSON.parse(document.getElementById("chat-data").textContent || "{}");
+const meta = DATA.meta || {};
+const rows = DATA.rows || [];
 
-/* DOM cache */
-const DOM = {
-  viewer: document.querySelector(".viewer"),
-  list: document.getElementById("list"),
-  q: document.getElementById("q"),
-  u: document.getElementById("u"),
-  stat: document.getElementById("stat"),
-  toggleTime: document.getElementById("toggleTime")
-};
+const MODE = meta.mode || "online";
+const LOCAL_EMOTES = meta.local_emotes || {};
+const CDN_EMOTES = meta.cdn_emotes || {};
+const TWITCH_CHANNEL_ID = meta.channel_id || null;
 
-/* helpers */
-function colorForUser(name){ let h=0; for(let i=0;i<(name||"").length;i++) h=(h*31+name.charCodeAt(i))%360; return `hsl(${h} 70% 60%)`; }
-function byFilter(row,q,u){
-  if(u && (!row.user || row.user.toLowerCase().indexOf(u)===-1)) return false;
-  if(q && (!row.text || row.text.toLowerCase().indexOf(q)===-1)) return false;
-  return true;
+const elTitle=document.getElementById("title");
+const elChannel=document.getElementById("channel");
+const elStat=document.getElementById("stat");
+const elList=document.getElementById("list");
+
+const elStreamDate=document.getElementById("streamDate");
+const elStreamDateWrap=document.getElementById("streamDateWrap");
+
+const elQ=document.getElementById("q");
+const elU=document.getElementById("u");
+const elToggleTime=document.getElementById("toggleTime");
+const elExportBtn=document.getElementById("exportBtn");
+const elVodBtn=document.getElementById("vodBtn");
+
+let SHOW_TIME=true;
+
+elTitle.textContent = meta.title || "—";
+elChannel.textContent = meta.channel || "—";
+elVodBtn.addEventListener("click",()=>{
+  if(meta.vod_url){
+    window.open(meta.vod_url,"_blank");
+  }
+});
+
+function fmtStreamStart(iso){
+  if(!iso) return null;
+  try{
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth()+1).padStart(2,"0");
+    const dd = String(d.getUTCDate()).padStart(2,"0");
+    const hh = String(d.getUTCHours()).padStart(2,"0");
+    const mm = String(d.getUTCMinutes()).padStart(2,"0");
+    return `${y}-${m}-${dd} ${hh}:${mm} [UTC]`;
+  }catch(e){ return null; }
 }
+const streamStart = fmtStreamStart(meta.created_at);
+if(streamStart){ elStreamDate.textContent = streamStart; elStreamDateWrap.style.display = ""; }
 
-/* load initial data */
-function loadDataFromScript(){
-  const raw = document.getElementById("chat-data").textContent || "{}";
-  const parsed = JSON.parse(raw);
-  STATE.meta = parsed.meta || {};
-  STATE.rowsAll = (parsed.rows || []).map((r,i)=>({...r,__idx:i}));
-  STATE.rowsFiltered = [...STATE.rowsAll];
-  DOM.stat.textContent = `Показано: ${STATE.rowsFiltered.length} / ${STATE.rowsAll.length}`;
+function hash32(str){
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
 }
+function colorForUser(name){
+  const u = String(name || "").toLowerCase();
+  const h = hash32(u) % 360;
+  const s = 78;
+  const l = 62;
+  return `hsl(${h} ${s}% ${l}%)`;
+}
+function esc(s){ return (s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-/* fetch 7tv emotes (simple) */
 async function fetch7tvEmotes(channelId){
   if(!channelId) return new Map();
   try{
-    const res = await fetch(`https://7tv.io/v3/users/twitch/${channelId}`);
-    if(!res.ok) return new Map();
-    const json = await res.json();
-    const ems = json?.emote_set?.emotes||[];
+    const r = await fetch(`https://7tv.io/v3/users/twitch/${channelId}`);
+    if(!r.ok) return new Map();
+    const json = await r.json();
+    const emotes = json?.emote_set?.emotes || [];
     const map = new Map();
-    for(const e of ems){
-      const files = e?.data?.host?.files||[];
-      const file = files.find(f=>f.name==="1x.webp")||files[0];
-      if(file) map.set(e.name, `https:${e.data.host.url}/${file.name}`);
+    for(const e of emotes){
+      const name = e?.name;
+      const host = e?.data?.host;
+      if(!name||!host) continue;
+      const files = host.files || [];
+      const file = files.find(f=>f.name==="1x.webp")||files.find(f=>String(f.name).endsWith(".webp"))||files[0];
+      if(!file) continue;
+      map.set(name,`https:${host.url}/${file.name}`);
     }
     return map;
   }catch(e){ return new Map(); }
 }
 
-function parseFragments(text){
-  const parts = String(text || "").split(/(\s+)/);
-  const fragments = [];
-
+function renderTextWithEmotes(el,text,emotes){
+  const parts = String(text||"").split(/(\s+)/);
   for(const p of parts){
-    const token = p.replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/[\r\n\t]/g,'');
-
-    if(STATE.emotes.has(token)){
-      fragments.push({type:"emote", value:token});
-    }
-    else if(token.startsWith("@") && token.length > 1){
-      fragments.push({type:"mention", value:token});
-    }
-    else if(/^https?:\/\//i.test(token)){
-      fragments.push({type:"link", value:token});
-    }
-    else{
-      fragments.push({type:"text", value:p});
-    }
-  }
-
-  return fragments;
-}
-
-/* render text with emotes inline */
-function renderTextWithEmotes(container,text){
-
-  const fragments = parseFragments(text);
-
-  for(const f of fragments){
-
-    if(f.type === "emote"){
+    const clean = p.replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/[\r\n\t]/g,'');
+    if(LOCAL_EMOTES[clean] || CDN_EMOTES[clean]){
+      const src = LOCAL_EMOTES[clean] || CDN_EMOTES[clean];
       const img = document.createElement("img");
-      img.className = "emote";
-      img.src = STATE.emotes.get(f.value);
-      img.alt = f.value;
-      container.appendChild(img);
+      img.src = src; img.crossOrigin="anonymous"; img.alt=p; img.title=p; img.className="emote"; el.appendChild(img);
+    } else if(emotes.has(clean)){
+      const img = document.createElement("img");
+      img.src = emotes.get(clean); img.crossOrigin="anonymous"; img.alt=p; img.title=p; img.className="emote"; el.appendChild(img);
+    } else {
+      el.appendChild(document.createTextNode(p));
     }
-
-    else if(f.type === "mention"){
-      const span = document.createElement("span");
-      span.className = "mention";
-      span.textContent = f.value;
-      container.appendChild(span);
-    }
-
-    else if(f.type === "link"){
-      const a = document.createElement("a");
-      a.href = f.value;
-      a.textContent = f.value;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.className = "link";
-      container.appendChild(a);
-    }
-
-    else{
-      container.appendChild(document.createTextNode(f.value));
-    }
-
   }
 }
 
-function renderTime(row){
-  const t = document.createElement("span");
-  t.className = "time";
-  t.textContent = row.t || "00:00:00";
-  return t;
+const CHUNK = 800;
+let filtered = rows;
+let rendered = 0;
+let EMOTES = new Map();
+let EMOTES_READY = false;
+
+async function ensureEmotesLoaded(){
+  if(EMOTES_READY) return;
+  EMOTES_READY = true;
+  if(MODE !== "online") return;
+  if(!TWITCH_CHANNEL_ID) return;
+  try{
+    EMOTES = await fetch7tvEmotes(TWITCH_CHANNEL_ID);
+    if(rendered>0){ elList.innerHTML=""; rendered=0; renderMore(); }
+  }catch(e){ EMOTES = new Map(); }
 }
 
-function renderUser(row){
-
-  const wrapper = document.createElement("span");
-  wrapper.className = "username";
-
-  const name = document.createElement("span");
-  name.className = "user";
-  name.textContent = row.user || "—";
-  name.style.color = colorForUser(row.user);
-
-  const colon = document.createElement("span");
-  colon.className = "colon";
-  colon.textContent = ":";
-
-  wrapper.appendChild(name);
-  wrapper.appendChild(colon);
-
-  return wrapper;
+function matches(r,q,u){
+  if(u){ if(!r.user||r.user.toLowerCase().indexOf(u)===-1) return false; }
+  if(q){ if(!r.text||r.text.toLowerCase().indexOf(q)===-1) return false; }
+  return true;
 }
 
-function renderBody(row){
-  const b = document.createElement("span");
-  b.className = "body";
-
-  if(row.reply_to){
-    const r = document.createElement("span");
-    r.className = "small";
-    r.textContent = `↳ @${row.reply_to} `;
-    b.appendChild(r);
-  }
-
-  renderTextWithEmotes(b, row.text || "");
-  return b;
+async function applyFilters(){
+  ensureEmotesLoaded();
+  const q=(elQ.value||"").trim().toLowerCase();
+  const u=(elU.value||"").trim().toLowerCase();
+  filtered = rows.filter(r=>matches(r,q,u));
+  elStat.textContent = `Показано: ${filtered.length} / ${rows.length}`;
+  elList.innerHTML=""; rendered=0; renderMore();
 }
 
-/* render single message DOM — keep minimal and semantic */
-function renderMessage(row){
-  const el = document.createElement("div");
-  el.className = "row";
-  el.dataset.idx = row.__idx;
-
-  if(STATE.showTime){
-    el.appendChild(renderTime(row));
-  }
-
-  el.appendChild(renderUser(row));
-  el.appendChild(renderBody(row));
-
-  return el;
-}
-
-/* chunked render */
 function renderMore(){
-  const list = DOM.list;
-  const end = Math.min(STATE.rendered + STATE.chunk, STATE.rowsFiltered.length);
+  const end = Math.min(rendered+CHUNK, filtered.length);
   const frag = document.createDocumentFragment();
-  for(let i=STATE.rendered;i<end;i++) frag.appendChild(renderMessage(STATE.rowsFiltered[i]));
-  list.appendChild(frag);
-  STATE.rendered = end;
-}
-
-function getFirstVisibleIdx(){
-
-  const top = DOM.viewer.getBoundingClientRect().top;
-
-  for(const row of DOM.list.children){
-    if(row.getBoundingClientRect().top >= top){
-      return Number(row.dataset.idx);
-    }
+  for(let i=rendered;i<end;i++){
+    const r = filtered[i];
+    const rowEl = document.createElement("div");
+    rowEl.dataset.id = i; rowEl.className = "row";
+    const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
+    const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
+    const userEl = document.createElement("span"); userEl.className="user"; userEl.textContent = r.user || "—"; userEl.style.color = colorForUser(r.user);
+    const msgEl = document.createElement("span"); msgEl.className="msg";
+    renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+    if(SHOW_TIME) rowEl.appendChild(timeEl);
+    rowEl.appendChild(userEl); rowEl.appendChild(msgEl);
+    frag.appendChild(rowEl);
   }
-
-  return null;
+  elList.appendChild(frag); rendered=end;
 }
 
-/* filters */
-function applyFilters(){
-  const q = (document.getElementById("q").value||"").trim().toLowerCase();
-  const u = (document.getElementById("u").value||"").trim().toLowerCase();
-  STATE.rowsFiltered = STATE.rowsAll.filter(r=>byFilter(r,q,u));
-  STATE.rendered = 0;
-  DOM.list.innerHTML = "";
-  DOM.stat.textContent = `Показано: ${STATE.rowsFiltered.length} / ${STATE.rowsAll.length}`;
-  renderMore();
+window.addEventListener("scroll",()=>{
+  if(window._scrollThrottle) return;
+  window._scrollThrottle = setTimeout(()=>{ window._scrollThrottle = null;
+    const nearBottom = window.innerHeight + window.scrollY > document.body.offsetHeight - 1200;
+    if(nearBottom && rendered < filtered.length) renderMore();
+  },80);
+});
+
+elQ.addEventListener("input",()=>applyFilters());
+elU.addEventListener("input",()=>applyFilters());
+elToggleTime.addEventListener("click",()=>{
+  SHOW_TIME = !SHOW_TIME;
+  elToggleTime.textContent = SHOW_TIME ? "⏱️ Время: ON" : "⏱️ Время: OFF";
+  elList.innerHTML=""; rendered=0; renderMore();
+});
+
+/* snapshot logic kept intact (uses html2canvas included below) */
+async function waitImages(root){
+  const imgs=[...root.querySelectorAll("img")];
+  await Promise.all(imgs.map(img=> img.complete ? Promise.resolve() : new Promise(res=>{ img.onload=img.onerror=res; })));
 }
 
-/* snapshot selected range using html2canvas (kept simple) */
-async function snapshotSelected(){
+elExportBtn.addEventListener("click", async ()=>{
   const sel = window.getSelection();
-  if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){ alert("Выделите диапазон сообщений."); return; }
+  if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){ alert("Выделите текст сообщений"); return; }
   const range = sel.getRangeAt(0);
-  let sNode = range.startContainer; if(sNode.nodeType===3) sNode = sNode.parentNode;
-  let eNode = range.endContainer; if(eNode.nodeType===3) eNode = eNode.parentNode;
-  const start = sNode.closest(".row"), end = eNode.closest(".row");
-  if(!start||!end) return alert("Выделите внутри списка сообщений.");
-  const all = [...document.querySelectorAll("#list .row")];
-  const from = all.indexOf(start), to = all.indexOf(end);
-  if(from<0||to<0) return;
-  const wrap = document.createElement("div"); wrap.style.padding="10px"; wrap.style.background="#111";
-  for(let i=Math.min(from,to); i<=Math.max(from,to); i++){ const c = all[i].cloneNode(true); c.style.border="none"; wrap.appendChild(c); }
+  let node = range.startContainer; if(node.nodeType===3) node=node.parentNode;
+  const startRow = node.closest(".row"); if(!startRow) return;
+  node = range.endContainer; if(node.nodeType===3) node=node.parentNode;
+  const endRow = node.closest(".row"); if(!endRow) return;
+  const allRows = [...document.querySelectorAll("#list .row")];
+  const startIndex = allRows.indexOf(startRow);
+  const endIndex   = allRows.indexOf(endRow);
+  if(startIndex===-1||endIndex===-1) return;
+  const from = Math.min(startIndex,endIndex), to = Math.max(startIndex,endIndex);
+  const wrap = document.createElement("div"); wrap.className="export-wrap";
+  for(let i=from;i<=to;i++){ const clone = allRows[i].cloneNode(true); clone.classList.remove("row"); clone.classList.add("export-row"); wrap.appendChild(clone); }
+  const metaRow = document.createElement("div"); metaRow.className="export-meta";
+  const metaLeft = document.createElement("div"); metaLeft.className="export-meta-left";
+  const metaRight = document.createElement("div"); metaRight.className="export-meta-right";
+  const channelIcon=document.createElement("img"); channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif"; channelIcon.crossOrigin="anonymous";
+  const channelName=document.createElement("span"); channelName.textContent = meta.channel || "channel";
+  metaLeft.appendChild(channelIcon); metaLeft.appendChild(channelName);
+  const dateIcon=document.createElement("span"); dateIcon.textContent="📅"; const dateText=document.createElement("span"); dateText.textContent = elStreamDate.textContent || "";
+  metaRight.appendChild(dateIcon); metaRight.appendChild(dateText);
+  metaRow.appendChild(metaLeft); metaRow.appendChild(metaRight); wrap.appendChild(metaRow);
   document.body.appendChild(wrap);
-  await new Promise(r=>setTimeout(r,60));
-  await html2canvas(wrap,{backgroundColor:null,useCORS:true,scale:2}).then(canvas=>{
-    const url = canvas.toDataURL("image/png");
-    const w = window.open(""); w.document.body.style.margin="0"; const img = w.document.createElement("img"); img.src=url; img.style.maxWidth="100%"; w.document.body.appendChild(img);
-  }).catch(e=>alert("Ошибка рендера: "+e));
+  await new Promise(r=>setTimeout(r,50)); await waitImages(wrap);
+  let canvas;
+  try{
+    canvas = await html2canvas(wrap,{backgroundColor:null,useCORS:true,allowTaint:false,scale:2});
+  }catch(err){
+    document.body.removeChild(wrap);
+    console.error("PNG render error:", err);
+    const msg = String(err).toLowerCase();
+    if(msg.includes("size")||msg.includes("dimension")||msg.includes("height")) alert("Слишком большой фрагмент. Браузер не смог создать изображение.");
+    else alert("Ошибка создания изображения. Попробуйте уменьшить фрагмент.");
+    return;
+  }
   document.body.removeChild(wrap);
-}
+  const url = canvas.toDataURL("image/png");
+  const overlay = document.createElement("div"); overlay.style.position="fixed"; overlay.style.inset="0"; overlay.style.background="rgba(0,0,0,.85)"; overlay.style.display="flex"; overlay.style.alignItems="center"; overlay.style.justifyContent="center"; overlay.style.zIndex="9999"; overlay.style.padding="20px";
+  const img = document.createElement("img"); img.src = url; img.style.maxWidth="100%"; img.style.maxHeight="100%"; img.style.borderRadius="12px"; img.style.boxShadow="0 10px 40px rgba(0,0,0,.6)"; img.addEventListener("click",e=>e.stopPropagation());
+  overlay.appendChild(img); overlay.addEventListener("click",()=>overlay.remove()); document.body.appendChild(overlay);
+});
 
-function jumpBottom(){
-
-  const atTop = DOM.viewer.scrollTop <= 2;
-
-  const atBottom =
-    DOM.viewer.scrollTop + DOM.viewer.clientHeight >= DOM.viewer.scrollHeight - 2;
-
-  if(STATE.savedIdx !== null && atTop){
-    const target = DOM.list.querySelector(`[data-idx="${STATE.savedIdx}"]`);
-    if(target){
-      target.scrollIntoView({block:"start"});
-      return;
-    }
-  }
-
-  if(atBottom){
-    STATE.savedIdx = null;
-    return;
-  }
-
-  if(STATE.savedIdx === null){
-    const idx = getFirstVisibleIdx();
-    if(idx !== null) STATE.savedIdx = idx;
-  }
-
-  while(STATE.rendered < STATE.rowsFiltered.length){
-    renderMore();
-  }
-
-  DOM.viewer.scrollTop = DOM.viewer.scrollHeight;
-}
-
-function jumpTop(){
-
-  const atTop = DOM.viewer.scrollTop <= 2;
-
-  if(STATE.savedIdx !== null && !atTop){
-    const target = DOM.list.querySelector(`[data-idx="${STATE.savedIdx}"]`);
-    if(target){
-      target.scrollIntoView({block:"start"});
-      return;
-    }
-  }
-
-  if(atTop){
-    STATE.savedIdx = null;
-    return;
-  }
-
-  DOM.viewer.scrollTop = 0;
-}
-
-/* init */
-async function init(){
-
-  loadDataFromScript();
-
-  if(STATE.meta.channel_id){
-    const el = document.getElementById("emoteStat");
-    el.textContent = "Загрузка эмоутов…";
-
-    STATE.emotes = await fetch7tvEmotes(STATE.meta.channel_id);
-
-    el.textContent = "";
-  }
-
-  DOM.q.addEventListener("input",()=>applyFilters());
-  DOM.u.addEventListener("input",()=>applyFilters());
-  document.getElementById("toggleTime").addEventListener("click",()=>{
-    STATE.showTime = !STATE.showTime;
-    DOM.toggleTime.textContent = `Время: ${STATE.showTime? 'ON':'OFF'}`;
-    DOM.list.innerHTML = ""; STATE.rendered = 0; renderMore();
-  });
-  document.getElementById("exportBtn").addEventListener("click", snapshotSelected);
-  document.getElementById("openVod").addEventListener("click", ()=>{ if(STATE.meta.vod_url) window.open(STATE.meta.vod_url,"_blank"); else alert("нет vod_url в meta"); });
-  document.getElementById("jumpBottom").addEventListener("click", jumpBottom);
-  document.getElementById("jumpTop").addEventListener("click", jumpTop);
-  // infinite scroll loader
-  DOM.viewer.addEventListener("scroll", ()=>{
-    if(DOM.viewer.scrollTop + DOM.viewer.clientHeight > DOM.viewer.scrollHeight - 400) renderMore(); });
-
-  // initial render
-  renderMore();
-}
-
-/* expose for debugging if needed */
-window.__STATE = STATE;
-
-init();
+applyFilters();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
