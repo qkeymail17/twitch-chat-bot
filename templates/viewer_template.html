@@ -531,7 +531,13 @@ elExportBtn.addEventListener("click", async ()=>{
   const url = canvas.toDataURL("image/png");
   const overlay = document.createElement("div"); overlay.style.position="fixed"; overlay.style.inset="0"; overlay.style.background="rgba(0,0,0,.85)"; overlay.style.display="flex"; overlay.style.alignItems="center"; overlay.style.justifyContent="center"; overlay.style.zIndex="9999"; overlay.style.padding="20px";
   const img = document.createElement("img"); img.src = url; img.style.maxWidth="100%"; img.style.maxHeight="100%"; img.style.borderRadius="12px"; img.style.boxShadow="0 10px 40px rgba(0,0,0,.6)"; img.addEventListener("click",e=>e.stopPropagation());
-  overlay.appendChild(img); overlay.addEventListener("click",()=>overlay.remove()); document.body.appendChild(overlay);
+  overlay.appendChild(img);
+  overlay.addEventListener("click",()=>{
+    overlay.remove();
+    document.body.style.overflow = "";
+  });
+  document.body.style.overflow = "hidden";
+  document.body.appendChild(overlay);
 });
 
 applyFilters();
