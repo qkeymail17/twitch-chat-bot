@@ -333,11 +333,11 @@ async function snapshotSelected(){
 
 function jumpBottom(){
 
-  if(STATE.savedPos === null){
-    const first = [...DOM.list.querySelectorAll(".row")]
-      .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
+  const firstVisible = [...DOM.list.querySelectorAll(".row")]
+    .find(r => r.getBoundingClientRect().top >= DOM.viewer.getBoundingClientRect().top);
 
-    if(first) STATE.savedPos = Number(first.dataset.idx);
+  if(STATE.savedPos === null && firstVisible){
+    STATE.savedPos = Number(firstVisible.dataset.idx);
   }
 
   if(STATE.lastButton === "top" && STATE.savedPos !== null){
