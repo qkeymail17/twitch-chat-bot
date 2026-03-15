@@ -5,7 +5,7 @@ from telegram.ext import ContextTypes
 
 import database as db
 from download_worker import download_and_send
-from ui import CB_FMT_TXT, CB_FMT_CSV, CB_FMT_HTML_ONLINE, CB_FMT_HTML_LOCAL
+from ui import CB_FMT_HTML_ONLINE
 from handlers_state import (
     is_busy, set_busy, get_pending, clear_pending, pending_expired,
 )
@@ -40,21 +40,15 @@ async def _edit_progress_message_with_card(context, chat_id: int, message_id: in
     if not text:
         return
 
-    fmt = item.get("fmt")
+    html_btn = InlineKeyboardButton(CHAT_GENERIC, url=html_url) if html_url else None
+    vod_btn = InlineKeyboardButton(VOD_LINK, url=item.get("vod_url"))
 
-    if fmt == "html_online":
-        html_btn = InlineKeyboardButton(CHAT_GENERIC, url=html_url) if html_url else None
-        vod_btn = InlineKeyboardButton(VOD_LINK, url=item.get("vod_url"))
-        row = []
-        if html_btn:
-            row.append(html_btn)
-        row.append(vod_btn)
-        final_kb = InlineKeyboardMarkup([row])
-    else:
-        base_rows = list(kb.inline_keyboard) if kb else []
-        if html_url:
-            base_rows = base_rows + [[InlineKeyboardButton(BTN_CHAT_HTML, url=html_url)]]
-        final_kb = InlineKeyboardMarkup(base_rows) if base_rows else None
+    row = []
+    if html_btn:
+        row.append(html_btn)
+    row.append(vod_btn)
+
+    final_kb = InlineKeyboardMarkup([row])
 
     try:
         await context.bot.edit_message_text(
@@ -78,21 +72,15 @@ async def _send_card_with_buttons(context, chat_id, item, html_url=None):
     if not text:
         return
 
-    fmt = item.get("fmt")
+    html_btn = InlineKeyboardButton(CHAT_GENERIC, url=html_url) if html_url else None
+    vod_btn = InlineKeyboardButton(VOD_LINK, url=item.get("vod_url"))
 
-    if fmt == "html_online":
-        html_btn = InlineKeyboardButton(BTN_CHAT_HTML, url=html_url) if html_url else None
-        vod_btn = InlineKeyboardButton(BTN_VOD_LINK, url=item.get("vod_url"))
-        row = []
-        if html_btn:
-            row.append(html_btn)
-        row.append(vod_btn)
-        final_kb = InlineKeyboardMarkup([row])
-    else:
-        base_rows = list(kb.inline_keyboard) if kb else []
-        if html_url:
-            base_rows = base_rows + [[InlineKeyboardButton(BTN_CHAT_HTML, url=html_url)]]
-        final_kb = InlineKeyboardMarkup(base_rows) if base_rows else None
+    row = []
+    if html_btn:
+        row.append(html_btn)
+    row.append(vod_btn)
+
+    final_kb = InlineKeyboardMarkup([row])
 
     await context.bot.send_message(
         chat_id=chat_id,
@@ -111,7 +99,7 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     data = q.data or ""
-    if data not in (CB_FMT_TXT, CB_FMT_CSV, CB_FMT_HTML_ONLINE, CB_FMT_HTML_LOCAL):
+    if data != CB_FMT_HTML_ONLINE:
         return
 
     pending = get_pending(context)
@@ -124,14 +112,7 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await q.message.reply_text("Ссылка устарела.")
         return
 
-    FMT_MAP = {
-        CB_FMT_TXT: "txt",
-        CB_FMT_CSV: "csv",
-        CB_FMT_HTML_ONLINE: "html_online",
-        CB_FMT_HTML_LOCAL: "html_local",
-    }
-
-    fmt = FMT_MAP[data]
+    fmt = "html_online"
     vod_url = pending["vod_url"]
     vod_id = pending["vod_id"]
 
@@ -163,7 +144,6 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
 
         item = _make_item(safe_meta, safe_stats, vod_url, fmt)
-        html_url = html_url if fmt == "html_online" else None
 
         try:
             await _edit_progress_message_with_card(
@@ -224,7 +204,7 @@ async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str,
         db.add_user_history(user_id, cache_id)
 
         item = _make_item(meta, stats, vod_url, fmt)
-        html_url = public_html_url if fmt == "html_online" else None
+        html_url = public_html_url
 
         await _edit_progress_message_with_card(
             context=context,

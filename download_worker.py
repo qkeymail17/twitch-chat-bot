@@ -2,15 +2,12 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Tuple, List, Dict, Optional
-from collections import Counter
 
 from config import OUT_DIR
-from writers import PartWriterTXT, PartWriterCSV
 from twitch_api import fetch_vod_meta, gql_fetch_comments, get_client_id
 from ui import fmt_hhmmss
 
 from worker_progress import make_progress_updater
-from worker_writers import send_writer_file, cleanup_writer_files
 from worker_html import build_html_result
 
 from handlers_state import is_cancelled, clear_cancel
@@ -42,21 +39,13 @@ async def download_and_send(
     safe_ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     base_stem = f"vod_{vod_id}_{safe_ts}_{fmt}"
 
-    writer = None
     chat_rows = []
-    token_counter = Counter()
-
-    if fmt == "txt":
-        writer = PartWriterTXT(base_stem=base_stem, out_dir=out_dir)
-    elif fmt == "csv":
-        writer = PartWriterCSV(base_stem=base_stem, out_dir=out_dir)
 
     messages = 0
     users = set()
 
     progress = make_progress_updater(context, chat_id, progress_message_id, meta_dict, vod_url, fmt)
 
-    # throttling progress updates
     last_progress_time = time.monotonic()
     progress_interval_s = 0.5
     progress_every_n = 200
@@ -67,23 +56,17 @@ async def download_and_send(
         async for offset, created_at, user, text in gql_fetch_comments(session, client_id, vod_id):
             if is_cancelled(context):
                 raise RuntimeError("Загрузка была отменена.")
+
             t = fmt_hhmmss(int(offset)) if isinstance(offset, (int, float)) else "00:00:00"
+
             users.add(user)
             messages += 1
 
-            if fmt == "txt":
-                writer.write_line(f"[{t}] {user}: {text}")
-
-            elif fmt == "csv":
-                writer.write_row([t, created_at, user, text])
-
-            elif fmt in ("html_online", "html_local"):
-                chat_rows.append({"t": t, "user": user, "text": text})
-
-                if fmt == "html_local":
-                    cnt = token_counter
-                    for tok in text.split():
-                        cnt[tok] += 1
+            chat_rows.append({
+                "t": t,
+                "user": user,
+                "text": text
+            })
 
             now = time.monotonic()
             if (
@@ -93,9 +76,6 @@ async def download_and_send(
                 last_progress_time = now
                 await progress(messages, len(users), done=False)
 
-        if writer:
-            writer.close()
-
         if messages == 0:
             raise RuntimeError("Чат пустой или Twitch не отдал комментарии.")
 
@@ -104,23 +84,20 @@ async def download_and_send(
         sent_files: List[Dict[str, str]] = []
         public_html_url: Optional[str] = None
 
-        if fmt in ("txt", "csv"):
-            sent_files = await send_writer_file(context, chat_id, writer)
+        sent_files, public_html_url = await build_html_result(
+            context=context,
+            session=session,
+            chat_id=chat_id,
+            fmt=fmt,
+            meta=meta,
+            vod_url=vod_url,
+            base_stem=base_stem,
+            out_dir=out_dir,
+            chat_rows=chat_rows,
+            token_counter=None,
+        )
 
-        else:
-            sent_files, public_html_url = await build_html_result(
-                context=context,
-                session=session,
-                chat_id=chat_id,
-                fmt=fmt,
-                meta=meta,
-                vod_url=vod_url,
-                base_stem=base_stem,
-                out_dir=out_dir,
-                chat_rows=chat_rows,
-                token_counter=token_counter,
-            )
-            meta_dict["html_url"] = public_html_url
+        meta_dict["html_url"] = public_html_url
 
         stats = {
             "messages": messages,
@@ -131,6 +108,4 @@ async def download_and_send(
         return meta_dict, stats, sent_files, public_html_url
 
     finally:
-        if fmt in ("txt", "csv") and writer:
-            cleanup_writer_files(writer)
         clear_cancel(context)

@@ -6,19 +6,10 @@ from ui_labels import CHAT_GENERIC, FILES, VOD_LINK, label_for_fmt
 
 
 def _format_button(it: dict, idx: int):
-    fmt = it.get("fmt")
+    url = it.get("html_url")
 
-    if fmt == "html_online":
-        url = it.get("html_url")
-        if url:
-            return InlineKeyboardButton(CHAT_GENERIC, url=url)
-
-    if fmt == "html_local":
-        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
-    if fmt == "txt":
-        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
-    if fmt == "csv":
-        return InlineKeyboardButton(CHAT_GENERIC, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
+    if url:
+        return InlineKeyboardButton(CHAT_GENERIC, url=url)
 
     return InlineKeyboardButton(FILES, callback_data=f"{CB_HIST_FILES_PREFIX}{idx}")
 

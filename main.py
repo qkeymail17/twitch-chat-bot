@@ -97,7 +97,7 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, vod_link_entry), group=0)
 
     # callbacks
-    app.add_handler(CallbackQueryHandler(vod_format_chosen, pattern=r"^vodfmt:(txt|csv|html_online|html_offline)$"))
+    app.add_handler(CallbackQueryHandler(vod_format_chosen, pattern=r"^vodfmt:html_online$"))
 
     app.add_handler(CallbackQueryHandler(format_cancel_callback, pattern=r"^ui:format_cancel$"))
     app.add_handler(CallbackQueryHandler(pending_cancel_callback, pattern=r"^ui:pending_cancel$"))

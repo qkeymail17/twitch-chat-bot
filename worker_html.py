@@ -10,7 +10,6 @@ from twitch_api import (
     fetch_ffz_emote_map,
     fetch_twitch_global_emote_map,
     fetch_twitch_channel_emote_map,
-    download_as_data_uri,
 )
 
 
@@ -28,9 +27,8 @@ async def build_html_result(
 ):
     sent_files: List[Dict[str, str]] = []
     public_html_url: Optional[str] = None
-    local_emotes = {}
-    cdn_emotes: Dict[str, str] = {}
 
+    cdn_emotes: Dict[str, str] = {}
     combined_map: Dict[str, str] = {}
 
     # 7TV
@@ -65,15 +63,9 @@ async def build_html_result(
             if word in combined_map:
                 targets.add(word)
 
-    if fmt == "html_local":
-        for name in targets:
-            uri = await download_as_data_uri(session, combined_map[name])
-            if uri:
-                local_emotes[name] = uri
-
-    if fmt == "html_online":
-        for name in targets:
-            cdn_emotes[name] = combined_map[name]
+    # HTML ONLINE — используем CDN ссылки эмоутов
+    for name in targets:
+        cdn_emotes[name] = combined_map[name]
 
     html_text = render_viewer_html(
         chat_rows=chat_rows,
@@ -81,23 +73,12 @@ async def build_html_result(
         channel=(meta.channel or "—"),
         vod_url=vod_url,
         created_at=meta.created_at,
-        mode=("online" if fmt == "html_online" else "local"),
+        mode="online",
         channel_id=meta.channel_id,
-        local_emotes=local_emotes,
+        local_emotes={},
         cdn_emotes=cdn_emotes,
     )
 
-    if fmt == "html_online":
-        public_html_url = publish_html(html_text)
-
-    elif fmt == "html_local":
-        html_path = out_dir / f"{base_stem}.html"
-        html_path.write_text(html_text, encoding="utf-8")
-
-        with html_path.open("rb") as f:
-            msg = await context.bot.send_document(chat_id=chat_id, document=f, filename=html_path.name)
-        if msg and msg.document:
-            sent_files.append({"file_id": msg.document.file_id, "file_name": html_path.name})
-            await msg.delete()
+    public_html_url = publish_html(html_text)
 
     return sent_files, public_html_url
