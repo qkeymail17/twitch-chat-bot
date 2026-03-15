@@ -122,9 +122,23 @@ async def vod_link_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Я уже качаю чат. Подожди завершения.")
         return
 
+    client_id = get_client_id()
+    session = context.application.bot_data["aiohttp"]
+
+    meta = await fetch_vod_meta(session, client_id, vod_id)
+
+    # если VOD не существует — просто игнорируем сообщение
+    if not meta or not getattr(meta, "length_seconds", None):
+        return
+
     vod_url = f"https://www.twitch.tv/videos/{vod_id}"
+
     set_pending(context, vod_url=vod_url, vod_id=vod_id)
-    await update.message.reply_text("Выбери формат:", reply_markup=build_format_keyboard())
+
+    await update.message.reply_text(
+        "Выбери формат:",
+        reply_markup=build_format_keyboard()
+    )
 
 
 # ------ Cancel pending download (кнопка отмены в прогрессе) ------
@@ -178,16 +192,6 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     fmt = "html_online"
     vod_url = pending["vod_url"]
     vod_id = pending["vod_id"]
-
-    client_id = get_client_id()
-    session = context.application.bot_data["aiohttp"]
-
-    meta = await fetch_vod_meta(session, client_id, vod_id)
-
-    # если VOD не существует — просто выходим
-    if not meta or not getattr(meta, "length_seconds", None):
-        clear_pending(context)
-        return
 
     cached = db.get_cache(vod_id, fmt)
     if cached and not db.cache_is_expired(cached):
@@ -288,16 +292,6 @@ async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str,
         )
 
     except RuntimeError as e:
-        if str(e) == "VOD_NOT_FOUND":
-            try:
-                await context.bot.edit_message_text(
-                    chat_id=chat_id,
-                    message_id=progress_message_id,
-                    text="VOD не найден."
-                )
-            except Exception:
-                pass
-            return
         if "Загрузка была отменена." in str(e):
             try:
                 await context.bot.edit_message_text(

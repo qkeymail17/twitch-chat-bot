@@ -21,14 +21,11 @@ async def download_and_send(
     vod_id: str,
     fmt: str,
 ) -> Tuple[Dict, Dict, List[Dict[str, str]], Optional[str]]:
-    client_id = get_client_id()
     session = context.application.bot_data["aiohttp"]
 
-    meta = await fetch_vod_meta(session, client_id, vod_id)
+    client_id = get_client_id()
 
-    # VOD не существует
-    if not meta or not getattr(meta, "length_seconds", None):
-        raise RuntimeError("VOD_NOT_FOUND")
+    meta = await fetch_vod_meta(session, client_id, vod_id)
     meta_dict = {
         "title": meta.title,
         "channel": meta.channel,
