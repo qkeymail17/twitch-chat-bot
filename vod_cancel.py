@@ -10,6 +10,5 @@ async def pending_cancel_callback(update: Update, context: ContextTypes.DEFAULT_
 
     if is_busy(context):
         set_cancel(context, True)
-        await q.message.reply_text("Загрузка отменяется...")
     else:
         await q.message.reply_text("Нечего отменять.")
