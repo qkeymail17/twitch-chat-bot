@@ -237,13 +237,14 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     clear_pending(context)
     set_busy(context, True)
 
-    progress_msg = await context.bot.send_message(
-        chat_id=q.message.chat_id,
+    await q.message.edit_text(
         text="Загрузка...",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton(CANCEL, callback_data=CB_PENDING_CANCEL)]
         ])
     )
+
+    progress_msg = q.message
 
     context.application.create_task(_runner(
         context=context,
