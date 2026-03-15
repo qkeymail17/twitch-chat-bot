@@ -2,7 +2,8 @@ CB_FMT_TXT = "vodfmt:txt"
 CB_FMT_CSV = "vodfmt:csv"
 CB_FMT_HTML_ONLINE = "vodfmt:html_online"
 CB_FMT_HTML_LOCAL = "vodfmt:html_offline"
-CB_PENDING_CANCEL = "vod:pending_cancel"
+CB_PENDING_CANCEL = "ui:pending_cancel"
+CB_FORMAT_CANCEL = "ui:format_cancel"
 
 CB_UI_HISTORY = "ui:history"
 

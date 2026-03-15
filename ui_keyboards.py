@@ -18,7 +18,7 @@ def build_format_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton(CHAT_CSV_FILE, callback_data=CB_FMT_CSV),
         ],
         [
-            InlineKeyboardButton(CANCEL, callback_data=CB_PENDING_CANCEL),
+            InlineKeyboardButton(CANCEL, callback_data=CB_FORMAT_CANCEL),
         ]
     ])
 
