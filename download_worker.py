@@ -1,4 +1,5 @@
 import time
+import asyncio
 from datetime import datetime
 from pathlib import Path
 from typing import Tuple, List, Dict, Optional
@@ -54,13 +55,30 @@ async def download_and_send(
     try:
         await progress(messages, len(users), done=False)
 
-        first_message_deadline = time.monotonic() + 10
+        comment_iter = gql_fetch_comments(session, client_id, vod_id)
 
-        async for offset, created_at, user, text in gql_fetch_comments(session, client_id, vod_id):
+        try:
+            first = await asyncio.wait_for(comment_iter.__anext__(), timeout=10)
+        except StopAsyncIteration:
+            raise RuntimeError("CHAT_EMPTY")
+        except asyncio.TimeoutError:
+            raise RuntimeError("CHAT_EMPTY")
 
-            # если за 10 секунд не пришло ни одного сообщения — считаем что чата нет
-            if messages == 0 and time.monotonic() > first_message_deadline:
-                raise RuntimeError("CHAT_EMPTY")
+        offset, created_at, user, text = first
+
+        t = fmt_hhmmss(int(offset)) if isinstance(offset, (int, float)) else "00:00:00"
+
+        users.add(user)
+        messages += 1
+
+        chat_rows.append({
+            "t": t,
+            "user": user,
+            "text": text
+        })
+
+        async for offset, created_at, user, text in comment_iter:
+
             if is_cancelled(context):
                 raise RuntimeError("Загрузка была отменена.")
 
@@ -77,8 +95,8 @@ async def download_and_send(
 
             now = time.monotonic()
             if (
-                messages % progress_every_n == 0
-                or now - last_progress_time >= progress_interval_s
+                    messages % progress_every_n == 0
+                    or now - last_progress_time >= progress_interval_s
             ):
                 last_progress_time = now
                 await progress(messages, len(users), done=False)
