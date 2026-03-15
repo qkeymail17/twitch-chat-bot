@@ -3,6 +3,7 @@ import logging
 import json
 import re
 from typing import Dict, List, Optional
+from twitch_api import fetch_vod_meta, get_client_id
 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
@@ -178,6 +179,16 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     vod_url = pending["vod_url"]
     vod_id = pending["vod_id"]
 
+    client_id = get_client_id()
+    session = context.application.bot_data["aiohttp"]
+
+    meta = await fetch_vod_meta(session, client_id, vod_id)
+
+    # если VOD не существует — просто выходим
+    if not meta or not getattr(meta, "length_seconds", None):
+        clear_pending(context)
+        return
+
     cached = db.get_cache(vod_id, fmt)
     if cached and not db.cache_is_expired(cached):
         clear_pending(context)
@@ -277,6 +288,16 @@ async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str,
         )
 
     except RuntimeError as e:
+        if str(e) == "VOD_NOT_FOUND":
+            try:
+                await context.bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=progress_message_id,
+                    text="VOD не найден."
+                )
+            except Exception:
+                pass
+            return
         if "Загрузка была отменена." in str(e):
             try:
                 await context.bot.edit_message_text(

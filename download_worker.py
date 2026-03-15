@@ -25,6 +25,10 @@ async def download_and_send(
     session = context.application.bot_data["aiohttp"]
 
     meta = await fetch_vod_meta(session, client_id, vod_id)
+
+    # VOD не существует
+    if not meta or not getattr(meta, "length_seconds", None):
+        raise RuntimeError("VOD_NOT_FOUND")
     meta_dict = {
         "title": meta.title,
         "channel": meta.channel,

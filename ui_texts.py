@@ -26,7 +26,8 @@ def build_progress_text(meta: dict, vod_url: str, fmt: str, messages: int, uniqu
 def about_text() -> str:
     return (
         "Что умеет:\n"
-        "Скачивать чат с открытого Twitch VOD и красиво оформлять его в виде сайта"
+        "Скачивать 📖 Чат с открытого Twitch 📹 VOD и красиво оформлять его в виде сайта\n"
+        "\n"
         "Как пользоваться:\n"
-        "Отправьте ссылку на VOD\n"
+        "Отправьте ссылку на 📹 VOD\n"
     )
