@@ -292,6 +292,16 @@ async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str,
         )
 
     except RuntimeError as e:
+        if str(e) == "CHAT_EMPTY":
+            try:
+                await context.bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=progress_message_id,
+                    text="У этого VOD нет чата."
+                )
+            except Exception:
+                pass
+            return
         if "Загрузка была отменена." in str(e):
             try:
                 await context.bot.edit_message_text(

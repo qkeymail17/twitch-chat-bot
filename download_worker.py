@@ -54,7 +54,13 @@ async def download_and_send(
     try:
         await progress(messages, len(users), done=False)
 
+        first_message_deadline = time.monotonic() + 10
+
         async for offset, created_at, user, text in gql_fetch_comments(session, client_id, vod_id):
+
+            # если за 10 секунд не пришло ни одного сообщения — считаем что чата нет
+            if messages == 0 and time.monotonic() > first_message_deadline:
+                raise RuntimeError("CHAT_EMPTY")
             if is_cancelled(context):
                 raise RuntimeError("Загрузка была отменена.")
 
