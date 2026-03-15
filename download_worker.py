@@ -66,7 +66,7 @@ async def download_and_send(
 
         async for offset, created_at, user, text in gql_fetch_comments(session, client_id, vod_id):
             if is_cancelled(context):
-                raise RuntimeError("Загрузка отменена пользователем")
+                raise RuntimeError("Загрузка была отменена")
             t = fmt_hhmmss(int(offset)) if isinstance(offset, (int, float)) else "00:00:00"
             users.add(user)
             messages += 1
