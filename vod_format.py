@@ -11,7 +11,7 @@ from handlers_state import (
 )
 from handlers_history import send_cached_files
 from ui_history import build_history_page
-from ui_labels import CHAT_GENERIC, VOD_LINK
+from ui_labels import CHAT_GENERIC, VOD_LINK, CANCEL
 from ui_constants import CB_PENDING_CANCEL
 
 
@@ -184,7 +184,7 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id=q.message.chat_id,
         text="Загрузка...",
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("Отмена", callback_data=CB_PENDING_CANCEL)]
+            [InlineKeyboardButton(CANCEL, callback_data=CB_PENDING_CANCEL)]
         ])
     )
 

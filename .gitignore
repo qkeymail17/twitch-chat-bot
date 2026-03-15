@@ -15,9 +15,6 @@ __pycache__/
 # Build/output
 _out/
 
-# Not project
-staff/
-
 # Databases
 *.db
 *.sqlite
