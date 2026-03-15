@@ -35,3 +35,15 @@ def clear_pending(context: ContextTypes.DEFAULT_TYPE):
 
 def pending_expired(p: dict) -> bool:
     return (time.time() - float(p.get("created_at") or 0)) > PENDING_TTL_SECONDS
+
+
+def set_cancel(context: ContextTypes.DEFAULT_TYPE, v: bool):
+    context.user_data["vod_cancel"] = v
+
+
+def is_cancelled(context: ContextTypes.DEFAULT_TYPE) -> bool:
+    return bool(context.user_data.get("vod_cancel"))
+
+
+def clear_cancel(context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.pop("vod_cancel", None)

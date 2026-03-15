@@ -5,14 +5,22 @@ from telegram.error import BadRequest, RetryAfter, TimedOut, NetworkError
 from config import PROGRESS_INTERVAL
 from ui_formatters import _fmt_len, _fmt_dt_utc
 
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from ui_constants import CB_PENDING_CANCEL
+
 
 async def safe_edit_html(context, chat_id: int, message_id: int, text: str):
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Отмена", callback_data=CB_PENDING_CANCEL)]
+    ])
+
     try:
         await context.bot.edit_message_text(
             chat_id=chat_id,
             message_id=message_id,
             text=text,
             parse_mode="HTML",
+            reply_markup=keyboard,
         )
     except RetryAfter as e:
         await asyncio.sleep(float(e.retry_after))

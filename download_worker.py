@@ -13,6 +13,8 @@ from worker_progress import make_progress_updater
 from worker_writers import send_writer_file, cleanup_writer_files
 from worker_html import build_html_result
 
+from handlers_state import is_cancelled, clear_cancel
+
 
 async def download_and_send(
     context,
@@ -63,6 +65,8 @@ async def download_and_send(
         await progress(messages, len(users), done=False)
 
         async for offset, created_at, user, text in gql_fetch_comments(session, client_id, vod_id):
+            if is_cancelled(context):
+                raise RuntimeError("Загрузка отменена пользователем")
             t = fmt_hhmmss(int(offset)) if isinstance(offset, (int, float)) else "00:00:00"
             users.add(user)
             messages += 1
@@ -129,3 +133,4 @@ async def download_and_send(
     finally:
         if fmt in ("txt", "csv") and writer:
             cleanup_writer_files(writer)
+        clear_cancel(context)

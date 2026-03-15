@@ -12,6 +12,7 @@ from handlers_state import (
 from handlers_history import send_cached_files
 from ui_history import build_history_page
 from ui_labels import CHAT_GENERIC, VOD_LINK
+from ui_constants import CB_PENDING_CANCEL
 
 
 def _make_item(meta, stats, vod_url, fmt):
@@ -179,7 +180,13 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     clear_pending(context)
     set_busy(context, True)
 
-    progress_msg = await context.bot.send_message(chat_id=q.message.chat_id, text="Загрузка...")
+    progress_msg = await context.bot.send_message(
+        chat_id=q.message.chat_id,
+        text="Загрузка...",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("Отмена", callback_data=CB_PENDING_CANCEL)]
+        ])
+    )
 
     context.application.create_task(_runner(
         context=context,
@@ -226,6 +233,22 @@ async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str,
             item=item,
             html_url=html_url,
         )
+
+    except RuntimeError as e:
+        if "отменена пользователем" in str(e):
+            try:
+                await context.bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=progress_message_id,
+                    text="Загрузка отменена.",
+                )
+            except Exception:
+                await context.bot.send_message(
+                    chat_id=chat_id,
+                    text="Загрузка отменена.",
+                )
+            return
+        raise
 
     except Exception as e:
         logging.exception("Download failed")
