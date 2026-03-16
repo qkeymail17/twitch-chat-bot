@@ -1,7 +1,7 @@
 import os
 import aiohttp
 import logging
-from log_setup import setup_logging
+from config.log_setup import setup_logging
 from telegram import BotCommand
 from telegram.ext import (
     Application,
