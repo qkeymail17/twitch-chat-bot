@@ -27,7 +27,8 @@ from handlers import (
     history_files_callback,
     history_vod_callback,
     noop_callback,
-    format_cancel_callback
+    format_cancel_callback,
+    vod_video_handler,
 )
 
 
