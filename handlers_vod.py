@@ -9,8 +9,10 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 
 import database as db
-from download_worker import download_and_send
+from download_worker import download_and_send as download_chat_and_send
+from vod_video_pipeline_simple import download_and_send as download_vod_and_send
 from ui import CB_FMT_HTML_ONLINE, build_format_keyboard
+from ui_constants import CB_FMT_VOD_VIDEO
 from handlers_state import (
     extract_vod_id_strict,
     is_busy,
@@ -119,7 +121,7 @@ async def vod_link_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if is_busy(context):
-        await update.message.reply_text("Я уже качаю чат. Подожди завершения.")
+        await update.message.reply_text("Я уже выполняю загрузку. Подожди завершения.")
         return
 
     client_id = get_client_id()
@@ -172,11 +174,16 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await q.answer()
 
     if is_busy(context):
-        await q.message.reply_text("Я уже качаю чат. Подожди завершения.")
+        await q.message.reply_text("Я уже выполняю загрузку. Подожди завершения.")
         return
 
     data = q.data or ""
-    if data != CB_FMT_HTML_ONLINE:
+
+    if data == CB_FMT_HTML_ONLINE:
+        fmt = "html_online"
+    elif data == CB_FMT_VOD_VIDEO:
+        fmt = "vod_video"
+    else:
         return
 
     pending = get_pending(context)
@@ -189,7 +196,6 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await q.message.reply_text("Ссылка устарела.")
         return
 
-    fmt = "html_online"
     vod_url = pending["vod_url"]
     vod_id = pending["vod_id"]
 
@@ -259,14 +265,26 @@ async def vod_format_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def _runner(context, chat_id: int, progress_message_id: int, vod_url: str, vod_id: str, fmt: str, user_id: int):
     try:
-        meta, stats, files, public_html_url = await download_and_send(
-            context=context,
-            chat_id=chat_id,
-            progress_message_id=progress_message_id,
-            vod_url=vod_url,
-            vod_id=vod_id,
-            fmt=fmt,
-        )
+        if fmt == "vod_video":
+            # вызываем видео-воркер
+            meta, stats, files, public_html_url = await download_vod_and_send(
+                context=context,
+                chat_id=chat_id,
+                progress_message_id=progress_message_id,
+                vod_url=vod_url,
+                vod_id=vod_id,
+                fmt=fmt,
+            )
+        else:
+            # стандартное поведение — скачивание чата (оставляем как было)
+            meta, stats, files, public_html_url = await download_chat_and_send(
+                context=context,
+                chat_id=chat_id,
+                progress_message_id=progress_message_id,
+                vod_url=vod_url,
+                vod_id=vod_id,
+                fmt=fmt,
+            )
 
         if fmt == "html_online" and public_html_url:
             meta["html_url"] = public_html_url

@@ -98,6 +98,7 @@ def main():
 
     # callbacks
     app.add_handler(CallbackQueryHandler(vod_format_chosen, pattern=r"^vodfmt:html_online$"))
+    app.add_handler(CallbackQueryHandler(vod_format_chosen, pattern=r"^vodfmt:video$"))
 
     app.add_handler(CallbackQueryHandler(format_cancel_callback, pattern=r"^ui:format_cancel$"))
     app.add_handler(CallbackQueryHandler(pending_cancel_callback, pattern=r"^ui:pending_cancel$"))
