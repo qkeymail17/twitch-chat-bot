@@ -3,3 +3,5 @@ from handlers_vod import *
 from handlers_history import *
 from handlers_state import *
 from handlers_misc import *
+
+from handlers_vod import vod_video_handler
