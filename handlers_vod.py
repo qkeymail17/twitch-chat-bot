@@ -9,7 +9,7 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 
 import database as db
-from modules.chat_downloader.download_worker import download_and_send
+from download_worker import download_and_send
 from ui import CB_FMT_HTML_ONLINE, build_format_keyboard
 from handlers_state import (
     extract_vod_id_strict,

@@ -1,5 +1,5 @@
 import logging
-from .config import LOG_LEVEL, LOG_FORMAT
+from config import LOG_LEVEL, LOG_FORMAT
 
 
 def setup_logging():
