@@ -203,7 +203,13 @@ class VideoPipelineManager:
                     job["processes"].append(proc)
 
                     # wait for completion but still be responsive to cancel_event
-                    done, pending = await asyncio.wait({proc.wait(), cancel_event.wait()}, return_when=asyncio.FIRST_COMPLETED)
+                    wait_proc = asyncio.create_task(proc.wait())
+                    wait_cancel = asyncio.create_task(cancel_event.wait())
+
+                    done, pending = await asyncio.wait(
+                        {wait_proc, wait_cancel},
+                        return_when=asyncio.FIRST_COMPLETED
+                    )
                     # if cancel -> kill ffmpeg and break
                     if cancel_event.is_set():
                         try:
