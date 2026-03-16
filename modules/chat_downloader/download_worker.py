@@ -11,7 +11,7 @@ from ui import fmt_hhmmss
 from worker_progress import make_progress_updater
 from worker_html import build_html_result
 
-from handlers_state import is_cancelled, clear_cancel
+from bot.handlers_state import is_cancelled, clear_cancel
 
 
 async def download_and_send(
