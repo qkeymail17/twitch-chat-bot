@@ -14,20 +14,22 @@ from telegram.ext import (
 
 import database as db
 from ui import build_history_page
-from config import ENV_TOKEN
-from handlers import (
+from config.config import ENV_TOKEN
+from bot.handlers_vod import vod_link_entry, vod_format_chosen
+from bot.handlers_vod import pending_cancel_callback, format_cancel_callback
+from history_files import history_files_callback
+from handlers_misc import noop_callback
+
+from history_callbacks import (
+    history_page_callback,
+    history_vod_callback,
+    ui_buttons,
+)
+
+from handlers_cmd import (
     start_command,
     about_command,
     cancel_command,
-    vod_link_entry,
-    vod_format_chosen,
-    pending_cancel_callback,
-    ui_buttons,
-    history_page_callback,
-    history_files_callback,
-    history_vod_callback,
-    noop_callback,
-    format_cancel_callback,
 )
 
 
