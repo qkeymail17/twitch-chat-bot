@@ -7,8 +7,9 @@
 from typing import Optional
 
 # Кнопки / лейблы
-CHAT_HTML_LINK = "🌐 HTML ссылка"
+CHAT_HTML_LINK = "🌐 Посмотреть чат"
 CHAT_GENERIC = "📖 Чат"           # общий вариант, если нужно
+VIDEO_DOWNLOAD = "📹 Скачать видео"
 FILES = "📁 Файлы"
 VOD_LINK = "🔗 Ссылка VOD"
 CANCEL = "❌ Отмена"

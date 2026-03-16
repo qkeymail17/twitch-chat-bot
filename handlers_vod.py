@@ -25,6 +25,7 @@ from ui_history import build_history_page
 from ui_labels import CHAT_GENERIC, VOD_LINK, CANCEL
 from ui_constants import CB_PENDING_CANCEL
 
+    from vod_video_pipeline import start_video_pipeline
 
 def _make_item(meta, stats, vod_url, fmt):
     return {
@@ -164,6 +165,26 @@ async def format_cancel_callback(update: Update, context: ContextTypes.DEFAULT_T
         await q.message.delete()
     except Exception:
         pass
+
+
+async def vod_video_handler(update, context):
+    q = update.callback_query
+    await q.answer()
+
+    pending = get_pending(context)
+    if not pending:
+        return
+
+    vod_url = pending["vod_url"]
+    vod_id = pending["vod_id"]
+
+    await start_video_pipeline(
+        context=context,
+        chat_id=q.message.chat_id,
+        vod_url=vod_url,
+        user_id=update.effective_user.id,
+        progress_message=q.message
+    )
 
 
 # ------ Format chosen handler (запуск воркера) ------
