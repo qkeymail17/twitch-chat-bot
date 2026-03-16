@@ -2,8 +2,6 @@ CB_FMT_HTML_ONLINE = "vodfmt:html_online"
 CB_PENDING_CANCEL = "ui:pending_cancel"
 CB_FORMAT_CANCEL = "ui:format_cancel"
 
-CB_FMT_VOD_VIDEO = "vodfmt:video"
-
 CB_UI_HISTORY = "ui:history"
 
 CB_HIST_PAGE = "ui:histpage:"

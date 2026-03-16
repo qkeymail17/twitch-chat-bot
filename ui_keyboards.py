@@ -12,9 +12,6 @@ def build_format_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton(CHAT_HTML_LINK, callback_data=CB_FMT_HTML_ONLINE),
         ],
         [
-            InlineKeyboardButton("VOD видео (20 мин части)", callback_data=CB_FMT_VOD_VIDEO),
-        ],
-        [
             InlineKeyboardButton(CANCEL, callback_data=CB_FORMAT_CANCEL),
         ]
     ])
