@@ -137,53 +137,52 @@ async def download_and_send(context, chat_id: int, progress_message_id: int, vod
 
     # sender coroutine
     async def _sender():
-        try:
-            while True:
-                item = await queue.get()
-                if item is None:
-                    break
-                if is_cancelled(context):
-                    # cleanup and stop
-                    try:
-                        os.remove(item)
-                    except Exception:
-                        pass
-                    break
-                # send to telegram
+        while True:
+            item = await queue.get()
+
+            if item is None:
+                queue.task_done()
+                break
+
+            if is_cancelled(context):
                 try:
-                    # open file as stream and send
-                    with open(item, "rb") as f:
-                        await context.bot.send_video(
-                            chat_id=chat_id,
-                            video=f,
-                            supports_streaming=True,
-                            read_timeout=120,
-                            write_timeout=120
-                        )
-                    sent_files.append(os.path.basename(item))
-                except Exception as e:
-                    # if sending fails, cancel pipeline
-                    raise
-                finally:
-                    # delete local chunk
-                    try:
-                        os.remove(item)
-                    except Exception:
-                        pass
-            return
-        finally:
-            return
+                    os.remove(item)
+                except Exception:
+                    pass
+                queue.task_done()
+                break
+
+            try:
+                with open(item, "rb") as f:
+                    await context.bot.send_video(
+                        chat_id=chat_id,
+                        video=f,
+                        supports_streaming=True,
+                        read_timeout=120,
+                        write_timeout=120
+                    )
+                sent_files.append(os.path.basename(item))
+            finally:
+                try:
+                    os.remove(item)
+                except Exception:
+                    pass
+
+            queue.task_done()
+
+        return
 
     # run both coroutines concurrently
     try:
         dl_task = asyncio.create_task(_downloader())
         send_task = asyncio.create_task(_sender())
-        await asyncio.wait([dl_task, send_task], return_when=asyncio.ALL_COMPLETED)
+
+        await dl_task
+        await send_task
         # if cancelled by flag -> raise
         if is_cancelled(context):
             raise RuntimeError("Загрузка была отменена.")
     except Exception as e:
-        exc = e
         raise
     finally:
         # cleanup work_dir
