@@ -1,5 +1,5 @@
 CB_FMT_HTML_ONLINE = "vodfmt:html_online"
-CB_VID_DOWNLOAD = "vodvid:"
+CB_VID_DOWNLOAD = "vod:video"
 CB_PENDING_CANCEL = "ui:pending_cancel"
 CB_FORMAT_CANCEL = "ui:format_cancel"
 
