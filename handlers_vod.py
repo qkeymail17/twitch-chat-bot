@@ -168,6 +168,8 @@ async def format_cancel_callback(update: Update, context: ContextTypes.DEFAULT_T
 
 
 async def vod_video_handler(update, context):
+    print("VIDEO HANDLER STARTED")
+
     q = update.callback_query
     await q.answer()
 
