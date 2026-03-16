@@ -25,7 +25,7 @@ from ui_history import build_history_page
 from ui_labels import CHAT_GENERIC, VOD_LINK, CANCEL
 from ui_constants import CB_PENDING_CANCEL
 
-    from vod_video_pipeline import start_video_pipeline
+from vod_video_pipeline import start_video_pipeline
 
 def _make_item(meta, stats, vod_url, fmt):
     return {
