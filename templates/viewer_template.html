@@ -442,9 +442,6 @@ function renderMore(){
   }
   elList.appendChild(frag); rendered=end;
 
-  while(elList.children.length > MAX_ROWS){
-    elList.removeChild(elList.firstChild);
-  }
 }
 
 document.addEventListener("scroll",()=>{
