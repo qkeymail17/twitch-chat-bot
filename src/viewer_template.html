@@ -381,6 +381,26 @@ function renderTextWithEmotes(el,text,emotes){
   }
 }
 
+function renderFragments(el, fragments, emotes){
+  for(const f of fragments){
+    const text = f?.text || "";
+    const emote = f?.emote;
+
+    if(emote && emote.emoteID){
+      const id = emote.emoteID;
+      const img = document.createElement("img");
+      img.src = `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0`;
+      img.alt = text;
+      img.title = text;
+      img.className = "emote";
+      el.appendChild(img);
+    } else {
+      // текст → прогоняем через 7tv/локальные эмоуты
+      renderTextWithEmotes(el, text, emotes);
+    }
+  }
+}
+
 const CHUNK = 800;
 const MAX_ROWS = 3000;
 
@@ -433,7 +453,11 @@ function renderMore(){
     colonEl.className = "colon";
     colonEl.textContent = ":";
     const msgEl = document.createElement("span"); msgEl.className="msg";
-    renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+    if (r.fragments && Array.isArray(r.fragments)) {
+      renderFragments(msgEl, r.fragments, EMOTES);
+    } else {
+      renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+    }
     if(SHOW_TIME) rowEl.appendChild(timeEl);
     rowEl.appendChild(userEl);
     rowEl.appendChild(colonEl);

@@ -2,27 +2,6 @@ import json
 from pathlib import Path
 
 
-def render_fragments(fragments: list) -> str:
-    if not fragments:
-        return ""
-
-    parts = []
-
-    for f in fragments:
-        text = f.get("text", "")
-        emote = f.get("emote")
-
-        if emote and emote.get("emoteID"):
-            emote_id = emote["emoteID"]
-            url = f"https://static-cdn.jtvnw.net/emoticons/v2/{emote_id}/default/dark/3.0"
-
-            parts.append(f'<img src="{url}" alt="{text}" class="emote">')
-        else:
-            parts.append(text)
-
-    return "".join(parts)
-
-
 def render_viewer_html(
     chat_rows: list[dict],
     title: str,
@@ -37,11 +16,6 @@ def render_viewer_html(
     BASE_DIR = Path(__file__).resolve().parent
     template_path = BASE_DIR / "viewer_template.html"
     template = template_path.read_text(encoding="utf-8")
-
-    for row in chat_rows:
-        fragments = row.get("fragments")
-        if fragments:
-            row["text"] = render_fragments(fragments)
 
     payload = {
         "meta": {
