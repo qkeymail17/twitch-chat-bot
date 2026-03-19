@@ -15,7 +15,8 @@ def render_viewer_html(
     local_emotes: dict | None = None,
     cdn_emotes: dict | None = None,
 ) -> str:
-    template_path = Path(TEMPLATES_DIR) / "viewer_template.html"
+    BASE_DIR = Path(__file__).resolve().parent
+    template_path = BASE_DIR / "viewer_template.html"
     template = template_path.read_text(encoding="utf-8")
 
     payload = {
