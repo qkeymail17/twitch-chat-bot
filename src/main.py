@@ -67,14 +67,16 @@ async def post_shutdown(app: Application):
 
 
 async def test_twitch_api():
+    log = logging.getLogger("tcd")
+
     url = "https://api.twitch.tv/helix/chat/emotes/global"
     headers = get_api_headers()
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers) as r:
-            print("STATUS:", r.status)
+            log.info(f"Twitch API STATUS: {r.status}")
             data = await r.json()
-            print("OK, emotes count:", len(data.get("data", [])))
+            log.info(f"Twitch emotes count: {len(data.get('data', []))}")
 
 
 def main():
