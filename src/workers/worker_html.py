@@ -34,10 +34,7 @@ async def build_html_result(
     # 7TV
     if meta.channel_id:
         m = await fetch_7tv_emote_map(session, meta.channel_id)
-        twitch_channel = await fetch_twitch_channel_emote_map(session, meta.channel_id)
-
         combined_map.update(m)
-        combined_map.update(twitch_channel)
 
     # BTTV
     if meta.channel_id:
@@ -53,15 +50,18 @@ async def build_html_result(
     m = await fetch_twitch_global_emote_map(session)
     combined_map.update(m)
 
+    # Twitch Channel
+    if meta.channel_id:
+        m = await fetch_twitch_channel_emote_map(session, meta.channel_id)
+        combined_map.update(m)
+
     targets = set()
 
     for row in chat_rows:
-        fragments = row.get("fragments") or []
-
-        for f in fragments:
-            text = f.get("text") or ""
-            if text in combined_map:
-                targets.add(text)
+        text = row.get("text") or ""
+        for word in text.split():
+            if word in combined_map:
+                targets.add(word)
 
     # HTML ONLINE — используем CDN ссылки эмоутов
     for name in targets:

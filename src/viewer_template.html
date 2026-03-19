@@ -285,8 +285,6 @@ for(const r of rows){
 const MODE = meta.mode || "online";
 const LOCAL_EMOTES = meta.local_emotes || {};
 const CDN_EMOTES = meta.cdn_emotes || {};
-const TWITCH_GLOBAL_EMOTES = meta.twitch_global_emotes || {};
-const TWITCH_CHANNEL_EMOTES = meta.twitch_channel_emotes || {};
 const TWITCH_CHANNEL_ID = meta.channel_id || null;
 
 const elTitle=document.getElementById("title");
@@ -366,77 +364,19 @@ async function fetch7tvEmotes(channelId){
   }catch(e){ return new Map(); }
 }
 
-function renderTextWithEmotes(el, text, emotes){
-  const parts = String(text || "").split(/(\s+)/);
-
+function renderTextWithEmotes(el,text,emotes){
+  const parts = String(text||"").split(/(\s+)/);
   for(const p of parts){
-    const clean = p
-      .replace(/[\u200B-\u200D\uFEFF]/g, '')
-      .replace(/[\r\n\t]/g, '');
-
-    // 1. локальные / CDN
+    const clean = p.replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/[\r\n\t]/g,'');
     if(LOCAL_EMOTES[clean] || CDN_EMOTES[clean]){
       const src = LOCAL_EMOTES[clean] || CDN_EMOTES[clean];
-
       const img = document.createElement("img");
-      img.src = src;
-      img.crossOrigin = "anonymous";
-      img.alt = p;
-      img.title = p;
-      img.className = "emote";
-
-      el.appendChild(img);
-    }
-
-    // 2. Twitch (global + channel)
-    else if(TWITCH_CHANNEL_EMOTES[clean] || TWITCH_GLOBAL_EMOTES[clean]){
-      const id = TWITCH_CHANNEL_EMOTES[clean] || TWITCH_GLOBAL_EMOTES[clean];
-
+      img.src = src; img.crossOrigin="anonymous"; img.alt=p; img.title=p; img.className="emote"; el.appendChild(img);
+    } else if(emotes.has(clean)){
       const img = document.createElement("img");
-      img.src = `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0`;
-      img.crossOrigin = "anonymous";
-      img.alt = p;
-      img.title = p;
-      img.className = "emote";
-
-      el.appendChild(img);
-    }
-
-    // 3. 7tv
-    else if(emotes.has(clean)){
-      const img = document.createElement("img");
-      img.src = emotes.get(clean);
-      img.crossOrigin = "anonymous";
-      img.alt = p;
-      img.title = p;
-      img.className = "emote";
-
-      el.appendChild(img);
-    }
-
-    // 4. обычный текст
-    else{
-      el.appendChild(document.createTextNode(p));
-    }
-  }
-}
-
-function renderFragments(el, fragments, emotes){
-  for(const f of fragments){
-    const text = f?.text || "";
-    const emote = f?.emote;
-
-    if(emote && emote.emoteID){
-      const id = emote.emoteID;
-      const img = document.createElement("img");
-      img.src = `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0`;
-      img.alt = text;
-      img.title = text;
-      img.className = "emote";
-      el.appendChild(img);
+      img.src = emotes.get(clean); img.crossOrigin="anonymous"; img.alt=p; img.title=p; img.className="emote"; el.appendChild(img);
     } else {
-      // текст → прогоняем через 7tv/локальные эмоуты
-      renderTextWithEmotes(el, text, emotes);
+      el.appendChild(document.createTextNode(p));
     }
   }
 }
@@ -493,11 +433,7 @@ function renderMore(){
     colonEl.className = "colon";
     colonEl.textContent = ":";
     const msgEl = document.createElement("span"); msgEl.className="msg";
-    if (r.fragments && r.fragments.length) {
-      renderFragments(msgEl, r.fragments, EMOTES);
-    } else {
-      renderTextWithEmotes(msgEl, r.text || "", EMOTES);
-    }
+    renderTextWithEmotes(msgEl, r.text || "", EMOTES);
     if(SHOW_TIME) rowEl.appendChild(timeEl);
     rowEl.appendChild(userEl);
     rowEl.appendChild(colonEl);

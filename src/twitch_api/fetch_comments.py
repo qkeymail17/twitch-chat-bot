@@ -50,13 +50,9 @@ async def gql_fetch_comments(
             display = commenter.get("displayName") or commenter.get("login") or "unknown"
             offset = node.get("contentOffsetSeconds")
             created_at = node.get("createdAt") or ""
-            msg = node.get("message") or {}
-            fragments = msg.get("fragments") or []
-
-            text = "".join((f.get("text") or "") for f in fragments).strip()
-
+            text = render_message(node)
             if text:
-                yield (offset, created_at, display, text, fragments)
+                yield (offset, created_at, display, text)
 
         if not has_next or not next_cursor:
             return
