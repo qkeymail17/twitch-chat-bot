@@ -1,7 +1,7 @@
 import os
 import uuid
 
-from config import PUBLIC_HTML_DIR, PUBLIC_BASE_URL, PUBLIC_HTML_URL_PREFIX
+from .config import PUBLIC_HTML_DIR, PUBLIC_BASE_URL, PUBLIC_HTML_URL_PREFIX
 
 
 def publish_html(html_text: str) -> str:

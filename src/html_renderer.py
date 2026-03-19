@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from config import TEMPLATES_DIR
+from .config import TEMPLATES_DIR
 
 
 def render_viewer_html(

@@ -1,7 +1,7 @@
 import os
 import aiohttp
 import logging
-from log_setup import setup_logging
+from .log_setup import setup_logging
 from telegram import BotCommand
 from telegram.ext import (
     Application,
@@ -13,7 +13,7 @@ from telegram.ext import (
 )
 
 from src.database import database as db
-from config import ENV_TOKEN
+from .config import ENV_TOKEN
 from src.handlers.handlers import (
     start_command,
     about_command,
