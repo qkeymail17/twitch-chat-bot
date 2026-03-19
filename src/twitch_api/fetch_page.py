@@ -1,5 +1,5 @@
 from typing import Optional, Any, Dict, List, Tuple
-from config import VIDEO_COMMENTS_HASH
+from src.config import VIDEO_COMMENTS_HASH
 import aiohttp
 
 from .client import gql_post_json

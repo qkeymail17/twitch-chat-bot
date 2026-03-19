@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from ui import about_text, build_about_keyboard
-from handlers_state import is_busy, get_pending, clear_pending
+from src.ui.ui import about_text, build_about_keyboard
+from .handlers_state import is_busy, get_pending, clear_pending
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):

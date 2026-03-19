@@ -1,8 +1,8 @@
 import html
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from ui_constants import *
-from ui_formatters import _fmt_dt_utc, _fmt_len
-from ui_labels import CHAT_GENERIC, FILES, VOD_LINK, label_for_fmt
+from .ui_constants import *
+from .ui_formatters import _fmt_dt_utc, _fmt_len
+from .ui_labels import CHAT_GENERIC, FILES, VOD_LINK, label_for_fmt
 
 
 def _format_button(it: dict, idx: int):

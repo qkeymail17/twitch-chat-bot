@@ -14,7 +14,7 @@ DEFAULT_CLIENT_ID = "kd1unb4b3q4t58fwlpcbzcbnm76a8fp"
 VOD_URL_RE = re.compile(r"^https://www\.twitch\.tv/(?:videos/|[^/]+/v/)(\d+)")
 
 # Output
-OUT_DIR = "_out"
+OUT_DIR = "../_out"
 TEMPLATES_DIR = "templates"
 
 # Progress

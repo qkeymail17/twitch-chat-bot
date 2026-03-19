@@ -1,5 +1,5 @@
 import sqlite3
-from config import DB_PATH
+from src.config import DB_PATH
 
 
 def _connect() -> sqlite3.Connection:

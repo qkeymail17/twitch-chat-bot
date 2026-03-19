@@ -9,7 +9,7 @@ async def _send_history_cards(chat_id: int, context: ContextTypes.DEFAULT_TYPE, 
     """
 
     # локальные импорты
-    from ui import build_history_page
+    from src.ui.ui import build_history_page
 
     # build page with a single item per page
     cards, nav_kb = build_history_page(items, page=page, per_page=1)

@@ -4,14 +4,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Tuple, List, Dict, Optional
 
-from config import OUT_DIR
-from twitch_api import fetch_vod_meta, gql_fetch_comments, get_client_id
-from ui import fmt_hhmmss
+from src.config import OUT_DIR
+from src.twitch_api import fetch_vod_meta, gql_fetch_comments, get_client_id
+from src.ui.ui import fmt_hhmmss
 
-from worker_progress import make_progress_updater
-from worker_html import build_html_result
+from .worker_progress import make_progress_updater
+from .worker_html import build_html_result
 
-from handlers_state import is_cancelled, clear_cancel
+from src.handlers.handlers_state import is_cancelled, clear_cancel
 
 
 async def download_and_send(

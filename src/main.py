@@ -12,10 +12,9 @@ from telegram.ext import (
     filters,
 )
 
-import database as db
-from ui import build_history_page
+from src.database import database as db
 from config import ENV_TOKEN
-from handlers import (
+from src.handlers.handlers import (
     start_command,
     about_command,
     cancel_command,
@@ -38,7 +37,7 @@ async def history_command(update, context: ContextTypes.DEFAULT_TYPE):
         await update.effective_message.reply_text("История пуста.")
         return
 
-    from history_view import _send_history_cards
+    from src.history.history_view import _send_history_cards
 
     await _send_history_cards(
         chat_id=update.effective_chat.id,

@@ -2,12 +2,12 @@ import time
 import asyncio
 
 from telegram.error import BadRequest, RetryAfter, TimedOut, NetworkError
-from config import PROGRESS_INTERVAL
-from ui_formatters import _fmt_len, _fmt_dt_utc
+from src.config import PROGRESS_INTERVAL
+from src.ui.ui_formatters import _fmt_len, _fmt_dt_utc
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
-from ui_constants import CB_PENDING_CANCEL
-from ui_labels import CANCEL
+from src.ui.ui_constants import CB_PENDING_CANCEL
+from src.ui.ui_labels import CANCEL
 
 
 async def safe_edit_html(context, chat_id: int, message_id: int, text: str):

@@ -1,5 +1,5 @@
 import html
-from ui_formatters import fmt_hhmmss
+from .ui_formatters import fmt_hhmmss
 
 
 def build_progress_text(meta: dict, vod_url: str, fmt: str, messages: int, unique_users: int, parts: int, elapsed_s: float, done: bool) -> str:

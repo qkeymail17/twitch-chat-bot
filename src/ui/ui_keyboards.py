@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from ui_constants import *
-from ui_labels import (
+from .ui_constants import *
+from .ui_labels import (
     CHAT_HTML_LINK,
     CANCEL
 )

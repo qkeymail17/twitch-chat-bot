@@ -2,10 +2,10 @@ import time
 from typing import Optional, List, Dict, Any
 
 import sqlite3
-from config import DB_PATH
+from src.config import DB_PATH
 
-from config import CACHE_TTL_SECONDS
-from db_core import _connect
+from src.config import CACHE_TTL_SECONDS
+from .db_core import _connect
 
 
 def upsert_cache(

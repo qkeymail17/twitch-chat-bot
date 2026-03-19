@@ -1,7 +1,7 @@
 import time
 from typing import List, Dict, Any
 
-from db_core import _connect
+from .db_core import _connect
 
 
 def add_user_history(user_id: int, cache_id: int):

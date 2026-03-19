@@ -2,16 +2,15 @@
 import logging
 import json
 import re
-from typing import Dict, List, Optional
-from twitch_api import fetch_vod_meta, get_client_id
+from src.twitch_api import fetch_vod_meta, get_client_id
 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 
-import database as db
-from download_worker import download_and_send
-from ui import CB_FMT_HTML_ONLINE, build_format_keyboard
-from handlers_state import (
+from src.database import database as db
+from src.workers.download_worker import download_and_send
+from src.ui.ui import CB_FMT_HTML_ONLINE, build_format_keyboard
+from .handlers_state import (
     extract_vod_id_strict,
     is_busy,
     set_pending,
@@ -21,9 +20,9 @@ from handlers_state import (
     pending_expired,
     set_cancel,
 )
-from ui_history import build_history_page
-from ui_labels import CHAT_GENERIC, VOD_LINK, CANCEL
-from ui_constants import CB_PENDING_CANCEL
+from src.ui.ui_history import build_history_page
+from src.ui.ui_labels import CHAT_GENERIC, VOD_LINK, CANCEL
+from src.ui.ui_constants import CB_PENDING_CANCEL
 
 
 def _make_item(meta, stats, vod_url, fmt):

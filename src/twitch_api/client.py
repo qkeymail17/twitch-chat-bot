@@ -1,16 +1,10 @@
-import asyncio
-import random
-from typing import Any, Optional, Tuple, List, Dict
+from typing import Any
 
 import aiohttp
 
-from config import (
+from src.config import (
     GQL_ENDPOINT,
-    VIDEO_COMMENTS_HASH,
     DEFAULT_CLIENT_ID,
-    FETCH_DELAY_BASE,
-    FETCH_DELAY_MAX,
-    GQL_MAX_RETRIES,
     GQL_TIMEOUT_S,
 )
 
@@ -27,5 +21,5 @@ async def gql_post_json(session: aiohttp.ClientSession, headers: dict, payload: 
 
 def get_client_id() -> str:
     import os
-    from config import ENV_TWITCH_CLIENT_ID
+    from src.config import ENV_TWITCH_CLIENT_ID
     return os.getenv(ENV_TWITCH_CLIENT_ID, DEFAULT_CLIENT_ID)

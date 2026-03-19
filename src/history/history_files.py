@@ -1,9 +1,9 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
-import database as db
+from src.database import database as db
 import json
-from ui_history import build_history_page
-from ui_labels import CHAT_GENERIC
+from src.ui.ui_history import build_history_page
+from src.ui.ui_labels import CHAT_GENERIC
 
 
 async def send_cached_files(context, chat_id: int, files: list[dict]):

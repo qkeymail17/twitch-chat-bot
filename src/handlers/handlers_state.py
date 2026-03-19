@@ -1,7 +1,7 @@
 import time
 from typing import Optional
 from telegram.ext import ContextTypes
-from config import VOD_URL_RE, PENDING_TTL_SECONDS
+from src.config import VOD_URL_RE, PENDING_TTL_SECONDS
 
 
 def extract_vod_id_strict(url: str) -> Optional[str]:

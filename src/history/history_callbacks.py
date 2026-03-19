@@ -9,8 +9,8 @@ async def ui_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     # локальные импорты чтобы избежать циклических зависимостей
-    import database as db
-    from ui import CB_UI_HISTORY, CB_HIST_PAGE, CB_HIST_VOD_PREFIX, CB_HIST_FILES_PREFIX
+    from src.database import database as db
+    from src.ui.ui import CB_UI_HISTORY, CB_HIST_PAGE, CB_HIST_VOD_PREFIX, CB_HIST_FILES_PREFIX
     from history_view import _send_history_cards
 
     if data == CB_UI_HISTORY:
@@ -33,8 +33,8 @@ async def history_vod_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     await q.answer()
     data = q.data or ""
 
-    import database as db
-    from ui import CB_HIST_VOD_PREFIX
+    from src.database import database as db
+    from src.ui.ui import CB_HIST_VOD_PREFIX
 
     try:
         idx = int(data[len(CB_HIST_VOD_PREFIX):])
@@ -68,15 +68,15 @@ async def history_page_callback(update: Update, context: ContextTypes.DEFAULT_TY
     await q.answer()
     data = q.data or ""
 
-    from ui import CB_HIST_PAGE
+    from src.ui.ui import CB_HIST_PAGE
     try:
         page = int(data[len(CB_HIST_PAGE):])
     except Exception:
         return
 
-    import database as db
+    from src.database import database as db
     # build_history_page может быть в ui — импорт локально
-    from ui import build_history_page
+    from src.ui.ui import build_history_page
 
     items = db.get_history_for_user(update.effective_user.id, limit=10, offset=0)
     cards, nav_kb = build_history_page(items, page=page, per_page=1)

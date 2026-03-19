@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional
 from collections import Counter
 
-from html_renderer import render_viewer_html
-from html_publisher import publish_html
-from twitch_api import (
+from src.html_renderer import render_viewer_html
+from src.html_publisher import publish_html
+from src.twitch_api import (
     fetch_7tv_emote_map,
     fetch_bttv_emote_map,
     fetch_ffz_emote_map,

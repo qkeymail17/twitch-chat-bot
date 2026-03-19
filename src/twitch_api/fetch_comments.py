@@ -1,7 +1,7 @@
 import asyncio
 import random
-from config import FETCH_DELAY_BASE, FETCH_DELAY_MAX, GQL_MAX_RETRIES
-from typing import Optional, List, Tuple
+from src.config import FETCH_DELAY_BASE, FETCH_DELAY_MAX, GQL_MAX_RETRIES
+from typing import Optional, List
 
 import aiohttp
 
