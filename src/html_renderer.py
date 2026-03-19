@@ -1,8 +1,6 @@
 import json
 from pathlib import Path
 
-from .config import TEMPLATES_DIR
-
 
 def render_viewer_html(
     chat_rows: list[dict],
