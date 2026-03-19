@@ -16,6 +16,11 @@ __pycache__/
 _out/
 
 # Databases
+*src/db
+*src/sqlite
+*src/sqlite3
+
+# Databases
 *.db
 *.sqlite
 *.sqlite3
