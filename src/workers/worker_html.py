@@ -56,10 +56,12 @@ async def build_html_result(
     targets = set()
 
     for row in chat_rows:
-        text = row.get("text") or ""
-        for word in text.split():
-            if word in combined_map:
-                targets.add(word)
+        fragments = row.get("fragments") or []
+
+        for f in fragments:
+            text = f.get("text") or ""
+            if text in combined_map:
+                targets.add(text)
 
     # HTML ONLINE — используем CDN ссылки эмоутов
     for name in targets:
