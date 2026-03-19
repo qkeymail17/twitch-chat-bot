@@ -34,7 +34,10 @@ async def build_html_result(
     # 7TV
     if meta.channel_id:
         m = await fetch_7tv_emote_map(session, meta.channel_id)
+        twitch_channel = await fetch_twitch_channel_emote_map(session, meta.channel_id)
+
         combined_map.update(m)
+        combined_map.update(twitch_channel)
 
     # BTTV
     if meta.channel_id:
@@ -49,11 +52,6 @@ async def build_html_result(
     # Twitch Global
     m = await fetch_twitch_global_emote_map(session)
     combined_map.update(m)
-
-    # Twitch Channel
-    if meta.channel_id:
-        m = await fetch_twitch_channel_emote_map(session, meta.channel_id)
-        combined_map.update(m)
 
     targets = set()
 
