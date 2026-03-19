@@ -17,9 +17,6 @@ def render_viewer_html(
     template_path = BASE_DIR / "viewer_template.html"
     template = template_path.read_text(encoding="utf-8")
 
-    meta["twitch_global_emotes"] = twitch_global_emotes  # dict name → id
-    meta["twitch_channel_emotes"] = twitch_channel_emotes  # dict name → id
-
     payload = {
         "meta": {
             "title": title,

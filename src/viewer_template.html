@@ -493,11 +493,7 @@ function renderMore(){
     colonEl.className = "colon";
     colonEl.textContent = ":";
     const msgEl = document.createElement("span"); msgEl.className="msg";
-    if (r.fragments && Array.isArray(r.fragments)) {
-      renderFragments(msgEl, r.fragments, EMOTES);
-    } else {
-      renderTextWithEmotes(msgEl, r.text || "", EMOTES);
-    }
+    renderFragments(msgEl, r.fragments || [], EMOTES);
     if(SHOW_TIME) rowEl.appendChild(timeEl);
     rowEl.appendChild(userEl);
     rowEl.appendChild(colonEl);
