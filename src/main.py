@@ -29,6 +29,7 @@ from src.handlers.handlers import (
     format_cancel_callback,
 )
 
+from src.twitch_api.client import get_api_headers
 
 async def history_command(update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -56,11 +57,24 @@ async def post_init(app: Application):
         BotCommand("history", "История скачиваний"),
     ])
 
+    await test_twitch_api()
+
 
 async def post_shutdown(app: Application):
     session: aiohttp.ClientSession | None = app.bot_data.get("aiohttp")
     if session:
         await session.close()
+
+
+async def test_twitch_api():
+    url = "https://api.twitch.tv/helix/chat/emotes/global"
+    headers = get_api_headers()
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers) as r:
+            print("STATUS:", r.status)
+            data = await r.json()
+            print("OK, emotes count:", len(data.get("data", [])))
 
 
 def main():

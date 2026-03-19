@@ -6,6 +6,8 @@ from src.config import (
     GQL_ENDPOINT,
     DEFAULT_CLIENT_ID,
     GQL_TIMEOUT_S,
+    TWITCH_CLIENT_ID,
+    TWITCH_ACCESS_TOKEN,
 )
 
 
@@ -23,3 +25,15 @@ def get_client_id() -> str:
     import os
     from src.config import ENV_TWITCH_CLIENT_ID
     return os.getenv(ENV_TWITCH_CLIENT_ID, DEFAULT_CLIENT_ID)
+
+
+# --- Twitch Helix API (OAuth) ---
+# Используется для:
+# - глобальных эмоутов
+# - эмоутов каналов
+# Требует TWITCH_CLIENT_ID и TWITCH_ACCESS_TOKEN
+def get_api_headers() -> dict:
+    return {
+        "Client-ID": TWITCH_CLIENT_ID,
+        "Authorization": f"Bearer {TWITCH_ACCESS_TOKEN}",
+    }

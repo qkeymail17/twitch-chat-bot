@@ -5,6 +5,10 @@ import re
 ENV_TOKEN = "TELEGRAM_BOT_TOKEN_TWITCH"
 ENV_TWITCH_CLIENT_ID = "TWITCH_GQL_CLIENT_ID"
 
+# --- Twitch API (OAuth) ---
+TWITCH_CLIENT_ID = "uqdfspoy5ysdly7l52pfrcqj0nvt4a"
+TWITCH_ACCESS_TOKEN = "9t6iqnf2rn43kce6twv2rhbq23k1dl"
+
 # --- Twitch GraphQL (unofficial) ---
 GQL_ENDPOINT = "https://gql.twitch.tv/gql"
 VIDEO_COMMENTS_HASH = "b70a3591ff0f4e0313d126c6a1502d79a1c02baebb288227c582044aa76adf6a"
