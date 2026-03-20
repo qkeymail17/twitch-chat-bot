@@ -13,7 +13,7 @@ class VodMeta:
     channel_id: Optional[str] = None
     length_seconds: Optional[int] = None
     created_at: Optional[str] = None
-    thumbnail_url: str | None = None
+    thumbnail_url: Optional[str] = None
 
 
 def extract_message_fragments(node: dict) -> list[dict]:
@@ -59,7 +59,7 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
         title
         lengthSeconds
         createdAt
-        thumbnailURL  
+        thumbnailURL
         owner {
           id
           login
@@ -74,10 +74,10 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
             payload = {"query": query, "variables": {"id": vod_id}}
             data = await gql_post_json(session, headers, payload)
             video = ((data.get("data") or {}).get("video") or {})
-            meta.thumbnail_url = video.get("thumbnailURL")
             meta.title = video.get("title")
             meta.length_seconds = video.get("lengthSeconds")
             meta.created_at = video.get("createdAt")
+            meta.thumbnail_url = video.get("thumbnailURL")
             owner = video.get("owner") or {}
             meta.channel = owner.get("displayName") or owner.get("login")
             meta.channel_login = owner.get("login")

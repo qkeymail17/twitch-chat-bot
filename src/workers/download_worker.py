@@ -33,6 +33,7 @@ async def download_and_send(
         "length_seconds": meta.length_seconds,
         "vod_len": fmt_hhmmss(int(meta.length_seconds)) if isinstance(meta.length_seconds, int) else "—",
         "created_at": meta.created_at,
+        "thumbnail_url": getattr(meta, "thumbnail_url", None),
     }
 
     out_dir = Path(OUT_DIR)
