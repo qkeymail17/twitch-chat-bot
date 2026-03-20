@@ -509,6 +509,7 @@ const vodThumb = meta.thumbnail_url
   || "";
 
 if(vodThumb){
+  console.log("vodThumb:", vodThumb);
   elVodPreviewImg.src = vodThumb;
   elVodPreviewImg.style.display = "block";
   elVodPreviewFallback.style.display = "none";
