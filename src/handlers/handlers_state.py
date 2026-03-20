@@ -5,7 +5,7 @@ from src.config import VOD_URL_RE, PENDING_TTL_SECONDS
 
 
 def extract_vod_id_strict(url: str) -> Optional[str]:
-    m = VOD_URL_RE.search(url.strip())
+    m = VOD_URL_RE.match(url.strip())
     return m.group(1) if m else None
 
 
