@@ -8,5 +8,6 @@ from .emotes import (
     fetch_ffz_emote_map,
     fetch_twitch_global_emote_map,
     fetch_twitch_channel_emote_map,
+    fetch_twitch_channel_emote_maps,
     download_as_data_uri,
 )

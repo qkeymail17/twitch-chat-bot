@@ -6,7 +6,7 @@ from typing import Optional, List
 import aiohttp
 
 from .fetch_page import gql_fetch_page
-from .meta import render_message
+from .meta import render_message, extract_message_fragments
 
 
 async def gql_fetch_comments(
@@ -15,7 +15,7 @@ async def gql_fetch_comments(
     vod_id: str,
     start_offset: int = 0,
 ):
-    """yields (offset_seconds, created_at_iso, display_name, message_text)"""
+    """yields (offset_seconds, created_at_iso, display_name, message_text, fragments)"""
     cursor = None
     delay_s = FETCH_DELAY_BASE
 
@@ -50,9 +50,10 @@ async def gql_fetch_comments(
             display = commenter.get("displayName") or commenter.get("login") or "unknown"
             offset = node.get("contentOffsetSeconds")
             created_at = node.get("createdAt") or ""
+            fragments = extract_message_fragments(node)
             text = render_message(node)
             if text:
-                yield (offset, created_at, display, text)
+                yield (offset, created_at, display, text, fragments)
 
         if not has_next or not next_cursor:
             return

@@ -1,8 +1,11 @@
 import base64
-from typing import Dict
-from .twitch_global_emotes import TWITCH_GLOBAL_EMOTES
+import logging
+from typing import Dict, Tuple
 
 import aiohttp
+
+from .client import get_api_headers
+from .twitch_global_emotes import TWITCH_GLOBAL_EMOTES
 
 
 # =========================
@@ -132,71 +135,57 @@ async def fetch_twitch_global_emote_map(session: aiohttp.ClientSession) -> Dict[
 
 
 # =========================
-# Twitch Channel (Subscriber via twitchemotes)
+# Twitch Channel (subscriber / bits / follower via Helix)
 # =========================
+
+async def fetch_twitch_channel_emote_maps(
+    session: aiohttp.ClientSession,
+    channel_id: str,
+) -> Tuple[Dict[str, str], Dict[str, str]]:
+    """Return two maps: name -> URL and emote_id -> URL."""
+    if not channel_id:
+        return {}, {}
+
+    url = f"https://api.twitch.tv/helix/chat/emotes?broadcaster_id={channel_id}"
+    headers = get_api_headers()
+
+    try:
+        async with session.get(url, headers=headers, timeout=10) as resp:
+            if resp.status != 200:
+                logging.warning("Twitch channel emotes HTTP %s", resp.status)
+                return {}, {}
+            data = await resp.json()
+    except Exception as e:
+        logging.warning("Twitch channel emotes error: %s", e)
+        return {}, {}
+
+    name_map: Dict[str, str] = {}
+    id_map: Dict[str, str] = {}
+
+    for e in data.get("data", []) or []:
+        if not isinstance(e, dict):
+            continue
+        name = e.get("name")
+        emote_id = e.get("id")
+        images = e.get("images") or {}
+        src = images.get("url_1x")
+        if not src and emote_id:
+            src = f"https://static-cdn.jtvnw.net/emoticons/v2/{emote_id}/default/dark/1.0"
+
+        if name and src:
+            name_map[name] = src
+        if emote_id and src:
+            id_map[str(emote_id)] = src
+
+    return name_map, id_map
+
 
 async def fetch_twitch_channel_emote_map(
     session: aiohttp.ClientSession,
     channel_id: str,
 ) -> Dict[str, str]:
-    """Fetch Twitch subscriber emotes via public GraphQL: name -> URL"""
-    if not channel_id:
-        return {}
-
-    url = "https://gql.twitch.tv/gql"
-
-    headers = {
-        "Client-ID": "kimne78kx3ncx6brgo4mv6wki5h1ko",  # публичный web client
-        "Content-Type": "application/json",
-    }
-
-    payload = [{
-        "operationName": "ChannelEmotes",
-        "variables": {"channelID": channel_id},
-        "query": """
-        query ChannelEmotes($channelID: ID!) {
-          channel(id: $channelID) {
-            localEmoteSets {
-              emotes {
-                id
-                token
-              }
-            }
-          }
-        }
-        """
-    }]
-
-    try:
-        async with session.post(url, headers=headers, json=payload, timeout=10) as resp:
-            if resp.status != 200:
-                logging.warning(f"Twitch channel emotes HTTP {resp.status}")
-                return {}
-            data = await resp.json()
-    except Exception as e:
-        logging.warning(f"Twitch channel emotes error: {e}")
-        return {}
-
-    try:
-        sets = data[0]["data"]["channel"]["localEmoteSets"]
-    except Exception:
-        return {}
-
-    if not sets:
-        return {}
-
-    emotes = {}
-    for s in sets:
-        for e in s.get("emotes", []):
-            name = e.get("token")
-            emote_id = e.get("id")
-            if name and emote_id:
-                emotes[name] = (
-                    f"https://static-cdn.jtvnw.net/emoticons/v2/"
-                    f"{emote_id}/default/dark/3.0"
-                )
-
-    return emotes
+    name_map, _ = await fetch_twitch_channel_emote_maps(session, channel_id)
+    return name_map
 
 
 # =========================

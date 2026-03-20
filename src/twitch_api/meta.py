@@ -15,9 +15,32 @@ class VodMeta:
     created_at: Optional[str] = None
 
 
-def render_message(node: dict) -> str:
+def extract_message_fragments(node: dict) -> list[dict]:
     msg = node.get("message") or {}
     fragments = msg.get("fragments") or []
+
+    out: list[dict] = []
+    for fragment in fragments:
+        if not isinstance(fragment, dict):
+            continue
+
+        item = {"text": fragment.get("text") or ""}
+        emote = fragment.get("emote") or {}
+        if isinstance(emote, dict):
+            emote_id = emote.get("emoteID") or emote.get("id")
+            if emote_id:
+                item["emoteID"] = emote_id
+            emote_name = emote.get("name")
+            if emote_name:
+                item["emoteName"] = emote_name
+
+        out.append(item)
+
+    return out
+
+
+def render_message(node: dict) -> str:
+    fragments = extract_message_fragments(node)
     return "".join((f.get("text") or "") for f in fragments).strip()
 
 

@@ -367,7 +367,8 @@ async function fetch7tvEmotes(channelId){
 function renderTextWithEmotes(el,text,emotes){
   const parts = String(text||"").split(/(\s+)/);
   for(const p of parts){
-    const clean = p.replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/[\r\n\t]/g,'');
+    const clean = p.replace(/[​-‍﻿]/g,'').replace(/[
+	]/g,'');
     if(LOCAL_EMOTES[clean] || CDN_EMOTES[clean]){
       const src = LOCAL_EMOTES[clean] || CDN_EMOTES[clean];
       const img = document.createElement("img");
@@ -379,6 +380,44 @@ function renderTextWithEmotes(el,text,emotes){
       el.appendChild(document.createTextNode(p));
     }
   }
+}
+
+function renderFragmentsWithEmotes(el, fragments, emotes){
+  if(!Array.isArray(fragments) || fragments.length === 0){
+    return false;
+  }
+
+  let renderedAny = false;
+  for(const fragment of fragments){
+    if(!fragment || typeof fragment !== "object") continue;
+
+    const rawText = String(fragment.text || "");
+    const cleanText = rawText.replace(/[​-‍﻿]/g,'').replace(/[
+	]/g,'').trim();
+    const emoteId = fragment.emoteID || (fragment.emote && (fragment.emote.emoteID || fragment.emote.id)) || null;
+
+    if(emoteId && CDN_EMOTES[String(emoteId)]){
+      const img = document.createElement("img");
+      img.src = CDN_EMOTES[String(emoteId)]; img.crossOrigin="anonymous"; img.alt=rawText || String(emoteId); img.title=rawText || String(emoteId); img.className="emote"; el.appendChild(img);
+      renderedAny = true;
+      continue;
+    }
+
+    if(cleanText && (LOCAL_EMOTES[cleanText] || CDN_EMOTES[cleanText])){
+      const src = LOCAL_EMOTES[cleanText] || CDN_EMOTES[cleanText];
+      const img = document.createElement("img");
+      img.src = src; img.crossOrigin="anonymous"; img.alt=rawText; img.title=rawText; img.className="emote"; el.appendChild(img);
+      renderedAny = true;
+      continue;
+    }
+
+    if(rawText){
+      renderTextWithEmotes(el, rawText, emotes);
+      renderedAny = true;
+    }
+  }
+
+  return renderedAny;
 }
 
 const CHUNK = 800;
@@ -433,7 +472,9 @@ function renderMore(){
     colonEl.className = "colon";
     colonEl.textContent = ":";
     const msgEl = document.createElement("span"); msgEl.className="msg";
-    renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+    if(!renderFragmentsWithEmotes(msgEl, r.fragments || [], EMOTES)){
+      renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+    }
     if(SHOW_TIME) rowEl.appendChild(timeEl);
     rowEl.appendChild(userEl);
     rowEl.appendChild(colonEl);

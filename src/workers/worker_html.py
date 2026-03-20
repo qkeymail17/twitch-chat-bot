@@ -10,6 +10,7 @@ from src.twitch_api import (
     fetch_ffz_emote_map,
     fetch_twitch_global_emote_map,
     fetch_twitch_channel_emote_map,
+    fetch_twitch_channel_emote_maps,
 )
 
 
@@ -30,6 +31,7 @@ async def build_html_result(
 
     cdn_emotes: Dict[str, str] = {}
     combined_map: Dict[str, str] = {}
+    twitch_emote_id_map: Dict[str, str] = {}
 
     # 7TV
     if meta.channel_id:
@@ -52,10 +54,12 @@ async def build_html_result(
 
     # Twitch Channel
     if meta.channel_id:
-        m = await fetch_twitch_channel_emote_map(session, meta.channel_id)
-        combined_map.update(m)
+        name_map, id_map = await fetch_twitch_channel_emote_maps(session, meta.channel_id)
+        combined_map.update(name_map)
+        twitch_emote_id_map.update(id_map)
 
     targets = set()
+    targets_by_id = set()
 
     for row in chat_rows:
         text = row.get("text") or ""
@@ -63,9 +67,24 @@ async def build_html_result(
             if word in combined_map:
                 targets.add(word)
 
+        for fragment in row.get("fragments") or []:
+            if not isinstance(fragment, dict):
+                continue
+            frag_text = (fragment.get("text") or "").strip()
+            if frag_text and frag_text in combined_map:
+                targets.add(frag_text)
+
+            emote = fragment.get("emote") or {}
+            if isinstance(emote, dict):
+                emote_id = emote.get("emoteID") or emote.get("id")
+                if emote_id and str(emote_id) in twitch_emote_id_map:
+                    targets_by_id.add(str(emote_id))
+
     # HTML ONLINE — используем CDN ссылки эмоутов
     for name in targets:
         cdn_emotes[name] = combined_map[name]
+    for emote_id in targets_by_id:
+        cdn_emotes[emote_id] = twitch_emote_id_map[emote_id]
 
     html_text = render_viewer_html(
         chat_rows=chat_rows,
