@@ -8,6 +8,7 @@ def render_viewer_html(
     channel: str,
     vod_url: str,
     created_at: str | None = None,
+    thumbnail_url: str | None = None,  # ← ВОТ ЭТО
     mode: str = "online",
     channel_id: str | None = None,
     local_emotes: dict | None = None,
@@ -22,6 +23,7 @@ def render_viewer_html(
             "title": title,
             "channel": channel,
             "vod_url": vod_url,
+            "thumbnail_url": thumbnail_url,
             "created_at": created_at,
             "mode": mode,
             "channel_id": channel_id,
