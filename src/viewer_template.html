@@ -509,7 +509,7 @@ const vodThumb = meta.thumbnail_url
   || "";
 
 if(vodThumb){
-  console.log("vodThumb:", vodThumb);
+  elVodPreviewImg.crossOrigin = "anonymous";
   elVodPreviewImg.src = meta.thumbnail_url
   ?.replace("storyboards", "thumbs")
   ?.replace("info.json", "0-640x360.jpg") || "";
