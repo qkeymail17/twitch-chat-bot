@@ -57,6 +57,10 @@ async def build_html_result(
         name_map, id_map = await fetch_twitch_channel_emote_maps(session, meta.channel_id)
         combined_map.update(name_map)
         twitch_emote_id_map.update(id_map)
+        # Channel/subscriber emotes should be available even if the text scan misses
+        # a token boundary or the row has no fragment metadata.
+        cdn_emotes.update(name_map)
+        cdn_emotes.update(id_map)
 
     targets = set()
     targets_by_id = set()

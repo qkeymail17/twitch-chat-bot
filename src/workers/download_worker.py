@@ -91,7 +91,8 @@ async def download_and_send(
             chat_rows.append({
                 "t": t,
                 "user": user,
-                "text": text
+                "text": text,
+                "fragments": fragments,
             })
 
             now = time.monotonic()
