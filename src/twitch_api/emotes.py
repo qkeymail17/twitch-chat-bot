@@ -60,7 +60,7 @@ async def fetch_bttv_emote_map(session: aiohttp.ClientSession, channel_id: str) 
             if r.status == 200:
                 data = await r.json()
                 for e in data:
-                    out[e["code"]] = f"https://cdn.betterttv.net/emote/{e['id']}/1x"
+                    out[e["code"]] = f"https://images.weserv.nl/?url=cdn.betterttv.net/emote/{e['id']}/1x"
 
         if not channel_id:
             return out
@@ -72,9 +72,9 @@ async def fetch_bttv_emote_map(session: aiohttp.ClientSession, channel_id: str) 
             data = await r.json()
 
         for e in data.get("channelEmotes", []):
-            out[e["code"]] = f"https://cdn.betterttv.net/emote/{e['id']}/1x"
+            out[e["code"]] = f"https://images.weserv.nl/?url=cdn.betterttv.net/emote/{e['id']}/1x"
         for e in data.get("sharedEmotes", []):
-            out[e["code"]] = f"https://cdn.betterttv.net/emote/{e['id']}/1x"
+            out[e["code"]] = f"https://images.weserv.nl/?url=cdn.betterttv.net/emote/{e['id']}/1x"
 
         return out
     except Exception:
