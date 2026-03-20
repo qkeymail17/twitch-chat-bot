@@ -503,8 +503,29 @@ function resolveThumb(url, width=640, height=360){
 
 const vodId = meta.vod_id;
 
-if (vodId) {
-  elVodPreviewImg.src = `https://static-cdn.jtvnw.net/cf_vods/${vodId}/thumb/thumb0-640x360.jpg`;
+const preview = meta.thumbnail_url;
+
+if (preview) {
+  const url = preview
+    .replace("storyboards", "thumbs")
+    .replace("info.json", "0-640x360.jpg");
+
+  console.log("PREVIEW:", url);
+
+  elVodPreviewImg.src = url;
+  elVodPreviewImg.style.display = "block";
+  elVodPreviewFallback.style.display = "none";
+
+  elVodPreviewImg.onerror = () => {
+    console.log("FAILED:", url);
+    elVodPreviewImg.style.display = "none";
+    elVodPreviewFallback.style.display = "flex";
+  };
+
+} else {
+  elVodPreviewImg.style.display = "none";
+  elVodPreviewFallback.style.display = "flex";
+}
 
   elVodPreviewImg.style.display = "block";
   elVodPreviewFallback.style.display = "none";

@@ -84,7 +84,7 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
             meta.title = video.get("title")
             meta.length_seconds = video.get("lengthSeconds")
             meta.created_at = video.get("createdAt")
-            meta.thumbnail_url = None
+            meta.thumbnail_url = video.get("seekPreviewsURL")
 
             owner = video.get("owner") or {}
             meta.channel = owner.get("displayName") or owner.get("login")
