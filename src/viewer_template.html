@@ -510,7 +510,9 @@ const vodThumb = meta.thumbnail_url
 
 if(vodThumb){
   console.log("vodThumb:", vodThumb);
-  elVodPreviewImg.src = vodThumb;
+  elVodPreviewImg.src = meta.thumbnail_url
+  ?.replace("storyboards", "thumbs")
+  ?.replace("info.json", "0-640x360.jpg") || "";
   elVodPreviewImg.style.display = "block";
   elVodPreviewFallback.style.display = "none";
   elVodPreviewImg.addEventListener("error", ()=>{
