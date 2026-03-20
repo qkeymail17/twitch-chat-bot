@@ -508,17 +508,17 @@ const vodThumb = meta.thumbnail_url
   || meta.preview_url
   || "";
 
-if(vodThumb){
+if (meta.thumbnail_url) {
   elVodPreviewImg.crossOrigin = "anonymous";
-  elVodPreviewImg.src = meta.thumbnail_url || "";
-  ?.replace("storyboards", "thumbs")
-  ?.replace("info.json", "0-640x360.jpg") || "";
+  elVodPreviewImg.src = meta.thumbnail_url;
   elVodPreviewImg.style.display = "block";
   elVodPreviewFallback.style.display = "none";
-  elVodPreviewImg.addEventListener("error", ()=>{
+
+  elVodPreviewImg.addEventListener("error", () => {
     elVodPreviewImg.style.display = "none";
     elVodPreviewFallback.style.display = "flex";
   }, { once: true });
+}
 }else{
   elVodPreviewImg.style.display = "none";
   elVodPreviewFallback.style.display = "flex";
