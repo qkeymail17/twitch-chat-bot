@@ -97,7 +97,6 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
 
                 helix_headers = {
                     "Client-Id": client_id,
-                    "Authorization": f"Bearer {TWITCH_ACCESS_TOKEN}",
                 }
 
                 async with session.get(helix_url, headers=helix_headers) as resp:
