@@ -91,6 +91,26 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
             meta.channel_login = owner.get("login")
             meta.channel_id = owner.get("id")
 
+            # --- нормальное превью через Twitch API ---
+            try:
+                helix_url = f"https://api.twitch.tv/helix/videos?id={vod_id}"
+
+                helix_headers = {
+                    "Client-Id": client_id,
+                    "Authorization": f"Bearer {TWITCH_ACCESS_TOKEN}",
+                }
+
+                async with session.get(helix_url, headers=helix_headers) as resp:
+                    data2 = await resp.json()
+                    videos = data2.get("data") or []
+                    if videos:
+                        thumb = videos[0].get("thumbnail_url")
+                        if thumb:
+                            meta.thumbnail_url = thumb.replace("%{width}", "640").replace("%{height}", "360")
+
+            except Exception:
+                pass
+
             return meta
 
         except Exception:
