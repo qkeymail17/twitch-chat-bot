@@ -135,7 +135,8 @@ async def vod_link_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     set_pending(context, vod_url=vod_url, vod_id=vod_id)
 
     await update.message.reply_text(
-        "Выбери формат:",
+        "В современной культуре термин «казуал» иногда используется в пренебрежительном контексте, "
+        "однако чаще всего это просто описание стиля игры — легкого и непринужденного, без фанатизма",
         reply_markup=build_format_keyboard()
     )
 
