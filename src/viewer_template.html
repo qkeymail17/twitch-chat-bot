@@ -494,39 +494,20 @@ elVodCard.addEventListener("keydown",(e)=>{
   }
 });
 
-function resolveThumb(url, width=640, height=360){
-  if(!url) return "";
-  return String(url)
-    .replace(/%?\{width\}/g, String(width))
-    .replace(/%?\{height\}/g, String(height));
-}
+const previewUrl = meta.thumbnail_url || "";
 
-const vodId = meta.vod_id;
-
-const preview = meta.thumbnail_url;
-
-if (preview) {
-  const url = preview
-    .replace("storyboards", "thumbs")
-    .replace("info.json", "0-640x360.jpg");
-
-  console.log("PREVIEW:", url);
-
-  elVodPreviewImg.src = url;
+if(previewUrl){
+  elVodPreviewImg.src = previewUrl;
   elVodPreviewImg.style.display = "block";
   elVodPreviewFallback.style.display = "none";
-
-  elVodPreviewImg.onerror = () => {
-    console.log("FAILED:", url);
+  elVodPreviewImg.addEventListener("error", ()=>{
     elVodPreviewImg.style.display = "none";
     elVodPreviewFallback.style.display = "flex";
-  };
-
-} else {
+  }, { once: true });
+}else{
   elVodPreviewImg.style.display = "none";
   elVodPreviewFallback.style.display = "flex";
 }
-
 
 function fmtStreamStart(iso){
   if(!iso) return null;
