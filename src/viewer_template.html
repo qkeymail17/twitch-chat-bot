@@ -341,6 +341,57 @@ header{
   header{padding:10px;border-radius:12px}
   #list{margin-top:0;border-radius:0}
 }
+
+@media (max-width: 700px){
+
+  header{
+    display:grid;
+    grid-template-columns: 140px 1fr;
+    gap:10px;
+    align-items:start;
+  }
+
+  .vod-card{
+    margin:0;
+  }
+
+  /* убираем текст под превью (иначе раздувает блок) */
+  .vod-card-copy{
+    display:none;
+  }
+
+  .meta{
+    margin:0;
+  }
+
+  /* кнопки вниз */
+  .controls{
+    grid-column:1 / span 2;
+    margin-top:8px;
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+
+  .controls input{
+    width:100%;
+    height:30px;
+    font-size:12px;
+  }
+
+  .controls button{
+    flex:1;
+    min-width:90px;
+    height:30px;
+    font-size:12px;
+  }
+
+  .pill#stat{
+    width:100%;
+    text-align:right;
+  }
+}
 </style>
 </head>
 <body>
