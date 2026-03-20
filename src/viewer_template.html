@@ -527,17 +527,6 @@ if (preview) {
   elVodPreviewFallback.style.display = "flex";
 }
 
-  elVodPreviewImg.style.display = "block";
-  elVodPreviewFallback.style.display = "none";
-
-  elVodPreviewImg.onerror = () => {
-    elVodPreviewImg.style.display = "none";
-    elVodPreviewFallback.style.display = "flex";
-  };
-} else {
-  elVodPreviewImg.style.display = "none";
-  elVodPreviewFallback.style.display = "flex";
-}
 
 function fmtStreamStart(iso){
   if(!iso) return null;
