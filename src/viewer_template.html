@@ -397,9 +397,14 @@ function renderFragmentsWithEmotes(el, fragments, emotes){
       .trim();
     const emoteId = fragment.emoteID || (fragment.emote && (fragment.emote.emoteID || fragment.emote.id)) || null;
 
-    if(emoteId && CDN_EMOTES[String(emoteId)]){
+    if(emoteId){
       const img = document.createElement("img");
-      img.src = CDN_EMOTES[String(emoteId)]; img.crossOrigin="anonymous"; img.alt=rawText || String(emoteId); img.title=rawText || String(emoteId); img.className="emote"; el.appendChild(img);
+      img.src = `https://static-cdn.jtvnw.net/emoticons/v2/${emoteId}/default/dark/1.0`;
+      img.crossOrigin="anonymous";
+      img.alt = rawText || emoteId;
+      img.title = rawText || emoteId;
+      img.className="emote";
+      el.appendChild(img);
       renderedAny = true;
       continue;
     }
