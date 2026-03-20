@@ -100,6 +100,7 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
 
                 async with session.get(helix_url, headers=helix_headers) as resp:
                     data2 = await resp.json()
+                    print("HELIX:", data2)
                     videos = data2.get("data") or []
                     if videos:
                         meta.thumbnail_url = videos[0].get("thumbnail_url")
