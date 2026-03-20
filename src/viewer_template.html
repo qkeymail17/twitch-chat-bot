@@ -64,17 +64,17 @@ header{
 }
 
 .controls #vodBtn{
-  grid-column:1 / span 2;
+  grid-column:1 / span 1;
   grid-row:2;
 }
 
 .controls #exportBtn{
-  grid-column:5 / span 2;
+  grid-column:5 / span 1;
   grid-row:2;
 }
 
 .controls #toggleTime{
-  grid-column:3 / span 2;
+  grid-column:3 / span 1;
   grid-row:2;
 }
 
@@ -254,9 +254,9 @@ header{
       <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
-        <button id="toggleTime">⏱️ Время: Вкл</button>
-        <button id="vodBtn">🔗 Ссылка VOD</button>
-        <button id="exportBtn">📸 Снимок чата</button>
+        <button id="toggleTime">⏱️ Вкл</button>
+        <button id="vodBtn">🔗 VOD</button>
+        <button id="exportBtn">📸 Снимок</button>
         <span class="pill" id="stat">—</span>
       </div>
     </header>
@@ -503,7 +503,7 @@ elQ.addEventListener("input",()=>applyFilters());
 elU.addEventListener("input",()=>applyFilters());
 elToggleTime.addEventListener("click",()=>{
   SHOW_TIME = !SHOW_TIME;
-  elToggleTime.textContent = SHOW_TIME ? "⏱️ Время: Вкл" : "⏱️ Время: Выкл";
+  elToggleTime.textContent = SHOW_TIME ? "⏱️ Вкл" : "⏱️ Выкл";
   elList.innerHTML=""; rendered=0; renderMore();
 });
 
