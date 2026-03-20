@@ -13,7 +13,7 @@ class VodMeta:
     channel_id: Optional[str] = None
     length_seconds: Optional[int] = None
     created_at: Optional[str] = None
-    thumbnail_url: Optional[str] = None
+    thumbnail_url: Optional[str] = None  # ← добавили
 
 
 def extract_message_fragments(node: dict) -> list[dict]:
@@ -47,11 +47,13 @@ def render_message(node: dict) -> str:
 
 async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id: str) -> VodMeta:
     from .client import gql_post_json
+
     headers = {
         "Client-Id": client_id,
         "User-Agent": "Mozilla/5.0",
         "Content-Type": "application/json",
     }
+
     query = """
     query($id: ID!) {
       video(id: $id) {
@@ -59,7 +61,6 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
         title
         lengthSeconds
         createdAt
-        thumbnailURL
         owner {
           id
           login
@@ -68,21 +69,45 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
       }
     }
     """
+
     meta = VodMeta(vod_id=vod_id)
+
     for attempt in range(3):
         try:
             payload = {"query": query, "variables": {"id": vod_id}}
             data = await gql_post_json(session, headers, payload)
+
             video = ((data.get("data") or {}).get("video") or {})
-            meta.thumbnail_url = video.get("thumbnailURL")
+
             meta.title = video.get("title")
             meta.length_seconds = video.get("lengthSeconds")
             meta.created_at = video.get("createdAt")
+
             owner = video.get("owner") or {}
             meta.channel = owner.get("displayName") or owner.get("login")
             meta.channel_login = owner.get("login")
             meta.channel_id = owner.get("id")
+
+            # ✅ ДОБАВИЛИ: получаем thumbnail через Helix
+            try:
+                helix_url = f"https://api.twitch.tv/helix/videos?id={vod_id}"
+                helix_headers = {
+                    "Client-Id": client_id,
+                    # если у тебя уже есть OAuth — лучше так:
+                    # "Authorization": f"Bearer {token}",
+                }
+
+                async with session.get(helix_url, headers=helix_headers) as resp:
+                    data2 = await resp.json()
+                    videos = data2.get("data") or []
+                    if videos:
+                        meta.thumbnail_url = videos[0].get("thumbnail_url")
+            except Exception:
+                pass
+
             return meta
+
         except Exception:
             await asyncio.sleep(0.2 * (attempt + 1))
+
     return meta
