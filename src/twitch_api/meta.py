@@ -4,6 +4,8 @@ from typing import Optional, Any
 from src.config import TWITCH_ACCESS_TOKEN
 
 import aiohttp
+import os
+from src.config import TWITCH_CLIENT_ID
 
 @dataclass
 class VodMeta:
@@ -96,7 +98,8 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
                 helix_url = f"https://api.twitch.tv/helix/videos?id={vod_id}"
 
                 helix_headers = {
-                    "Client-Id": client_id,
+                    "Client-Id": TWITCH_CLIENT_ID,
+                    "Authorization": f"Bearer {TWITCH_ACCESS_TOKEN}",
                 }
 
                 async with session.get(helix_url, headers=helix_headers) as resp:
