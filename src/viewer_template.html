@@ -367,8 +367,7 @@ async function fetch7tvEmotes(channelId){
 function renderTextWithEmotes(el,text,emotes){
   const parts = String(text||"").split(/(\s+)/);
   for(const p of parts){
-    const clean = p.replace(/[​-‍﻿]/g,'').replace(/[
-	]/g,'');
+  const clean = p.replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/[\r\n\t]/g,'');
     if(LOCAL_EMOTES[clean] || CDN_EMOTES[clean]){
       const src = LOCAL_EMOTES[clean] || CDN_EMOTES[clean];
       const img = document.createElement("img");
@@ -392,8 +391,10 @@ function renderFragmentsWithEmotes(el, fragments, emotes){
     if(!fragment || typeof fragment !== "object") continue;
 
     const rawText = String(fragment.text || "");
-    const cleanText = rawText.replace(/[​-‍﻿]/g,'').replace(/[
-	]/g,'').trim();
+    const cleanText = rawText
+      .replace(/[\u200B-\u200D\uFEFF]/g,'')
+      .replace(/[\r\n\t]/g,'')
+      .trim();
     const emoteId = fragment.emoteID || (fragment.emote && (fragment.emote.emoteID || fragment.emote.id)) || null;
 
     if(emoteId && CDN_EMOTES[String(emoteId)]){
