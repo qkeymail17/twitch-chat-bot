@@ -501,8 +501,12 @@ function resolveThumb(url, width=640, height=360){
     .replace(/%?\{height\}/g, String(height));
 }
 
-const vodThumbTemplate = meta.thumbnail_url || meta.vod_thumbnail_url || meta.preview_url || "";
-const vodThumb = resolveThumb(vodThumbTemplate, 640, 360);
+const vodThumb = meta.thumbnail_url
+  ?.replace("storyboards", "thumbs")
+  ?.replace("info.json", "0-640x360.jpg")
+  || meta.vod_thumbnail_url
+  || meta.preview_url
+  || "";
 
 if(vodThumb){
   elVodPreviewImg.src = vodThumb;
