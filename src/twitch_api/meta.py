@@ -62,6 +62,7 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
         title
         lengthSeconds
         createdAt
+        seekPreviewsURL
         owner {
           id
           login
@@ -83,27 +84,16 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
             meta.title = video.get("title")
             meta.length_seconds = video.get("lengthSeconds")
             meta.created_at = video.get("createdAt")
+            meta.thumbnail_url = video.get("seekPreviewsURL")
 
             owner = video.get("owner") or {}
             meta.channel = owner.get("displayName") or owner.get("login")
             meta.channel_login = owner.get("login")
             meta.channel_id = owner.get("id")
 
-            # ← ВСТАВЛЯЕШЬ СЮДА
-            try:
-                helix_url = f"https://api.twitch.tv/helix/videos?id={vod_id}"
-                helix_headers = {
-                    "Client-Id": client_id,
-                    "Authorization": f"Bearer {TWITCH_ACCESS_TOKEN}",
-                }
-
-                async with session.get(helix_url, headers=helix_headers) as resp:
-                    data2 = await resp.json()
-                    print("HELIX:", data2)
-                    videos = data2.get("data") or []
-                    if videos:
-                        meta.thumbnail_url = videos[0].get("thumbnail_url")
-            except Exception as e:
-                print("HELIX ERROR:", e)
-
             return meta
+
+        except Exception:
+            await asyncio.sleep(0.2 * (attempt + 1))
+
+    return meta
