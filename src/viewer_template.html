@@ -254,8 +254,8 @@ header{
       <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
-        <button id="toggleTime">⏱️ Время: Вкл</button>
         <button id="exportBtn">📸 Снимок чата</button>
+        <button id="toggleTime">⏱️ Время: Вкл</button>
         <button id="vodBtn">🔗 Ссылка VOD</button>
         <span class="pill" id="stat">—</span>
       </div>
@@ -538,9 +538,7 @@ elExportBtn.addEventListener("click", async ()=>{
   const metaRow = document.createElement("div"); metaRow.className="export-meta";
   const metaLeft = document.createElement("div"); metaLeft.className="export-meta-left";
   const metaRight = document.createElement("div"); metaRight.className="export-meta-right";
-  const channelIcon=document.createElement("img"); channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif"; channelIcon.crossOrigin="anonymous";
-  const channelName=document.createElement("span"); channelName.textContent = meta.channel || "channel";
-  metaLeft.appendChild(channelIcon); metaLeft.appendChild(channelName);
+
   const dateIcon=document.createElement("span"); dateIcon.textContent="📅"; const dateText=document.createElement("span"); dateText.textContent = elStreamDate.textContent || "";
   metaRight.appendChild(dateIcon); metaRight.appendChild(dateText);
   metaRow.appendChild(metaLeft); metaRow.appendChild(metaRight); wrap.appendChild(metaRow);
