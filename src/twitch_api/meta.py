@@ -1,6 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from typing import Optional, Any
+from src.config import TWITCH_ACCESS_TOKEN
 
 import aiohttp
 
@@ -91,10 +92,10 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
             # ✅ ДОБАВИЛИ: получаем thumbnail через Helix
             try:
                 helix_url = f"https://api.twitch.tv/helix/videos?id={vod_id}"
+
                 helix_headers = {
                     "Client-Id": client_id,
-                    # если у тебя уже есть OAuth — лучше так:
-                    # "Authorization": f"Bearer {token}",
+                    "Authorization": f"Bearer {TWITCH_ACCESS_TOKEN}",
                 }
 
                 async with session.get(helix_url, headers=helix_headers) as resp:
