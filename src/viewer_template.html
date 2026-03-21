@@ -40,7 +40,8 @@ header{
   z-index:50;
   border-radius:0;
 }
-.meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.meta{display:flex;flex-direction:column;gap:4px;margin-bottom:6px}
+.meta #title{font-size:12px;line-height:1.25;font-weight:700}
 
 .vod-card{
   margin-bottom:14px;
@@ -66,11 +67,11 @@ header{
   aspect-ratio:16/9;
   background:linear-gradient(135deg,#22222b,#15151b 55%, #0f0f12);
 }
-.vod-card-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+.vod-card-media img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
 }
 .vod-card-fallback{
   position:absolute;
@@ -136,7 +137,7 @@ header{
   gap:3px;
 }
 .vod-card-title{
-  font-size:13px;
+  font-size:15px;
   font-weight:700;
   line-height:1.25;
   color:var(--text);
@@ -215,6 +216,18 @@ header{
 }
 .controls button:hover{border-color:rgba(145,70,255,0.6)}
 .pill#stat{align-self:flex-end}
+
+.controls-footer{
+  grid-column:1 / span 6;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  width:100%;
+}
+.controls-footer .pill{
+  min-width:0;
+}
 
 /* message list */
 #list{
@@ -346,7 +359,7 @@ header{
 
   header{
     display:grid;
-    grid-template-columns: 150px 1fr;
+    grid-template-columns: 140px 1fr;
     gap:10px;
     align-items:start;
   }
@@ -402,19 +415,27 @@ header{
       <div class="vod-card" id="vodCard" tabindex="0" role="button" aria-label="Открыть VOD">
         <div class="vod-card-media">
           <img id="vodPreviewImg" alt="" loading="eager" decoding="async" />
+          <div class="vod-card-fallback" id="vodPreviewFallback">Превью VOD</div>
           <div class="vod-card-shade"></div>
+          <div class="vod-card-badge"><span class="vod-card-badge-dot"></span><span>VOD</span></div>
         </div>
+        <div class="vod-card-copy">
+          <div class="vod-card-title">Превью записи</div>
+          <div class="vod-card-subtitle">Нажмите, чтобы открыть запись в новой вкладке</div>
         </div>
+      </div>
 
+      <div class="meta">
+        <div><b id="title">—</b></div>
+      </div>
 
-
-        <div class="controls">
+      <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
         <button id="toggleTime">⏱️ Время: Вкл</button>
         <button id="exportBtn">📸 Снимок чата</button>
         <button id="vodBtn">🔗 Ссылка VOD</button>
-        <div style="display:flex; justify-content:space-between; width:100%;">
+        <div class="controls-footer">
           <span class="pill">
             <span id="channel">—</span>
             <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
@@ -465,12 +486,11 @@ const elExportBtn=document.getElementById("exportBtn");
 const elVodBtn=document.getElementById("vodBtn");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
+const elVodPreviewFallback=document.getElementById("vodPreviewFallback");
 
 let SHOW_TIME=true;
 
-if(elTitle){
-  elTitle.textContent = meta.title || "—";
-}
+elTitle.textContent = meta.title || "—";
 elChannel.textContent = meta.channel || "—";
 
 function openVod(){
@@ -493,11 +513,14 @@ const previewUrl = meta.thumbnail_url || "";
 if(previewUrl){
   elVodPreviewImg.src = previewUrl;
   elVodPreviewImg.style.display = "block";
+  elVodPreviewFallback.style.display = "none";
   elVodPreviewImg.addEventListener("error", ()=>{
     elVodPreviewImg.style.display = "none";
+    elVodPreviewFallback.style.display = "flex";
   }, { once: true });
 }else{
   elVodPreviewImg.style.display = "none";
+  elVodPreviewFallback.style.display = "flex";
 }
 
 function fmtStreamStart(iso){
