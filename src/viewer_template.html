@@ -40,8 +40,7 @@ header{
   z-index:50;
   border-radius:0;
 }
-.meta{display:flex;flex-direction:column;gap:4px;margin-bottom:6px}
-.meta #title{font-size:15px;line-height:1.25;font-weight:700}
+.meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 
 .vod-card{
   margin-bottom:14px;
@@ -216,18 +215,6 @@ header{
 }
 .controls button:hover{border-color:rgba(145,70,255,0.6)}
 .pill#stat{align-self:flex-end}
-
-.controls-footer{
-  grid-column:1 / span 6;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  width:100%;
-}
-.controls-footer .pill{
-  min-width:0;
-}
 
 /* message list */
 #list{
@@ -418,6 +405,7 @@ header{
           <div class="vod-card-fallback" id="vodPreviewFallback">Превью VOD</div>
           <div class="vod-card-shade"></div>
           <div class="vod-card-badge"><span class="vod-card-badge-dot"></span><span>VOD</span></div>
+          <div class="vod-card-play">▶ Открыть VOD</div>
         </div>
         <div class="vod-card-copy">
           <div class="vod-card-title">Превью записи</div>
@@ -427,6 +415,10 @@ header{
 
       <div class="meta">
         <div><b id="title">—</b></div>
+        <div class="pill">
+          <span id="channel">—</span>
+          <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
+        </div>
       </div>
 
       <div class="controls">
@@ -435,13 +427,7 @@ header{
         <button id="toggleTime">⏱️ Время: Вкл</button>
         <button id="exportBtn">📸 Снимок чата</button>
         <button id="vodBtn">🔗 Ссылка VOD</button>
-        <div class="controls-footer">
-          <span class="pill">
-            <span id="channel">—</span>
-            <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
-          </span>
-          <span class="pill" id="stat">—</span>
-        </div>
+        <span class="pill" id="stat">—</span>
       </div>
     </header>
 
