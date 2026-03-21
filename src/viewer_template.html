@@ -40,7 +40,7 @@ header{
   z-index:50;
   overflow-anchor:none;
   border-radius:0;
-  display:grid;
+  display:block;
   grid-template-columns:168px minmax(0,1fr);
   gap:10px;
   align-items:start;
@@ -52,6 +52,8 @@ header{
   overflow:hidden;
   background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
   box-shadow:0 10px 30px rgba(0,0,0,.22);
+  width:160px;
+  flex-shrink:0;
 }
 .vod-card-media{
   position:relative;
@@ -64,7 +66,7 @@ header{
   display:block;
   object-fit:cover;
 }
-.meta{display:flex;flex-direction:column;gap:4px;margin:0;min-width:0}
+.meta{display:flex:1;flex-direction:column;gap:4px;margin:0;min-width:0}
 .meta #title{font-size:11px;line-height:1.25;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;min-width:0}
 .pill{
   font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
@@ -142,7 +144,11 @@ header{
 .controls button:hover{border-color:rgba(145,70,255,0.6)}
 .pill#stat{align-self:flex-end}
 .controls-footer .pill{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-
+.top-row{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
 /* message list */
 #list{
   width:100%;
@@ -274,18 +280,21 @@ header{
 <div class="page">
   <div class="chat">
 
-    <header>
-      <div class="vod-card" id="vodCard" tabindex="0" role="button" aria-label="Открыть VOD">
-        <div class="vod-card-media">
-          <img id="vodPreviewImg" alt="" loading="eager" decoding="async" />
+      <header>
+
+        <div class="top-row">
+          <div class="vod-card" id="vodCard" tabindex="0" role="button" aria-label="Открыть VOD">
+            <div class="vod-card-media">
+              <img id="vodPreviewImg" alt="" loading="eager" decoding="async" />
+            </div>
+          </div>
+
+          <div class="meta">
+            <div><b id="title">—</b></div>
+          </div>
         </div>
-      </div>
 
-      <div class="meta">
-        <div><b id="title">—</b></div>
-      </div>
-
-      <div class="controls">
+        <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
         <button id="toggleTime">⏱️ Время: Вкл</button>
