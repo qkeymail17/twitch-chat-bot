@@ -39,6 +39,7 @@ header{
   top:0;
   z-index:50;
   border-radius:0;
+  align-content: start;
 }
 .meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 
@@ -158,29 +159,34 @@ header{
   margin-top:8px;
   width:100%;
 }
-.controls #q{
+#q{
   grid-column:1 / span 3;
   grid-row:1;
 }
 
-.controls #u{
+#u{
   grid-column:4 / span 3;
   grid-row:1;
 }
 
-.controls #vodBtn{
+#vodBtn{
   grid-column:1 / span 2;
   grid-row:2;
 }
 
-.controls #exportBtn{
+#exportBtn{
   grid-column:3 / span 2;
   grid-row:2;
 }
 
-.controls #toggleTime{
+#toggleTime{
   grid-column:5 / span 2;
   grid-row:2;
+}
+
+.controls-footer{
+  grid-column:1 / span 6;
+  grid-row:3;
 }
 
 .controls #stat{
