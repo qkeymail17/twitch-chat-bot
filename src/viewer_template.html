@@ -346,7 +346,7 @@ header{
 
   header{
     display:grid;
-    grid-template-columns: 140px 1fr;
+    grid-template-columns: 180px 1fr;
     gap:10px;
     align-items:start;
   }
@@ -408,9 +408,13 @@ header{
           <div class="vod-card-title">Превью записи</div>
           <div class="vod-card-subtitle">Нажмите, чтобы открыть запись в новой вкладке</div>
         </div>
-      </div>
+        </div>
 
-      <div class="controls">
+        <div class="meta">
+          <div><b id="title">—</b></div>
+        </div>
+
+        <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
         <button id="toggleTime">⏱️ Время: Вкл</button>
@@ -418,7 +422,6 @@ header{
         <button id="vodBtn">🔗 Ссылка VOD</button>
         <div style="display:flex; justify-content:space-between; width:100%;">
           <span class="pill">
-            <b id="title">—</b>
             <span id="channel">—</span>
             <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
           </span>
