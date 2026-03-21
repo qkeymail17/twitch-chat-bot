@@ -14,9 +14,9 @@
 
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
 
-  --controls-w:260px; /* ширина левого блока на десктопе */
-  --chat-w:520px;     /* ширина блока сообщений на десктопе */
-  --gap:24px;
+  --controls-w:312px; /* ширина левого блока на десктопе */
+  --chat-w:515px;     /* ширина блока сообщений на десктопе */
+  --gap:16px;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
@@ -40,7 +40,113 @@ header{
   z-index:50;
   border-radius:0;
 }
-.meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.meta{display:flex;flex-direction:column;gap:4px;margin-bottom:6px}
+.meta #title{font-size:12px;line-height:1.25;font-weight:700}
+
+.vod-card{
+  margin-bottom:14px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+  box-shadow:0 10px 30px rgba(0,0,0,.22);
+  cursor:pointer;
+  transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.vod-card:hover{
+  transform:translateY(-1px);
+  border-color:rgba(145,70,255,0.45);
+  box-shadow:0 14px 34px rgba(0,0,0,.28);
+}
+.vod-card:focus-visible{
+  outline:2px solid rgba(145,70,255,0.65);
+  outline-offset:2px;
+}
+.vod-card-media{
+  position:relative;
+  aspect-ratio:16/9;
+  background:linear-gradient(135deg,#22222b,#15151b 55%, #0f0f12);
+}
+.vod-card-media img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+.vod-card-fallback{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  text-align:center;
+  color:#d9d9e2;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  background:radial-gradient(circle at top, rgba(120,92,255,.18), transparent 55%);
+}
+.vod-card-shade{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,.06) 35%, rgba(0,0,0,.7) 100%);
+}
+.vod-card-badge{
+  position:absolute;
+  left:10px;
+  top:10px;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(15,15,18,.72);
+  border:1px solid rgba(255,255,255,.08);
+  color:#f0f0f4;
+  font-size:12px;
+  backdrop-filter:blur(8px);
+}
+.vod-card-badge-dot{
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background:#7c5cff;
+  box-shadow:0 0 0 4px rgba(124,92,255,.16);
+}
+.vod-card-play{
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(0,0,0,.62);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.10);
+  font-size:12px;
+  backdrop-filter:blur(8px);
+}
+.vod-card-copy{
+  padding:11px 12px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.vod-card-title{
+  font-size:15px;
+  font-weight:700;
+  line-height:1.25;
+  color:var(--text);
+}
+.vod-card-subtitle{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.35;
+}
 .pill{
   font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   color:var(--muted);
@@ -84,14 +190,6 @@ header{
   justify-self:end;
 }
 
-#stat{
-  display:none;
-}
-
-#title{
-  display:none;
-}
-
 .controls input{
   flex:1 1 140px;
   min-width:0;
@@ -118,6 +216,18 @@ header{
 }
 .controls button:hover{border-color:rgba(145,70,255,0.6)}
 .pill#stat{align-self:flex-end}
+
+.controls-footer{
+  grid-column:1 / span 6;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  width:100%;
+}
+.controls-footer .pill{
+  min-width:0;
+}
 
 /* message list */
 #list{
@@ -244,6 +354,57 @@ header{
   header{padding:10px;border-radius:12px}
   #list{margin-top:0;border-radius:0}
 }
+
+@media (max-width: 700px){
+
+  header{
+    display:grid;
+    grid-template-columns: 140px 1fr;
+    gap:10px;
+    align-items:start;
+  }
+
+  .vod-card{
+    margin:0;
+  }
+
+  /* убираем текст под превью (иначе раздувает блок) */
+  .vod-card-copy{
+    display:none;
+  }
+
+  .meta{
+    margin:0;
+  }
+
+  /* кнопки вниз */
+  .controls{
+    grid-column:1 / span 2;
+    margin-top:8px;
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+
+  .controls input{
+    width:100%;
+    height:30px;
+    font-size:12px;
+  }
+
+  .controls button{
+    flex:1;
+    min-width:90px;
+    height:30px;
+    font-size:12px;
+  }
+
+  .pill#stat{
+    width:100%;
+    text-align:right;
+  }
+}
 </style>
 </head>
 <body>
@@ -251,12 +412,21 @@ header{
   <div class="chat">
 
     <header>
+      <div class="vod-card" id="vodCard" tabindex="0" role="button" aria-label="Открыть VOD">
+        <div class="vod-card-media">
+          <img id="vodPreviewImg" alt="" loading="eager" decoding="async" />
+          <div class="vod-card-fallback" id="vodPreviewFallback">Превью VOD</div>
+          <div class="vod-card-shade"></div>
+          <div class="vod-card-badge"><span class="vod-card-badge-dot"></span><span>VOD</span></div>
+        </div>
+        <div class="vod-card-copy">
+          <div class="vod-card-title">Превью записи</div>
+          <div class="vod-card-subtitle">Нажмите, чтобы открыть запись в новой вкладке</div>
+        </div>
+      </div>
+
       <div class="meta">
         <div><b id="title">—</b></div>
-        <div class="pill">
-          <span id="channel">—</span>
-          <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
-        </div>
       </div>
 
       <div class="controls">
@@ -265,7 +435,13 @@ header{
         <button id="toggleTime">⏱️ Время: Вкл</button>
         <button id="exportBtn">📸 Снимок чата</button>
         <button id="vodBtn">🔗 Ссылка VOD</button>
-        <span class="pill" id="stat">—</span>
+        <div class="controls-footer">
+          <span class="pill">
+            <span id="channel">—</span>
+            <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
+          </span>
+          <span class="pill" id="stat">—</span>
+        </div>
       </div>
     </header>
 
@@ -308,16 +484,44 @@ const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
 const elVodBtn=document.getElementById("vodBtn");
+const elVodCard=document.getElementById("vodCard");
+const elVodPreviewImg=document.getElementById("vodPreviewImg");
+const elVodPreviewFallback=document.getElementById("vodPreviewFallback");
 
 let SHOW_TIME=true;
 
 elTitle.textContent = meta.title || "—";
 elChannel.textContent = meta.channel || "—";
-elVodBtn.addEventListener("click",()=>{
+
+function openVod(){
   if(meta.vod_url){
     window.open(meta.vod_url,"_blank");
   }
+}
+
+elVodBtn.addEventListener("click", openVod);
+elVodCard.addEventListener("click", openVod);
+elVodCard.addEventListener("keydown",(e)=>{
+  if(e.key==="Enter" || e.key===" "){
+    e.preventDefault();
+    openVod();
+  }
 });
+
+const previewUrl = meta.thumbnail_url || "";
+
+if(previewUrl){
+  elVodPreviewImg.src = previewUrl;
+  elVodPreviewImg.style.display = "block";
+  elVodPreviewFallback.style.display = "none";
+  elVodPreviewImg.addEventListener("error", ()=>{
+    elVodPreviewImg.style.display = "none";
+    elVodPreviewFallback.style.display = "flex";
+  }, { once: true });
+}else{
+  elVodPreviewImg.style.display = "none";
+  elVodPreviewFallback.style.display = "flex";
+}
 
 function fmtStreamStart(iso){
   if(!iso) return null;

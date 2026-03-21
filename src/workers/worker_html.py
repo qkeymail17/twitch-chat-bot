@@ -9,7 +9,6 @@ from src.twitch_api import (
     fetch_bttv_emote_map,
     fetch_ffz_emote_map,
     fetch_twitch_global_emote_map,
-    fetch_twitch_channel_emote_map,
     fetch_twitch_channel_emote_maps,
 )
 
@@ -96,6 +95,7 @@ async def build_html_result(
         channel=(meta.channel or "—"),
         vod_url=vod_url,
         created_at=meta.created_at,
+        thumbnail_url=meta.thumbnail_url,
         mode="online",
         channel_id=meta.channel_id,
         local_emotes={},

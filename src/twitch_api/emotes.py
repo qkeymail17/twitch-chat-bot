@@ -5,7 +5,6 @@ from typing import Dict, Tuple
 import aiohttp
 
 from .client import get_api_headers
-from .twitch_global_emotes import TWITCH_GLOBAL_EMOTES
 
 
 # =========================
@@ -13,7 +12,6 @@ from .twitch_global_emotes import TWITCH_GLOBAL_EMOTES
 # =========================
 
 async def fetch_7tv_emote_map(session: aiohttp.ClientSession, channel_id: str) -> Dict[str, str]:
-    """name -> URL"""
     if not channel_id:
         return {}
     try:
@@ -52,10 +50,8 @@ async def fetch_7tv_emote_map(session: aiohttp.ClientSession, channel_id: str) -
 # =========================
 
 async def fetch_bttv_emote_map(session: aiohttp.ClientSession, channel_id: str) -> Dict[str, str]:
-    """BTTV global + channel emotes"""
     out: Dict[str, str] = {}
     try:
-        # global
         async with session.get("https://api.betterttv.net/3/cached/emotes/global") as r:
             if r.status == 200:
                 data = await r.json()
@@ -65,7 +61,6 @@ async def fetch_bttv_emote_map(session: aiohttp.ClientSession, channel_id: str) 
         if not channel_id:
             return out
 
-        # channel
         async with session.get(f"https://api.betterttv.net/3/cached/users/twitch/{channel_id}") as r:
             if r.status != 200:
                 return out
@@ -86,10 +81,8 @@ async def fetch_bttv_emote_map(session: aiohttp.ClientSession, channel_id: str) 
 # =========================
 
 async def fetch_ffz_emote_map(session: aiohttp.ClientSession, channel_name: str) -> Dict[str, str]:
-    """FFZ global + channel emotes"""
     out: Dict[str, str] = {}
     try:
-        # global
         async with session.get("https://api.frankerfacez.com/v1/set/global") as r:
             if r.status == 200:
                 data = await r.json()
@@ -104,7 +97,6 @@ async def fetch_ffz_emote_map(session: aiohttp.ClientSession, channel_name: str)
         if not channel_name:
             return out
 
-        # channel
         async with session.get(f"https://api.frankerfacez.com/v1/room/{channel_name}") as r:
             if r.status != 200:
                 return out
@@ -124,25 +116,44 @@ async def fetch_ffz_emote_map(session: aiohttp.ClientSession, channel_name: str)
 
 
 # =========================
-# Twitch Global (dictionary-based)
+# Twitch Global (HELIX)
 # =========================
 
 async def fetch_twitch_global_emote_map(session: aiohttp.ClientSession) -> Dict[str, str]:
+    url = "https://api.twitch.tv/helix/chat/emotes/global"
+    headers = get_api_headers()
+
+    try:
+        async with session.get(url, headers=headers, timeout=10) as resp:
+            if resp.status != 200:
+                logging.warning("Twitch global emotes HTTP %s", resp.status)
+                return {}
+            data = await resp.json()
+    except Exception as e:
+        logging.warning("Twitch global emotes error: %s", e)
+        return {}
+
     out: Dict[str, str] = {}
-    for name, eid in TWITCH_GLOBAL_EMOTES.items():
-        out[name] = f"https://static-cdn.jtvnw.net/emoticons/v2/{eid}/default/dark/1.0"
+
+    for e in data.get("data", []) or []:
+        name = e.get("name")
+        emote_id = e.get("id")
+        if not name or not emote_id:
+            continue
+
+        out[name] = f"https://static-cdn.jtvnw.net/emoticons/v2/{emote_id}/default/dark/1.0"
+
     return out
 
 
 # =========================
-# Twitch Channel (subscriber / bits / follower via Helix)
+# Twitch Channel
 # =========================
 
 async def fetch_twitch_channel_emote_maps(
     session: aiohttp.ClientSession,
     channel_id: str,
 ) -> Tuple[Dict[str, str], Dict[str, str]]:
-    """Return two maps: name -> URL and emote_id -> URL."""
     if not channel_id:
         return {}, {}
 
@@ -163,12 +174,11 @@ async def fetch_twitch_channel_emote_maps(
     id_map: Dict[str, str] = {}
 
     for e in data.get("data", []) or []:
-        if not isinstance(e, dict):
-            continue
         name = e.get("name")
         emote_id = e.get("id")
         images = e.get("images") or {}
         src = images.get("url_1x")
+
         if not src and emote_id:
             src = f"https://static-cdn.jtvnw.net/emoticons/v2/{emote_id}/default/dark/1.0"
 
@@ -178,34 +188,3 @@ async def fetch_twitch_channel_emote_maps(
             id_map[str(emote_id)] = src
 
     return name_map, id_map
-
-
-async def fetch_twitch_channel_emote_map(
-    session: aiohttp.ClientSession,
-    channel_id: str,
-) -> Dict[str, str]:
-    name_map, _ = await fetch_twitch_channel_emote_maps(session, channel_id)
-    return name_map
-
-
-# =========================
-# Downloader (общий)
-# =========================
-
-async def download_as_data_uri(session: aiohttp.ClientSession, url: str):
-    try:
-        async with session.get(url) as r:
-            if r.status != 200:
-                return None
-            data = await r.read()
-
-        mime = "image/webp"
-        if url.endswith(".gif"):
-            mime = "image/gif"
-        elif url.endswith(".png"):
-            mime = "image/png"
-
-        b64 = base64.b64encode(data).decode("ascii")
-        return f"data:{mime};base64,{b64}"
-    except Exception:
-        return None
