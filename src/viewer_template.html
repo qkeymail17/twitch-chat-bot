@@ -406,9 +406,7 @@ header{
         </div>
         </div>
 
-        <div class="meta">
-          <div><b id="title">—</b></div>
-        </div>
+
 
         <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
@@ -470,7 +468,9 @@ const elVodPreviewImg=document.getElementById("vodPreviewImg");
 
 let SHOW_TIME=true;
 
-elTitle.textContent = meta.title || "—";
+if(elTitle){
+  elTitle.textContent = meta.title || "—";
+}
 elChannel.textContent = meta.channel || "—";
 
 function openVod(){
