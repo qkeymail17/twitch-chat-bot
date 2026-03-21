@@ -40,7 +40,7 @@ header{
   z-index:50;
   border-radius:0;
 }
-.meta{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.meta{display:flex;flex-direction:column;gap:4px;margin:0;min-width:0}
 
 .vod-card{
   margin-bottom:14px;
@@ -72,80 +72,12 @@ header{
   display:block;
   object-fit:cover;
 }
-.vod-card-fallback{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:16px;
-  text-align:center;
-  color:#d9d9e2;
-  font-size:13px;
-  font-weight:700;
-  letter-spacing:.06em;
-  text-transform:uppercase;
-  background:radial-gradient(circle at top, rgba(120,92,255,.18), transparent 55%);
-}
 .vod-card-shade{
   position:absolute;
   inset:0;
   background:linear-gradient(180deg, rgba(0,0,0,.06) 35%, rgba(0,0,0,.7) 100%);
 }
-.vod-card-badge{
-  position:absolute;
-  left:10px;
-  top:10px;
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  padding:6px 10px;
-  border-radius:999px;
-  background:rgba(15,15,18,.72);
-  border:1px solid rgba(255,255,255,.08);
-  color:#f0f0f4;
-  font-size:12px;
-  backdrop-filter:blur(8px);
-}
-.vod-card-badge-dot{
-  width:8px;
-  height:8px;
-  border-radius:999px;
-  background:#7c5cff;
-  box-shadow:0 0 0 4px rgba(124,92,255,.16);
-}
-.vod-card-play{
-  position:absolute;
-  right:10px;
-  bottom:10px;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:7px 11px;
-  border-radius:999px;
-  background:rgba(0,0,0,.62);
-  color:#fff;
-  border:1px solid rgba(255,255,255,.10);
-  font-size:12px;
-  backdrop-filter:blur(8px);
-}
-.vod-card-copy{
-  padding:11px 12px 12px;
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-}
-.vod-card-title{
-  font-size:15px;
-  font-weight:700;
-  line-height:1.25;
-  color:var(--text);
-}
-.vod-card-subtitle{
-  font-size:12px;
-  color:var(--muted);
-  line-height:1.35;
-}
+.vod-card-title{font-size:14px;font-weight:700;line-height:1.25;color:var(--text);overflow-wrap:anywhere;word-break:break-word;}
 .pill{
   font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   color:var(--muted);
@@ -153,10 +85,11 @@ header{
 }
 .controls{
   display:grid;
-  grid-template-columns:repeat(6,1fr);
+  grid-template-columns:repeat(6,minmax(0,1fr));
   gap:8px;
   margin-top:8px;
   width:100%;
+  min-width:0;
 }
 .controls #q{
   grid-column:1 / span 3;
@@ -183,10 +116,20 @@ header{
   grid-row:2;
 }
 
-.controls #stat{
+.controls-footer{
   grid-column:1 / span 6;
   grid-row:3;
-  justify-self:end;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  min-width:0;
+}
+.controls-footer .pill{
+  min-width:0;
+  overflow-wrap:anywhere;
+  word-break:break-word;
 }
 
 .controls input{
@@ -214,7 +157,6 @@ header{
   justify-content:center;
 }
 .controls button:hover{border-color:rgba(145,70,255,0.6)}
-.pill#stat{align-self:flex-end}
 
 /* message list */
 #list{
@@ -227,12 +169,14 @@ header{
   padding-bottom:40px;
   margin-top:0;
   border-radius:0;
+  overflow-x:hidden;
 }
 
 /* row */
 .row{
   padding:6px 12px;
   line-height:1.4;
+  overflow-wrap:anywhere;
 }
 .time{
   color:#adadb8;
@@ -241,16 +185,21 @@ header{
 }
 .user{
   font-weight:600;
-  white-space:nowrap;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  min-width:0;
 }
 .colon{
   color:var(--text);
   margin-right:6px;          /* пространство между ':' и началом сообщения */
 }
 .msg{
-  display:inline;            /* message — inline, будет переноситься как на скрине-экспорте */
+  display:inline;
   color:var(--text);
-  overflow-wrap:break-word;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  min-width:0;
 }
 .emote{vertical-align:middle;margin:0 2px}
 
@@ -346,7 +295,7 @@ header{
 
   header{
     display:grid;
-    grid-template-columns: 140px 1fr;
+    grid-template-columns: 170px minmax(0,1fr);
     gap:10px;
     align-items:start;
   }
@@ -368,28 +317,41 @@ header{
   .controls{
     grid-column:1 / span 2;
     margin-top:8px;
-
-    display:flex;
-    flex-wrap:wrap;
+    display:grid;
+    grid-template-columns:repeat(6,minmax(0,1fr));
     gap:6px;
+    min-width:0;
   }
 
   .controls input{
     width:100%;
+    min-width:0;
     height:30px;
     font-size:12px;
   }
 
   .controls button{
-    flex:1;
-    min-width:90px;
+    width:100%;
+    min-width:0;
     height:30px;
     font-size:12px;
   }
 
-  .pill#stat{
+  .controls-footer{
+    grid-column:1 / span 6;
+    grid-row:3;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
     width:100%;
-    text-align:right;
+    min-width:0;
+  }
+
+  .controls-footer .pill{
+    min-width:0;
+    overflow-wrap:anywhere;
+    word-break:break-word;
   }
 }
 </style>
@@ -402,23 +364,12 @@ header{
       <div class="vod-card" id="vodCard" tabindex="0" role="button" aria-label="Открыть VOD">
         <div class="vod-card-media">
           <img id="vodPreviewImg" alt="" loading="eager" decoding="async" />
-          <div class="vod-card-fallback" id="vodPreviewFallback">Превью VOD</div>
           <div class="vod-card-shade"></div>
-          <div class="vod-card-badge"><span class="vod-card-badge-dot"></span><span>VOD</span></div>
-          <div class="vod-card-play">▶ Открыть VOD</div>
-        </div>
-        <div class="vod-card-copy">
-          <div class="vod-card-title">Превью записи</div>
-          <div class="vod-card-subtitle">Нажмите, чтобы открыть запись в новой вкладке</div>
         </div>
       </div>
 
       <div class="meta">
         <div><b id="title">—</b></div>
-        <div class="pill">
-          <span id="channel">—</span>
-          <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
-        </div>
       </div>
 
       <div class="controls">
@@ -427,7 +378,13 @@ header{
         <button id="toggleTime">⏱️ Время: Вкл</button>
         <button id="exportBtn">📸 Снимок чата</button>
         <button id="vodBtn">🔗 Ссылка VOD</button>
-        <span class="pill" id="stat">—</span>
+        <div class="controls-footer">
+          <span class="pill">
+            <span id="channel">—</span>
+            <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
+          </span>
+          <span class="pill" id="stat">—</span>
+        </div>
       </div>
     </header>
 
@@ -472,8 +429,6 @@ const elExportBtn=document.getElementById("exportBtn");
 const elVodBtn=document.getElementById("vodBtn");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
-const elVodPreviewFallback=document.getElementById("vodPreviewFallback");
-
 let SHOW_TIME=true;
 
 elTitle.textContent = meta.title || "—";
@@ -499,14 +454,11 @@ const previewUrl = meta.thumbnail_url || "";
 if(previewUrl){
   elVodPreviewImg.src = previewUrl;
   elVodPreviewImg.style.display = "block";
-  elVodPreviewFallback.style.display = "none";
   elVodPreviewImg.addEventListener("error", ()=>{
     elVodPreviewImg.style.display = "none";
-    elVodPreviewFallback.style.display = "flex";
   }, { once: true });
 }else{
   elVodPreviewImg.style.display = "none";
-  elVodPreviewFallback.style.display = "flex";
 }
 
 function fmtStreamStart(iso){
