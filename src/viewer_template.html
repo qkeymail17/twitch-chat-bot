@@ -41,6 +41,19 @@ header{
   border-radius:0;
 }
 .meta{display:flex;flex-direction:column;gap:4px;margin:0;min-width:0}
+.meta #title{
+  font-size:13px;
+  font-weight:700;
+  line-height:1.22;
+  color:var(--text);
+  display:-webkit-box;
+  -webkit-line-clamp:4;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  min-width:0;
+}
 
 .vod-card{
   margin-bottom:14px;
@@ -77,48 +90,35 @@ header{
   inset:0;
   background:linear-gradient(180deg, rgba(0,0,0,.06) 35%, rgba(0,0,0,.7) 100%);
 }
-.vod-card-title{font-size:14px;font-weight:700;line-height:1.25;color:var(--text);overflow-wrap:anywhere;word-break:break-word;}
 .pill{
   font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   color:var(--muted);
   font-size:12px;
 }
 .controls{
-  display:grid;
-  grid-template-columns:repeat(6,minmax(0,1fr));
+  display:flex;
+  flex-direction:column;
   gap:8px;
   margin-top:8px;
   width:100%;
   min-width:0;
-}
-.controls #q{
-  grid-column:1 / span 3;
-  grid-row:1;
-}
-
-.controls #u{
-  grid-column:4 / span 3;
-  grid-row:1;
-}
-
-.controls #vodBtn{
   grid-column:1 / span 2;
-  grid-row:2;
 }
-
-.controls #exportBtn{
-  grid-column:3 / span 2;
-  grid-row:2;
+.controls-buttons{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  width:100%;
+  min-width:0;
 }
-
-.controls #toggleTime{
-  grid-column:5 / span 2;
-  grid-row:2;
+.controls-inputs{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  width:100%;
+  min-width:0;
 }
-
 .controls-footer{
-  grid-column:1 / span 6;
-  grid-row:3;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -133,7 +133,7 @@ header{
 }
 
 .controls input{
-  flex:1 1 140px;
+  width:100%;
   min-width:0;
   height:32px;
   padding:4px 10px;
@@ -157,6 +157,8 @@ header{
   justify-content:center;
 }
 .controls button:hover{border-color:rgba(145,70,255,0.6)}
+.controls-hidden-btn,
+#vodBtn{display:none !important;}
 
 /* message list */
 #list{
@@ -295,7 +297,7 @@ header{
 
   header{
     display:grid;
-    grid-template-columns: 201px minmax(0,1fr);
+    grid-template-columns: 170px minmax(0,1fr);
     gap:10px;
     align-items:start;
   }
@@ -304,7 +306,6 @@ header{
     margin:0;
   }
 
-  /* убираем текст под превью (иначе раздувает блок) */
   .vod-card-copy{
     display:none;
   }
@@ -313,23 +314,32 @@ header{
     margin:0;
   }
 
-  /* кнопки вниз */
   .controls{
     grid-column:1 / span 2;
     margin-top:8px;
-    display:grid;
-    grid-template-columns:repeat(6,minmax(0,1fr));
-    gap:6px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
     min-width:0;
   }
 
-  .controls input{
+  .controls-buttons{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
     width:100%;
     min-width:0;
-    height:30px;
-    font-size:12px;
   }
 
+  .controls-inputs{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    width:100%;
+    min-width:0;
+  }
+
+  .controls input,
   .controls button{
     width:100%;
     min-width:0;
@@ -338,8 +348,6 @@ header{
   }
 
   .controls-footer{
-    grid-column:1 / span 6;
-    grid-row:3;
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -373,11 +381,17 @@ header{
       </div>
 
       <div class="controls">
-        <input id="q" placeholder="Поиск по сообщениям…"/>
-        <input id="u" placeholder="Фильтр по нику…"/>
-        <button id="toggleTime">⏱️ Время: Вкл</button>
-        <button id="exportBtn">📸 Снимок чата</button>
-        <button id="vodBtn">🔗 Ссылка VOD</button>
+        <div class="controls-buttons">
+          <button id="toggleTime">⏱️ Вкл</button>
+          <button id="exportBtn">📸</button>
+          <button id="toggleSnapshotDate">📅 Выкл</button>
+        </div>
+
+        <div class="controls-inputs">
+          <input id="q" placeholder="Поиск по сообщениям…"/>
+          <input id="u" placeholder="Фильтр по нику…"/>
+        </div>
+
         <div class="controls-footer">
           <span class="pill">
             <span id="channel">—</span>
@@ -385,6 +399,8 @@ header{
           </span>
           <span class="pill" id="stat">—</span>
         </div>
+
+        <button id="vodBtn" class="controls-hidden-btn" aria-hidden="true" tabindex="-1">🔗 Ссылка VOD</button>
       </div>
     </header>
 
@@ -425,11 +441,13 @@ const elStreamDateWrap=document.getElementById("streamDateWrap");
 const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
+const elToggleSnapshotDate=document.getElementById("toggleSnapshotDate");
 const elExportBtn=document.getElementById("exportBtn");
 const elVodBtn=document.getElementById("vodBtn");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
 let SHOW_TIME=true;
+let SHOW_SNAPSHOT_DATE=false;
 
 elTitle.textContent = meta.title || "—";
 elChannel.textContent = meta.channel || "—";
@@ -440,7 +458,9 @@ function openVod(){
   }
 }
 
-elVodBtn.addEventListener("click", openVod);
+if(elVodBtn){
+  elVodBtn.addEventListener("click", openVod);
+}
 elVodCard.addEventListener("click", openVod);
 elVodCard.addEventListener("keydown",(e)=>{
   if(e.key==="Enter" || e.key===" "){
@@ -459,6 +479,11 @@ if(previewUrl){
   }, { once: true });
 }else{
   elVodPreviewImg.style.display = "none";
+}
+
+elToggleTime.textContent = SHOW_TIME ? "⏱️ Вкл" : "⏱️ Выкл";
+if(elToggleSnapshotDate){
+  elToggleSnapshotDate.textContent = SHOW_SNAPSHOT_DATE ? "📅 Вкл" : "📅 Выкл";
 }
 
 function fmtStreamStart(iso){
@@ -653,9 +678,16 @@ elQ.addEventListener("input",()=>applyFilters());
 elU.addEventListener("input",()=>applyFilters());
 elToggleTime.addEventListener("click",()=>{
   SHOW_TIME = !SHOW_TIME;
-  elToggleTime.textContent = SHOW_TIME ? "⏱️ Время: Вкл" : "⏱️ Время: Выкл";
+  elToggleTime.textContent = SHOW_TIME ? "⏱️ Вкл" : "⏱️ Выкл";
   elList.innerHTML=""; rendered=0; renderMore();
 });
+
+if(elToggleSnapshotDate){
+  elToggleSnapshotDate.addEventListener("click",()=>{
+    SHOW_SNAPSHOT_DATE = !SHOW_SNAPSHOT_DATE;
+    elToggleSnapshotDate.textContent = SHOW_SNAPSHOT_DATE ? "📅 Вкл" : "📅 Выкл";
+  });
+}
 
 /* snapshot logic kept intact (uses html2canvas included below) */
 async function waitImages(root){
@@ -691,8 +723,12 @@ elExportBtn.addEventListener("click", async ()=>{
   const channelIcon=document.createElement("img"); channelIcon.src="https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.avif"; channelIcon.crossOrigin="anonymous";
   const channelName=document.createElement("span"); channelName.textContent = meta.channel || "channel";
   metaLeft.appendChild(channelIcon); metaLeft.appendChild(channelName);
-  const dateIcon=document.createElement("span"); dateIcon.textContent="📅"; const dateText=document.createElement("span"); dateText.textContent = elStreamDate.textContent || "";
-  metaRight.appendChild(dateIcon); metaRight.appendChild(dateText);
+  if(SHOW_SNAPSHOT_DATE){
+    const dateIcon=document.createElement("span"); dateIcon.textContent="📅";
+    const dateText=document.createElement("span"); dateText.textContent = elStreamDate.textContent || "";
+    metaRight.appendChild(dateIcon);
+    metaRight.appendChild(dateText);
+  }
   metaRow.appendChild(metaLeft); metaRow.appendChild(metaRight); wrap.appendChild(metaRow);
   document.body.appendChild(wrap);
   await new Promise(r=>setTimeout(r,50)); await waitImages(wrap);
