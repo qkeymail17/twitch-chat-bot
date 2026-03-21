@@ -38,9 +38,10 @@ header{
   position:sticky;
   top:0;
   z-index:50;
+  overflow-anchor:none;
   border-radius:0;
   display:grid;
-  grid-template-columns:160px minmax(0,1fr);
+  grid-template-columns:168px minmax(0,1fr);
   gap:10px;
   align-items:start;
 }
@@ -63,8 +64,8 @@ header{
   display:block;
   object-fit:cover;
 }
-.meta{display:flex;flex-direction:column;gap:4px;margin:0}
-.meta #title{font-size:11px;line-height:1.25;font-weight:700}
+.meta{display:flex;flex-direction:column;gap:4px;margin:0;min-width:0}
+.meta #title{font-size:11px;line-height:1.25;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;min-width:0}
 .pill{
   font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   color:var(--muted);
@@ -110,6 +111,8 @@ header{
   align-items:center;
   gap:8px;
   width:100%;
+  flex-wrap:nowrap;
+  min-width:0;
 }
 
 .controls input{
@@ -138,6 +141,7 @@ header{
 }
 .controls button:hover{border-color:rgba(145,70,255,0.6)}
 .pill#stat{align-self:flex-end}
+.controls-footer .pill{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 
 /* message list */
 #list{
