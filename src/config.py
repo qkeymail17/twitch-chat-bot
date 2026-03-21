@@ -15,7 +15,7 @@ VIDEO_COMMENTS_HASH = "b70a3591ff0f4e0313d126c6a1502d79a1c02baebb288227c582044aa
 DEFAULT_CLIENT_ID = "kd1unb4b3q4t58fwlpcbzcbnm76a8fp"
 
 # Strict URL format
-VOD_URL_RE = re.compile(r"^https://www\.twitch\.tv/(?:videos/|[^/]+/v/)(\d+)")
+VOD_URL_RE = re.compile(r"(?:https?://)?(?:www\.|m\.)?twitch\.tv/(?:videos/|[^/]+/v/)(\d+)")
 
 # Output
 OUT_DIR = "../_out"

@@ -8,11 +8,11 @@ def render_viewer_html(
     channel: str,
     vod_url: str,
     created_at: str | None = None,
-    thumbnail_url: str | None = None,
     mode: str = "online",
     channel_id: str | None = None,
     local_emotes: dict | None = None,
     cdn_emotes: dict | None = None,
+    thumbnail_url: str | None = None,
 ) -> str:
     BASE_DIR = Path(__file__).resolve().parent
     template_path = BASE_DIR / "viewer_template.html"
@@ -24,11 +24,11 @@ def render_viewer_html(
             "channel": channel,
             "vod_url": vod_url,
             "created_at": created_at,
-            "thumbnail_url": thumbnail_url,
             "mode": mode,
             "channel_id": channel_id,
             "local_emotes": local_emotes or {},
             "cdn_emotes": cdn_emotes or {},
+            "thumbnail_url": thumbnail_url,
         },
         "rows": chat_rows,
     }

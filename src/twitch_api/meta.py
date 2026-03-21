@@ -1,10 +1,8 @@
 import asyncio
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Any
 
 import aiohttp
-
-from src.config import TWITCH_CLIENT_ID, TWITCH_ACCESS_TOKEN
 
 @dataclass
 class VodMeta:
@@ -61,6 +59,7 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
         title
         lengthSeconds
         createdAt
+        thumbnailURL
         owner {
           id
           login
@@ -78,28 +77,11 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
             meta.title = video.get("title")
             meta.length_seconds = video.get("lengthSeconds")
             meta.created_at = video.get("createdAt")
+            meta.thumbnail_url = video.get("thumbnailURL")
             owner = video.get("owner") or {}
             meta.channel = owner.get("displayName") or owner.get("login")
             meta.channel_login = owner.get("login")
             meta.channel_id = owner.get("id")
-
-            try:
-                helix_url = f"https://api.twitch.tv/helix/videos?id={vod_id}"
-                helix_headers = {
-                    "Client-Id": TWITCH_CLIENT_ID,
-                    "Authorization": f"Bearer {TWITCH_ACCESS_TOKEN}",
-                }
-
-                async with session.get(helix_url, headers=helix_headers) as resp:
-                    data2 = await resp.json()
-                    videos = data2.get("data") or []
-                    if videos:
-                        thumb = videos[0].get("thumbnail_url")
-                        if thumb:
-                            meta.thumbnail_url = thumb.replace("%{width}", "640").replace("%{height}", "360")
-            except Exception:
-                pass
-
             return meta
         except Exception:
             await asyncio.sleep(0.2 * (attempt + 1))
