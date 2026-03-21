@@ -66,11 +66,11 @@ header{
   aspect-ratio:16/9;
   background:linear-gradient(135deg,#22222b,#15151b 55%, #0f0f12);
 }
-.vod-card-media img{
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:cover;
+.vod-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .vod-card-fallback{
   position:absolute;
@@ -402,10 +402,8 @@ header{
       <div class="vod-card" id="vodCard" tabindex="0" role="button" aria-label="Открыть VOD">
         <div class="vod-card-media">
           <img id="vodPreviewImg" alt="" loading="eager" decoding="async" />
-          <div class="vod-card-fallback" id="vodPreviewFallback">Превью VOD</div>
           <div class="vod-card-shade"></div>
           <div class="vod-card-badge"><span class="vod-card-badge-dot"></span><span>VOD</span></div>
-          <div class="vod-card-play">▶ Открыть VOD</div>
         </div>
         <div class="vod-card-copy">
           <div class="vod-card-title">Превью записи</div>
@@ -472,7 +470,6 @@ const elExportBtn=document.getElementById("exportBtn");
 const elVodBtn=document.getElementById("vodBtn");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
-const elVodPreviewFallback=document.getElementById("vodPreviewFallback");
 
 let SHOW_TIME=true;
 
@@ -499,14 +496,11 @@ const previewUrl = meta.thumbnail_url || "";
 if(previewUrl){
   elVodPreviewImg.src = previewUrl;
   elVodPreviewImg.style.display = "block";
-  elVodPreviewFallback.style.display = "none";
   elVodPreviewImg.addEventListener("error", ()=>{
     elVodPreviewImg.style.display = "none";
-    elVodPreviewFallback.style.display = "flex";
   }, { once: true });
 }else{
   elVodPreviewImg.style.display = "none";
-  elVodPreviewFallback.style.display = "flex";
 }
 
 function fmtStreamStart(iso){
