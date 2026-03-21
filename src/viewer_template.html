@@ -494,20 +494,39 @@ elVodCard.addEventListener("keydown",(e)=>{
   }
 });
 
-const previewUrl = meta.thumbnail_url || "";
+function resolveThumb(url, width=640, height=360){
+  if(!url) return "";
+  return String(url)
+    .replace(/%?\{width\}/g, String(width))
+    .replace(/%?\{height\}/g, String(height));
+}
 
-if(previewUrl){
-  elVodPreviewImg.src = previewUrl;
+const vodId = meta.vod_id;
+
+const preview = meta.thumbnail_url;
+
+if (preview) {
+  const url = preview
+    .replace("storyboards", "thumbs")
+    .replace("info.json", "0-640x360.jpg");
+
+  console.log("PREVIEW:", url);
+
+  elVodPreviewImg.src = url;
   elVodPreviewImg.style.display = "block";
   elVodPreviewFallback.style.display = "none";
-  elVodPreviewImg.addEventListener("error", ()=>{
+
+  elVodPreviewImg.onerror = () => {
+    console.log("FAILED:", url);
     elVodPreviewImg.style.display = "none";
     elVodPreviewFallback.style.display = "flex";
-  }, { once: true });
-}else{
+  };
+
+} else {
   elVodPreviewImg.style.display = "none";
   elVodPreviewFallback.style.display = "flex";
 }
+
 
 function fmtStreamStart(iso){
   if(!iso) return null;

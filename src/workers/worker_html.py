@@ -99,7 +99,7 @@ async def build_html_result(
         channel_id=meta.channel_id,
         local_emotes={},
         cdn_emotes=cdn_emotes,
-        thumbnail_url=getattr(meta, "thumbnail_url", None),
+        thumbnail_url=meta.thumbnail_url,
     )
 
     public_html_url = publish_html(html_text)
