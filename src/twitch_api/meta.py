@@ -96,7 +96,7 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
                     if videos:
                         thumb = videos[0].get("thumbnail_url")
                         if thumb:
-                            meta.thumbnail_url = thumb.replace("%{width}", "1280").replace("%{height}", "720")
+                            meta.thumbnail_url = thumb.replace("%{width}", "640").replace("%{height}", "360")
             except Exception:
                 pass
 
