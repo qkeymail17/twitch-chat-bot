@@ -136,7 +136,7 @@ header{
   gap:3px;
 }
 .vod-card-title{
-  font-size:15px;
+  font-size:13px;
   font-weight:700;
   line-height:1.25;
   color:var(--text);
@@ -410,21 +410,19 @@ header{
         </div>
       </div>
 
-      <div class="meta">
-        <div><b id="title">—</b></div>
-        <div class="pill">
-          <span id="channel">—</span>
-          <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
-        </div>
-      </div>
-
       <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
         <button id="toggleTime">⏱️ Время: Вкл</button>
         <button id="exportBtn">📸 Снимок чата</button>
         <button id="vodBtn">🔗 Ссылка VOD</button>
-        <span class="pill" id="stat">—</span>
+        <div style="display:flex; justify-content:space-between; width:100%;">
+          <span class="pill">
+            <span id="channel">—</span>
+            <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
+          </span>
+          <span class="pill" id="stat">—</span>
+        </div>
       </div>
     </header>
 
