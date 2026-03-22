@@ -208,10 +208,13 @@ header{
   justify-content:center;
 }
 .button-toggle.active{
-  background:rgba(145,70,255,0.16);
-  border-color:rgba(145,70,255,0.75);
+  background:rgba(255,255,255,0.06);   /* светлый серый, а не фиолетовый */
+  border-color:rgba(255,255,255,0.12); /* мягкая рамка */
 }
-.controls button:hover{border-color:rgba(145,70,255,0.6)}
+.controls button:hover{
+  border-color:rgba(145,70,255,0.7);
+  background:rgba(255,255,255,0.04);
+}
 
 .toggle-button{
   transition:background .15s ease, border-color .15s ease, transform .15s ease;
