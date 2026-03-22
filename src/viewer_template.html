@@ -716,25 +716,35 @@ function normalizeReplyObject(reply){
 }
 
 function parseLegacyReplyText(rawText){
-  const raw = String(rawText || "");
+  const raw = String(rawText || "").replace(/\r/g, "").trim();
   if(!raw) return {reply:null, body:raw};
 
-  const lines = raw.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-  if(lines.length >= 2){
-    const first = lines[0];
-    const body = lines.slice(1).join(" ").trim();
+  const lines = raw.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  const first = lines[0] || raw;
+  const bodyFromLines = lines.length >= 2 ? lines.slice(1).join(" ").trim() : "";
 
-    const m = first.match(/^(?:replying to|replied to|in reply to|в ответ(?: на)?|ответ(?: на| пользователю)?|отвечая на)\s+@?([^:]+):\s*(.+)$/i);
-    if(m){
-      return {
-        reply: {
-          user: m[1].trim(),
-          text: m[2].trim(),
-          color: null,
-          id: null,
-        },
-        body: body || raw,
-      };
+  const patterns = [
+    /^(?:replying to|replied to|in reply to|в ответ(?: на)?|ответ(?: на| пользователю)?|отвечая на)\s+@?([^:]+):\s*(.+)$/i,
+    /^@([^\s:]{1,25})(?:\s*:\s*|\s+)(.+)$/i,
+  ];
+
+  for(const candidate of [first, raw]){
+    for(const pattern of patterns){
+      const m = candidate.match(pattern);
+      if(m){
+        const user = String(m[1] || "").trim();
+        const text = String(m[2] || "").trim();
+        if(!user || !text) continue;
+        return {
+          reply: {
+            user,
+            text,
+            color: null,
+            id: null,
+          },
+          body: bodyFromLines || text,
+        };
+      }
     }
   }
 
