@@ -673,7 +673,7 @@ async function applyFilters(){
   const q=(elQ.value||"").trim().toLowerCase();
   const u=(elU.value||"").trim().toLowerCase();
   filtered = rows.filter(r=>matches(r,q,u));
-  elStat.textContent = `Показано: ${filtered.length} / ${rows.length}`;
+  elStat.textContent = `${filtered.length} / ${rows.length}`;
   elList.innerHTML=""; rendered=0; renderMore();
 }
 
