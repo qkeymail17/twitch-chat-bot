@@ -65,6 +65,138 @@ def extract_user_badges(node: dict) -> list[dict]:
     return out
 
 
+def extract_reply_meta(node: dict) -> Optional[dict]:
+    msg = node.get("message") or {}
+    candidate_keys = (
+        "reply",
+        "parent",
+        "parentMessage",
+        "parentComment",
+        "replyParent",
+        "reply_parent",
+        "replyTo",
+        "reply_to",
+        "repliedTo",
+        "replied_to",
+        "sourceMessage",
+        "originalMessage",
+        "original_message",
+    )
+
+    def _normalize_comment_like(comment: dict) -> Optional[dict]:
+        if not isinstance(comment, dict):
+            return None
+
+        commenter = comment.get("commenter") or comment.get("author") or comment.get("user") or {}
+        if not isinstance(commenter, dict):
+            commenter = {}
+
+        display = (
+            comment.get("displayName")
+            or comment.get("display_name")
+            or comment.get("login")
+            or commenter.get("displayName")
+            or commenter.get("display_name")
+            or commenter.get("login")
+            or ""
+        )
+        login = (
+            commenter.get("login")
+            or comment.get("login")
+            or comment.get("userLogin")
+            or comment.get("user_login")
+            or ""
+        )
+        text = render_message(comment).strip() or str(comment.get("body") or comment.get("text") or "").strip()
+        color = extract_user_color(comment)
+        badges = extract_user_badges(comment)
+
+        if not display and not login and not text:
+            return None
+
+        return {
+            "user": str(display or login or "unknown"),
+            "login": str(login or ""),
+            "text": text,
+            "color": color,
+            "badges": badges,
+            "id": comment.get("id") or comment.get("messageID") or comment.get("commentID"),
+        }
+
+    # First try direct nested reply/comment objects.
+    for source in (msg, node):
+        if not isinstance(source, dict):
+            continue
+
+        for key in candidate_keys:
+            candidate = source.get(key)
+            if isinstance(candidate, dict):
+                reply = _normalize_comment_like(candidate)
+                if reply and (reply.get("user") or reply.get("text")):
+                    return reply
+
+    # Then try scalar fields commonly used by Twitch payloads.
+    display = (
+        msg.get("replyParentDisplayName")
+        or msg.get("replyParentUserDisplayName")
+        or msg.get("replyParentLogin")
+        or msg.get("replyParentUserLogin")
+        or node.get("replyParentDisplayName")
+        or node.get("replyParentUserDisplayName")
+        or node.get("replyParentLogin")
+        or node.get("replyParentUserLogin")
+        or ""
+    )
+    login = (
+        msg.get("replyParentLogin")
+        or msg.get("replyParentUserLogin")
+        or node.get("replyParentLogin")
+        or node.get("replyParentUserLogin")
+        or ""
+    )
+    text = (
+        msg.get("replyParentMessageBody")
+        or msg.get("replyParentMessageText")
+        or msg.get("replyParentBody")
+        or msg.get("replyParentText")
+        or node.get("replyParentMessageBody")
+        or node.get("replyParentMessageText")
+        or node.get("replyParentBody")
+        or node.get("replyParentText")
+        or ""
+    )
+    color = (
+        msg.get("replyParentUserColor")
+        or msg.get("replyParentUserColorHex")
+        or node.get("replyParentUserColor")
+        or node.get("replyParentUserColorHex")
+        or None
+    )
+    reply_id = (
+        msg.get("replyParentMessageID")
+        or msg.get("replyParentMessageId")
+        or node.get("replyParentMessageID")
+        or node.get("replyParentMessageId")
+        or None
+    )
+
+    if display or login or text or color or reply_id:
+        reply = {
+            "user": str(display or login or "unknown"),
+            "login": str(login or ""),
+            "text": str(text or "").strip(),
+            "color": str(color).strip() if color else None,
+            "badges": [],
+            "id": reply_id,
+        }
+        if reply["user"] == "unknown" and not reply["text"]:
+            return None
+        return reply
+
+    return None
+
+
+
 def extract_message_fragments(node: dict) -> list[dict]:
     msg = node.get("message") or {}
     fragments = msg.get("fragments") or []
