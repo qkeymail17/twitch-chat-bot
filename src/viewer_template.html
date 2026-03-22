@@ -43,10 +43,54 @@ header{
 .meta{
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:6px;
   margin:0;
   min-width:0;
   height:100%;
+}
+
+.vod-heading{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  min-width:0;
+  width:100%;
+}
+
+.vod-channel{
+  flex:0 1 auto;
+  max-width:min(45%, 240px);
+  font-size:16px;
+  font-weight:700;
+  line-height:1.2;
+  color:var(--text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.vod-separator{
+  flex:0 0 auto;
+  color:var(--muted);
+  line-height:1.25;
+  transform:translateY(0.05em);
+}
+
+.vod-title{
+  flex:1 1 auto;
+  min-width:0;
+  font-size:15px;
+  font-weight:400;
+  line-height:1.22;
+  color:var(--text);
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  word-break:break-word;
+}
+.vod-title.is-truncated{
+  overflow:hidden;
 }
 
 .vod-card{
@@ -142,9 +186,9 @@ header{
 .controls input{
   flex:1 1 140px;
   min-width:0;
-  height:32px;
-  padding:4px 10px;
-  border-radius:8px;
+  height:36px;
+  padding:6px 12px;
+  border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
@@ -152,8 +196,8 @@ header{
 }
 .controls button{
   width:100%;
-  height:32px;
-  padding:0 10px;
+  height:36px;
+  padding:0 12px;
   border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
@@ -165,6 +209,18 @@ header{
 }
 .controls button:hover{border-color:rgba(145,70,255,0.6)}
 
+.toggle-button{
+  transition:background .15s ease, border-color .15s ease, transform .15s ease;
+}
+.toggle-button.is-active{
+  background:rgba(145,70,255,0.16);
+  border-color:rgba(145,70,255,0.75);
+}
+.toggle-button.is-inactive{
+  background:var(--panel);
+  border-color:var(--border);
+}
+
 .meta-buttons{
   display:flex;
   gap:6px;
@@ -173,9 +229,9 @@ header{
 
 .meta-buttons button{
   flex:1;
-  height:28px;
-  font-size:12px;
-  border-radius:8px;
+  height:36px;
+  font-size:13px;
+  border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
@@ -220,28 +276,30 @@ header{
   width:100%;
 }
 
-.snapshot-date-btn{
-  height:32px;
-  padding:0 12px;
+.snapshot-toggle{
+  height:36px;
+  padding:0 14px;
   border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
   cursor:pointer;
-  transition:opacity .15s ease, border-color .15s ease, background .15s ease;
+  transition:background .15s ease, border-color .15s ease, transform .15s ease;
 }
 
-.snapshot-date-btn:hover{
+.snapshot-toggle:hover{
   border-color:rgba(145,70,255,0.6);
   background:rgba(255,255,255,0.03);
 }
 
-.snapshot-date-btn.is-active{
-  opacity:1;
+.snapshot-toggle.is-active{
+  background:rgba(145,70,255,0.16);
+  border-color:rgba(145,70,255,0.75);
 }
 
-.snapshot-date-btn.is-inactive{
-  opacity:.45;
+.snapshot-toggle.is-inactive{
+  background:var(--panel);
+  border-color:var(--border);
 }
 
 /* message list */
@@ -307,6 +365,9 @@ header{
 
 /* export helper (unchanged) */
 .export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
+.export-wrap.snapshot-hide-time .time{
+  display:none !important;
+}
 .export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
 .export-meta-left{
   display:flex;
@@ -346,14 +407,14 @@ header{
 
 .controls input{
   flex:0 0 auto;
-  height:32px !important;
-  padding:4px 10px !important;
+  height:36px !important;
+  padding:6px 12px !important;
   line-height:1.2;
 }
 
 .controls button{
   flex:0 0 auto;
-  height:32px;
+  height:36px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -361,14 +422,14 @@ header{
 }
 .controls button{
   width:100%;
-  height:32px;
+  height:36px;
   font-size:13px;
 }
 
 .controls input{
   width:100%;
-  height:32px;
-  padding:4px 10px;
+  height:36px;
+  padding:6px 12px;
   font-size:13px;
 }
 
@@ -428,14 +489,15 @@ header{
   .controls input{
     width:100%;
     min-width:0;
-    height:30px;
+    height:36px;
     font-size:12px;
+    padding:6px 12px;
   }
 
   .controls button{
     width:100%;
     min-width:0;
-    height:30px;
+    height:36px;
     font-size:12px;
   }
 
@@ -471,11 +533,15 @@ header{
       </div>
 
       <div class="meta">
-        <div><b id="title">—</b></div>
+        <div class="vod-heading">
+          <span id="channel" class="vod-channel">—</span>
+          <span class="vod-separator" aria-hidden="true">•</span>
+          <span id="title" class="vod-title">—</span>
+        </div>
 
         <div class="meta-buttons">
           <button id="exportBtn">📸 Снимок</button>
-          <button id="toggleTime">⏱️ Время</button>
+          <button id="toggleTime" class="toggle-button is-active" aria-pressed="true">⏱️ Время</button>
         </div>
       </div>
 
@@ -484,8 +550,7 @@ header{
         <input id="u" placeholder="Фильтр по нику…"/>
         <div class="controls-footer">
           <span class="pill">
-            <span id="channel">—</span>
-            <span id="streamDateWrap" style="display:none"> • <span id="streamDate">—</span></span>
+            <span id="streamDateWrap" style="display:none"><span id="streamDate">—</span></span>
           </span>
           <span class="pill" id="stat">—</span>
         </div>
@@ -533,10 +598,43 @@ const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
+const elVodHeading=document.querySelector(".vod-heading");
 let SHOW_TIME=true;
 
 elTitle.textContent = meta.title || "—";
 elChannel.textContent = meta.channel || "—";
+
+function updateMainTimeButton(){
+  elToggleTime.classList.toggle("is-active", SHOW_TIME);
+  elToggleTime.classList.toggle("is-inactive", !SHOW_TIME);
+  elToggleTime.setAttribute("aria-pressed", SHOW_TIME ? "true" : "false");
+}
+
+function fitVodTitle(){
+  if(!elTitle) return;
+  const maxLines = 3;
+  const minFont = 12;
+  const maxFont = 15;
+
+  elTitle.style.fontSize = `${maxFont}px`;
+  elTitle.classList.remove("is-truncated");
+
+  const cs = getComputedStyle(elTitle);
+  const lineHeight = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.22) || 18;
+  const maxHeight = lineHeight * maxLines + 1;
+
+  let size = maxFont;
+  while(size > minFont && elTitle.scrollHeight > maxHeight){
+    size -= 0.5;
+    elTitle.style.fontSize = `${size}px`;
+  }
+
+  if(elTitle.scrollHeight > maxHeight){
+    elTitle.classList.add("is-truncated");
+  }
+}
+
+updateMainTimeButton();
 
 function openVod(){
   if(meta.vod_url){
@@ -562,6 +660,13 @@ if(previewUrl){
   }, { once: true });
 }else{
   elVodPreviewImg.style.display = "none";
+}
+
+requestAnimationFrame(fitVodTitle);
+window.addEventListener("resize", ()=>requestAnimationFrame(fitVodTitle));
+if(elVodHeading && "ResizeObserver" in window){
+  const ro = new ResizeObserver(()=>requestAnimationFrame(fitVodTitle));
+  ro.observe(elVodHeading);
 }
 
 function fmtStreamStart(iso){
@@ -812,20 +917,25 @@ elQ.addEventListener("input",()=>applyFilters());
 elU.addEventListener("input",()=>applyFilters());
 elToggleTime.addEventListener("click",()=>{
   SHOW_TIME = !SHOW_TIME;
-  elToggleTime.textContent = SHOW_TIME ? "⏱️ Время: Вкл" : "⏱️ Время: Выкл";
+  updateMainTimeButton();
   elList.innerHTML=""; rendered=0; renderMore();
 });
 
 /* snapshot logic kept intact (uses html2canvas included below) */
+let SNAPSHOT_TIME_ENABLED = SHOW_TIME;
 let SNAPSHOT_DATE_ENABLED = false;
 let SNAPSHOT_RENDER_TOKEN = 0;
 let SNAPSHOT_OVERLAY = null;
 let SNAPSHOT_PREVIEW_IMG = null;
+let SNAPSHOT_TIME_BTN = null;
 let SNAPSHOT_DATE_BTN = null;
 
-function buildSnapshotWrap(rowsToClone, includeDate){
+function buildSnapshotWrap(rowsToClone, includeTime, includeDate){
   const wrap = document.createElement("div");
   wrap.className = "export-wrap";
+  if(!includeTime){
+    wrap.classList.add("snapshot-hide-time");
+  }
 
   for(const row of rowsToClone){
     wrap.appendChild(row.cloneNode(true));
@@ -856,8 +966,8 @@ async function waitImages(root){
   await Promise.all(imgs.map(img=> img.complete ? Promise.resolve() : new Promise(res=>{ img.onload=img.onerror=res; })));
 }
 
-async function createSnapshotDataUrl(rowsToClone, includeDate){
-  const wrap = buildSnapshotWrap(rowsToClone, includeDate);
+async function createSnapshotDataUrl(rowsToClone, includeTime, includeDate){
+  const wrap = buildSnapshotWrap(rowsToClone, includeTime, includeDate);
   document.body.appendChild(wrap);
   await new Promise(r=>setTimeout(r,50));
   await waitImages(wrap);
@@ -874,12 +984,18 @@ async function createSnapshotDataUrl(rowsToClone, includeDate){
   return canvas.toDataURL("image/png");
 }
 
+function updateSnapshotTimeButton(){
+  if(!SNAPSHOT_TIME_BTN) return;
+  SNAPSHOT_TIME_BTN.classList.toggle("is-active", SNAPSHOT_TIME_ENABLED);
+  SNAPSHOT_TIME_BTN.classList.toggle("is-inactive", !SNAPSHOT_TIME_ENABLED);
+  SNAPSHOT_TIME_BTN.setAttribute("aria-pressed", SNAPSHOT_TIME_ENABLED ? "true" : "false");
+}
+
 function updateSnapshotDateButton(){
   if(!SNAPSHOT_DATE_BTN) return;
   SNAPSHOT_DATE_BTN.classList.toggle("is-active", SNAPSHOT_DATE_ENABLED);
   SNAPSHOT_DATE_BTN.classList.toggle("is-inactive", !SNAPSHOT_DATE_ENABLED);
   SNAPSHOT_DATE_BTN.setAttribute("aria-pressed", SNAPSHOT_DATE_ENABLED ? "true" : "false");
-  SNAPSHOT_DATE_BTN.style.opacity = SNAPSHOT_DATE_ENABLED ? "1" : ".45";
 }
 
 async function rerenderSnapshotPreview(rowsToClone){
@@ -889,7 +1005,7 @@ async function rerenderSnapshotPreview(rowsToClone){
   }
 
   try{
-    const url = await createSnapshotDataUrl(rowsToClone, SNAPSHOT_DATE_ENABLED);
+    const url = await createSnapshotDataUrl(rowsToClone, SNAPSHOT_TIME_ENABLED, SNAPSHOT_DATE_ENABLED);
     if(token !== SNAPSHOT_RENDER_TOKEN) return;
     if(SNAPSHOT_PREVIEW_IMG){
       SNAPSHOT_PREVIEW_IMG.src = url;
@@ -912,8 +1028,12 @@ function openSnapshotOverlay(rowsToClone){
     SNAPSHOT_OVERLAY.remove();
     SNAPSHOT_OVERLAY = null;
     SNAPSHOT_PREVIEW_IMG = null;
+    SNAPSHOT_TIME_BTN = null;
     SNAPSHOT_DATE_BTN = null;
   }
+
+  SNAPSHOT_TIME_ENABLED = SHOW_TIME;
+  SNAPSHOT_DATE_ENABLED = false;
 
   const overlay = document.createElement("div");
   overlay.className = "snapshot-overlay";
@@ -928,10 +1048,21 @@ function openSnapshotOverlay(rowsToClone){
   const actions = document.createElement("div");
   actions.className = "snapshot-actions";
 
+  const timeBtn = document.createElement("button");
+  timeBtn.type = "button";
+  timeBtn.className = "snapshot-toggle";
+  timeBtn.textContent = "⏱️ Время";
+  timeBtn.addEventListener("click", async (e)=>{
+    e.stopPropagation();
+    SNAPSHOT_TIME_ENABLED = !SNAPSHOT_TIME_ENABLED;
+    updateSnapshotTimeButton();
+    await rerenderSnapshotPreview(rowsToClone);
+  });
+
   const dateBtn = document.createElement("button");
   dateBtn.type = "button";
-  dateBtn.className = "snapshot-date-btn";
-  dateBtn.textContent = "🗓 Дата";
+  dateBtn.className = "snapshot-toggle";
+  dateBtn.textContent = "📅 Дата";
   dateBtn.addEventListener("click", async (e)=>{
     e.stopPropagation();
     SNAPSHOT_DATE_ENABLED = !SNAPSHOT_DATE_ENABLED;
@@ -941,9 +1072,12 @@ function openSnapshotOverlay(rowsToClone){
 
   SNAPSHOT_OVERLAY = overlay;
   SNAPSHOT_PREVIEW_IMG = img;
+  SNAPSHOT_TIME_BTN = timeBtn;
   SNAPSHOT_DATE_BTN = dateBtn;
+  updateSnapshotTimeButton();
   updateSnapshotDateButton();
 
+  actions.appendChild(timeBtn);
   actions.appendChild(dateBtn);
   panel.appendChild(img);
   panel.appendChild(actions);
@@ -953,6 +1087,7 @@ function openSnapshotOverlay(rowsToClone){
     overlay.remove();
     SNAPSHOT_OVERLAY = null;
     SNAPSHOT_PREVIEW_IMG = null;
+    SNAPSHOT_TIME_BTN = null;
     SNAPSHOT_DATE_BTN = null;
     document.body.style.overflow = "";
   });
