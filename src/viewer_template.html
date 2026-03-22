@@ -43,7 +43,7 @@ header{
 .meta{
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:6px;
   margin:0;
   min-width:0;
   height:100%;
@@ -52,17 +52,17 @@ header{
 .vod-heading{
   display:flex;
   align-items:flex-start;
-  gap:6px;
+  gap:8px;
   min-width:0;
   width:100%;
 }
 
 .vod-channel{
   flex:0 1 auto;
-  max-width:min(40%, 200px);
-  font-size:15px;
+  max-width:min(45%, 240px);
+  font-size:16px;
   font-weight:700;
-  line-height:1.15;
+  line-height:1.2;
   color:var(--text);
   white-space:nowrap;
   overflow:hidden;
@@ -79,9 +79,9 @@ header{
 .vod-title{
   flex:1 1 auto;
   min-width:0;
-  font-size:14px;
+  font-size:15px;
   font-weight:400;
-  line-height:1.18;
+  line-height:1.22;
   color:var(--text);
   display:-webkit-box;
   -webkit-line-clamp:3;
@@ -94,7 +94,7 @@ header{
 }
 
 .vod-card{
-  margin-bottom:10px;
+  margin-bottom:14px;
   border:1px solid var(--border);
   border-radius:18px;
   overflow:hidden;
@@ -138,7 +138,7 @@ header{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
   gap:8px;
-  margin-top:6px;
+  margin-top:8px;
   width:100%;
   min-width:0;
 }
@@ -207,21 +207,14 @@ header{
   align-items:center;
   justify-content:center;
 }
-.button-toggle.active{
-  background:rgba(145,70,255,0.18);
-  border-color:rgba(145,70,255,0.6);
-}
-.controls button:hover{
-  border-color:var(--border);
-  background:var(--panel);
-}
+.controls button:hover{border-color:rgba(145,70,255,0.6)}
 
 .toggle-button{
   transition:background .15s ease, border-color .15s ease, transform .15s ease;
 }
 .toggle-button.is-active{
-  background:rgba(145,70,255,0.18);
-  border-color:rgba(145,70,255,0.6);
+  background:rgba(145,70,255,0.16);
+  border-color:rgba(145,70,255,0.75);
 }
 .toggle-button.is-inactive{
   background:var(--panel);
@@ -245,8 +238,8 @@ header{
 }
 
 .meta-buttons button:hover{
-  border-color:var(--border);
-  background:var(--panel);
+  border-color:rgba(145,70,255,0.6);
+  background:rgba(255,255,255,0.03);
 }
 
 .snapshot-overlay{
@@ -295,13 +288,13 @@ header{
 }
 
 .snapshot-toggle:hover{
-  border-color:var(--border);
-  background:var(--panel);
+  border-color:rgba(145,70,255,0.6);
+  background:rgba(255,255,255,0.03);
 }
 
 .snapshot-toggle.is-active{
-  background:rgba(145,70,255,0.18);
-  border-color:rgba(145,70,255,0.6);
+  background:rgba(145,70,255,0.16);
+  border-color:rgba(145,70,255,0.75);
 }
 
 .snapshot-toggle.is-inactive{
@@ -315,8 +308,8 @@ header{
   max-width:390px;
   margin-left:auto;
   margin-right:auto;
-  min-height:auto;
   background:#1f1f23;
+  min-height:100vh;
   padding-bottom:40px;
   margin-top:0;
   border-radius:0;
@@ -325,8 +318,8 @@ header{
 
 /* row */
 .row{
-  padding:2px 12px;
-  line-height:1.15;
+  padding:6px 12px;
+  line-height:1.4;
   overflow-wrap:anywhere;
 }
 .time{
@@ -547,7 +540,7 @@ header{
         </div>
 
         <div class="meta-buttons">
-          <button id="exportBtn" class="button-toggle active">📸 Снимок</button>
+          <button id="exportBtn">📸 Снимок</button>
           <button id="toggleTime" class="toggle-button is-active" aria-pressed="true">⏱️ Время</button>
         </div>
       </div>
@@ -620,8 +613,8 @@ function updateMainTimeButton(){
 function fitVodTitle(){
   if(!elTitle) return;
   const maxLines = 3;
-  const minFont = 11;
-  const maxFont = 14;
+  const minFont = 12;
+  const maxFont = 15;
 
   elTitle.style.fontSize = `${maxFont}px`;
   elTitle.classList.remove("is-truncated");
@@ -1058,7 +1051,7 @@ function openSnapshotOverlay(rowsToClone){
   const timeBtn = document.createElement("button");
   timeBtn.type = "button";
   timeBtn.className = "snapshot-toggle";
-  timeBtn.textContent = "⏱️ Время";
+  timeBtn.textContent = "⏱ Время";
   timeBtn.addEventListener("click", async (e)=>{
     e.stopPropagation();
     SNAPSHOT_TIME_ENABLED = !SNAPSHOT_TIME_ENABLED;
@@ -1069,7 +1062,7 @@ function openSnapshotOverlay(rowsToClone){
   const dateBtn = document.createElement("button");
   dateBtn.type = "button";
   dateBtn.className = "snapshot-toggle";
-  dateBtn.textContent = "📅 Дата";
+  dateBtn.textContent = "🗓 Дата";
   dateBtn.addEventListener("click", async (e)=>{
     e.stopPropagation();
     SNAPSHOT_DATE_ENABLED = !SNAPSHOT_DATE_ENABLED;
