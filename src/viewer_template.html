@@ -522,7 +522,7 @@ function colorForUser(name){
 function badgeKey(setId, version){
   const sid = String(setId || "").trim().toLowerCase();
   const ver = String(version || "").trim();
-  return sid && ver ? `${sid}:${ver}` : "";
+  return sid && ver ? `${sid}/${ver}` : "";
 }
 
 function renderBadges(el, badges){

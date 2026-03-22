@@ -9,3 +9,7 @@ from .emotes import (
     fetch_twitch_global_emote_map,
     fetch_twitch_channel_emote_maps,
 )
+from .badges import (
+    fetch_twitch_global_badge_map,
+    fetch_twitch_channel_badge_map,
+)
