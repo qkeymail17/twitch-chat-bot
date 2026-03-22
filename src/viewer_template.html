@@ -207,15 +207,25 @@ header{
   align-items:center;
   justify-content:center;
 }
-.controls button:hover{border-color:rgba(145,70,255,0.6)}
+
+.button-toggle.active{
+  background:rgba(145,70,255,0.18);
+  border-color:rgba(145,70,255,0.6);
+}
+
+.controls button:hover{
+  border-color:var(--border);
+  background:var(--panel);
+}
 
 .toggle-button{
   transition:background .15s ease, border-color .15s ease, transform .15s ease;
 }
 .toggle-button.is-active{
-  background:rgba(145,70,255,0.16);
-  border-color:rgba(145,70,255,0.75);
+  background:rgba(145,70,255,0.18);
+  border-color:rgba(145,70,255,0.6);
 }
+
 .toggle-button.is-inactive{
   background:var(--panel);
   border-color:var(--border);
@@ -238,8 +248,8 @@ header{
 }
 
 .meta-buttons button:hover{
-  border-color:rgba(145,70,255,0.6);
-  background:rgba(255,255,255,0.03);
+  border-color:var(--border);
+  background:var(--panel);
 }
 
 .snapshot-overlay{
@@ -288,13 +298,13 @@ header{
 }
 
 .snapshot-toggle:hover{
-  border-color:rgba(145,70,255,0.6);
-  background:rgba(255,255,255,0.03);
+  border-color:var(--border);
+  background:var(--panel);
 }
 
 .snapshot-toggle.is-active{
-  background:rgba(145,70,255,0.16);
-  border-color:rgba(145,70,255,0.75);
+  background:rgba(145,70,255,0.18);
+  border-color:rgba(145,70,255,0.6);
 }
 
 .snapshot-toggle.is-inactive{
@@ -540,7 +550,7 @@ header{
         </div>
 
         <div class="meta-buttons">
-          <button id="exportBtn">📸 Снимок</button>
+          <button id="exportBtn" class="button-toggle active">📸 Снимок</button>
           <button id="toggleTime" class="toggle-button is-active" aria-pressed="true">⏱️ Время</button>
         </div>
       </div>
