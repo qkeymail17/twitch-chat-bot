@@ -10,6 +10,8 @@ from src.twitch_api import (
     fetch_ffz_emote_map,
     fetch_twitch_global_emote_map,
     fetch_twitch_channel_emote_maps,
+    fetch_twitch_global_badge_map,
+    fetch_twitch_channel_badge_map,
 )
 
 
@@ -62,8 +64,10 @@ async def build_html_result(
         cdn_emotes.update(name_map)
         cdn_emotes.update(id_map)
 
-    # Twitch badges (временно отключено)
-    badge_images = {}
+    # Twitch badges
+    badge_images.update(await fetch_twitch_global_badge_map(session))
+    if meta.channel_id:
+        badge_images.update(await fetch_twitch_channel_badge_map(session, str(meta.channel_id)))
 
     targets = set()
     targets_by_id = set()
