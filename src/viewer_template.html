@@ -534,17 +534,20 @@ function renderBadges(el, badges){
 
   for(const badge of badges){
     if(!badge || typeof badge !== "object") continue;
-    const key = badgeKey(badge.set_id || badge.setID || badge.setId || badge.setid, badge.version || badge.id);
-    if(!key) continue;
+
+    const setId = badge.set_id || badge.setID;
+    const version = badge.version;
+
+    const key = `${String(setId).toLowerCase()}/${String(version)}`;
     const src = BADGE_IMAGES[key];
+
     if(!src) continue;
 
     const img = document.createElement("img");
     img.className = "badge";
     img.src = src;
     img.alt = key;
-    img.title = key;
-    img.crossOrigin = "anonymous";
+
     wrap.appendChild(img);
     rendered = true;
   }
