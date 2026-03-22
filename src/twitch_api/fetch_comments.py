@@ -55,6 +55,8 @@ async def gql_fetch_comments(
             color = extract_user_color(node)
             badges = extract_user_badges(node)
             reply = extract_reply_meta(node)
+
+            print("REPLY RAW:", node.get("message", {}).get("reply"))
             if text:
                 yield (offset, created_at, display, text, fragments, color, badges, reply)
 
