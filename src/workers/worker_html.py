@@ -10,6 +10,8 @@ from src.twitch_api import (
     fetch_ffz_emote_map,
     fetch_twitch_global_emote_map,
     fetch_twitch_channel_emote_maps,
+    fetch_twitch_global_badge_map,
+    fetch_twitch_channel_badge_map,
 )
 
 
@@ -31,6 +33,7 @@ async def build_html_result(
     cdn_emotes: Dict[str, str] = {}
     combined_map: Dict[str, str] = {}
     twitch_emote_id_map: Dict[str, str] = {}
+    badge_images: Dict[str, str] = {}
 
     # 7TV
     if meta.channel_id:
@@ -60,6 +63,11 @@ async def build_html_result(
         # a token boundary or the row has no fragment metadata.
         cdn_emotes.update(name_map)
         cdn_emotes.update(id_map)
+
+    # Twitch badges
+    badge_images.update(await fetch_twitch_global_badge_map(session))
+    if meta.channel_id:
+        badge_images.update(await fetch_twitch_channel_badge_map(session, meta.channel_id))
 
     targets = set()
     targets_by_id = set()
@@ -100,6 +108,7 @@ async def build_html_result(
         channel_id=meta.channel_id,
         local_emotes={},
         cdn_emotes=cdn_emotes,
+        badge_images=badge_images,
     )
 
     public_html_url = publish_html(html_text)

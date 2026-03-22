@@ -201,6 +201,22 @@ header{
   word-break:break-word;
   min-width:0;
 }
+.badges{
+  display:inline-flex;
+  align-items:center;
+  gap:2px;
+  margin-right:4px;
+  vertical-align:middle;
+  flex:0 0 auto;
+}
+.badge{
+  width:18px;
+  height:18px;
+  display:inline-block;
+  vertical-align:middle;
+  object-fit:contain;
+  image-rendering:auto;
+}
 .emote{vertical-align:middle;margin:0 2px}
 
 /* export helper (unchanged) */
@@ -412,6 +428,7 @@ for(const r of rows){
 const MODE = meta.mode || "online";
 const LOCAL_EMOTES = meta.local_emotes || {};
 const CDN_EMOTES = meta.cdn_emotes || {};
+const BADGE_IMAGES = meta.badge_images || {};
 const TWITCH_CHANNEL_ID = meta.channel_id || null;
 
 const elTitle=document.getElementById("title");
@@ -477,21 +494,68 @@ function fmtStreamStart(iso){
 const streamStart = fmtStreamStart(meta.created_at);
 if(streamStart){ elStreamDate.textContent = streamStart; elStreamDateWrap.style.display = ""; }
 
-function hash32(str){
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
+const DEFAULT_COLORS = [
+  "#FF0000",
+  "#0000FF",
+  "#00FF00",
+  "#B22222",
+  "#FF7F50",
+  "#9ACD32",
+  "#FF4500",
+  "#2E8B57",
+  "#DAA520",
+  "#D2691E",
+  "#5F9EA0",
+  "#1E90FF",
+  "#FF69B4",
+  "#8A2BE2",
+  "#00FF7F",
+];
+
 function colorForUser(name){
-  const u = String(name || "").toLowerCase();
-  const h = hash32(u) % 360;
-  const s = 78;
-  const l = 62;
-  return `hsl(${h} ${s}% ${l}%)`;
+  const u = String(name || "");
+  if(!u) return "#adadb8";
+  const first = u.charCodeAt(0) || 0;
+  const last = u.charCodeAt(u.length - 1) || 0;
+  return DEFAULT_COLORS[(first + last) % DEFAULT_COLORS.length];
 }
+function badgeKey(setId, version){
+  const sid = String(setId || "").trim().toLowerCase();
+  const ver = String(version || "").trim();
+  return sid && ver ? `${sid}:${ver}` : "";
+}
+
+function renderBadges(el, badges){
+  if(!Array.isArray(badges) || badges.length === 0) return false;
+
+  let rendered = false;
+  const wrap = document.createElement("span");
+  wrap.className = "badges";
+
+  for(const badge of badges){
+    if(!badge || typeof badge !== "object") continue;
+    const key = badgeKey(badge.set_id || badge.setID || badge.setId || badge.setid, badge.version || badge.id);
+    if(!key) continue;
+    const src = BADGE_IMAGES[key];
+    if(!src) continue;
+
+    const img = document.createElement("img");
+    img.className = "badge";
+    img.src = src;
+    img.alt = key;
+    img.title = key;
+    img.crossOrigin = "anonymous";
+    wrap.appendChild(img);
+    rendered = true;
+  }
+
+  if(rendered){
+    el.appendChild(wrap);
+  }
+
+  return rendered;
+}
+
 
 async function fetch7tvEmotes(channelId){
   if(!channelId) return new Map();
@@ -619,10 +683,16 @@ function renderMore(){
     rowEl.dataset.id = i; rowEl.className = "row";
     const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
     const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
+    const nameWrap = document.createElement("span");
+
+    renderBadges(nameWrap, r.badges || []);
+
     const userEl = document.createElement("span");
     userEl.className = "user";
     userEl.textContent = r.user || "—";
-    userEl.style.color = colorForUser(r.user);
+    userEl.style.color = String(r.color || colorForUser(r.user)).trim();
+
+    nameWrap.appendChild(userEl);
 
     const colonEl = document.createElement("span");
     colonEl.className = "colon";
@@ -632,7 +702,7 @@ function renderMore(){
       renderTextWithEmotes(msgEl, r.text || "", EMOTES);
     }
     if(SHOW_TIME) rowEl.appendChild(timeEl);
-    rowEl.appendChild(userEl);
+    rowEl.appendChild(nameWrap);
     rowEl.appendChild(colonEl);
     rowEl.appendChild(msgEl);
     frag.appendChild(rowEl);

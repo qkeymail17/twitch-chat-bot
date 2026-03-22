@@ -18,6 +18,53 @@ class VodMeta:
     thumbnail_url: Optional[str] = None
 
 
+def extract_user_color(node: dict) -> Optional[str]:
+    msg = node.get("message") or {}
+    color = (
+        msg.get("userColor")
+        or msg.get("userColorHex")
+        or node.get("userColor")
+        or node.get("userColorHex")
+    )
+    if not color:
+        return None
+    color = str(color).strip()
+    return color or None
+
+
+def extract_user_badges(node: dict) -> list[dict]:
+    msg = node.get("message") or {}
+    raw_badges = msg.get("userBadges") or node.get("userBadges") or []
+    out: list[dict] = []
+
+    for badge in raw_badges:
+        if not isinstance(badge, dict):
+            continue
+
+        set_id = (
+            badge.get("setID")
+            or badge.get("setId")
+            or badge.get("set_id")
+            or badge.get("set")
+        )
+        version = (
+            badge.get("version")
+            or badge.get("id")
+            or badge.get("badgeVersion")
+            or badge.get("badge_version")
+        )
+
+        if set_id is None or version is None:
+            continue
+
+        out.append({
+            "set_id": str(set_id),
+            "version": str(version),
+        })
+
+    return out
+
+
 def extract_message_fragments(node: dict) -> list[dict]:
     msg = node.get("message") or {}
     fragments = msg.get("fragments") or []

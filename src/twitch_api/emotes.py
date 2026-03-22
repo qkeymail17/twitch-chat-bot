@@ -147,6 +147,55 @@ async def fetch_twitch_global_emote_map(session: aiohttp.ClientSession) -> Dict[
 
 
 # =========================
+# Twitch Badges
+# =========================
+
+async def _fetch_twitch_badge_map(session: aiohttp.ClientSession, url: str) -> Dict[str, str]:
+    headers = get_api_headers()
+
+    try:
+        async with session.get(url, headers=headers, timeout=10) as resp:
+            if resp.status != 200:
+                logging.warning("Twitch badges HTTP %s for %s", resp.status, url)
+                return {}
+            data = await resp.json()
+    except Exception as e:
+        logging.warning("Twitch badges error for %s: %s", url, e)
+        return {}
+
+    out: Dict[str, str] = {}
+
+    for badge_set in data.get("data", []) or []:
+        set_id = str(badge_set.get("set_id") or "").strip().lower()
+        if not set_id:
+            continue
+
+        for version in badge_set.get("versions", []) or []:
+            version_id = str(version.get("id") or "").strip()
+            if not version_id:
+                continue
+            image = (
+                version.get("image_url_1x")
+                or version.get("image_url_2x")
+                or version.get("image_url_4x")
+            )
+            if image:
+                out[f"{set_id}:{version_id}"] = image
+
+    return out
+
+
+async def fetch_twitch_global_badge_map(session: aiohttp.ClientSession) -> Dict[str, str]:
+    return await _fetch_twitch_badge_map(session, "https://api.twitch.tv/helix/chat/badges/global")
+
+
+async def fetch_twitch_channel_badge_map(session: aiohttp.ClientSession, channel_id: str) -> Dict[str, str]:
+    if not channel_id:
+        return {}
+    return await _fetch_twitch_badge_map(session, f"https://api.twitch.tv/helix/chat/badges?broadcaster_id={channel_id}")
+
+
+# =========================
 # Twitch Channel
 # =========================
 

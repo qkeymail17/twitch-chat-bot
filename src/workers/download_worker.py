@@ -65,7 +65,7 @@ async def download_and_send(
         except asyncio.TimeoutError:
             raise RuntimeError("CHAT_EMPTY")
 
-        offset, created_at, user, text, fragments = first
+        offset, created_at, user, text, fragments, color, badges = first
 
         t = fmt_hhmmss(int(offset)) if isinstance(offset, (int, float)) else "00:00:00"
 
@@ -76,10 +76,12 @@ async def download_and_send(
             "t": t,
             "user": user,
             "text": text,
-            "fragments": fragments
+            "fragments": fragments,
+            "color": color,
+            "badges": badges,
         })
 
-        async for offset, created_at, user, text, fragments in comment_iter:
+        async for offset, created_at, user, text, fragments, color, badges in comment_iter:
 
             if is_cancelled(context):
                 raise RuntimeError("Загрузка была отменена.")
@@ -94,6 +96,8 @@ async def download_and_send(
                 "user": user,
                 "text": text,
                 "fragments": fragments,
+                "color": color,
+                "badges": badges,
             })
 
             now = time.monotonic()

@@ -13,6 +13,7 @@ def render_viewer_html(
     channel_id: str | None = None,
     local_emotes: dict | None = None,
     cdn_emotes: dict | None = None,
+    badge_images: dict | None = None,
 ) -> str:
     BASE_DIR = Path(__file__).resolve().parent
     template_path = BASE_DIR / "viewer_template.html"
@@ -29,6 +30,7 @@ def render_viewer_html(
             "channel_id": channel_id,
             "local_emotes": local_emotes or {},
             "cdn_emotes": cdn_emotes or {},
+            "badge_images": badge_images or {},
         },
         "rows": chat_rows,
     }
