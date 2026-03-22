@@ -99,6 +99,7 @@ async def download_and_send(
                 "fragments": fragments,
                 "color": color,
                 "badges": badges,
+                "reply": reply,
             })
 
             now = time.monotonic()
