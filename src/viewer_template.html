@@ -40,7 +40,14 @@ header{
   z-index:50;
   border-radius:0;
 }
-.meta{display:flex;flex-direction:column;gap:4px;margin:0;min-width:0}
+.meta{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin:0;
+  min-width:0;
+  height:100%;
+}
 
 .vod-card{
   margin-bottom:14px;
@@ -157,6 +164,22 @@ header{
   justify-content:center;
 }
 .controls button:hover{border-color:rgba(145,70,255,0.6)}
+
+.meta-buttons{
+  display:flex;
+  gap:6px;
+  margin-top:auto;
+}
+
+.meta-buttons button{
+  flex:1;
+  height:28px;
+  font-size:12px;
+  border-radius:8px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+}
 
 /* message list */
 #list{
@@ -313,7 +336,7 @@ header{
     display:grid;
     grid-template-columns: 170px minmax(0,1fr);
     gap:10px;
-    align-items:start;
+    align-items:stretch;
   }
 
   .vod-card{
@@ -386,13 +409,16 @@ header{
 
       <div class="meta">
         <div><b id="title">—</b></div>
+
+        <div class="meta-buttons">
+          <button id="exportBtn">📸 Снимок</button>
+          <button id="toggleTime">⏱️ Время</button>
+        </div>
       </div>
 
       <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
-        <button id="toggleTime">⏱️ Время: Вкл</button>
-        <button id="exportBtn">📸 Снимок чата</button>
         <div class="controls-footer">
           <span class="pill">
             <span id="channel">—</span>
