@@ -393,7 +393,6 @@ header{
         <input id="u" placeholder="Фильтр по нику…"/>
         <button id="toggleTime">⏱️ Время: Вкл</button>
         <button id="exportBtn">📸 Снимок чата</button>
-        <button id="vodBtn">🔗 Ссылка VOD</button>
         <div class="controls-footer">
           <span class="pill">
             <span id="channel">—</span>
@@ -443,7 +442,6 @@ const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
-const elVodBtn=document.getElementById("vodBtn");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
 let SHOW_TIME=true;
@@ -457,7 +455,6 @@ function openVod(){
   }
 }
 
-elVodBtn.addEventListener("click", openVod);
 elVodCard.addEventListener("click", openVod);
 elVodCard.addEventListener("keydown",(e)=>{
   if(e.key==="Enter" || e.key===" "){
