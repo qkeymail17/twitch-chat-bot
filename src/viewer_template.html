@@ -186,6 +186,64 @@ header{
   background:rgba(255,255,255,0.03);
 }
 
+.snapshot-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:20px;
+}
+
+.snapshot-panel{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+  max-width:100%;
+}
+
+.snapshot-preview{
+  max-width:min(100%, 1200px);
+  max-height:min(80vh, 900px);
+  border-radius:12px;
+  box-shadow:0 10px 40px rgba(0,0,0,.6);
+  display:block;
+}
+
+.snapshot-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  width:100%;
+}
+
+.snapshot-date-btn{
+  height:32px;
+  padding:0 12px;
+  border-radius:10px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+  cursor:pointer;
+  transition:opacity .15s ease, border-color .15s ease, background .15s ease;
+}
+
+.snapshot-date-btn:hover{
+  border-color:rgba(145,70,255,0.6);
+  background:rgba(255,255,255,0.03);
+}
+
+.snapshot-date-btn.is-active{
+  opacity:1;
+}
+
+.snapshot-date-btn.is-inactive{
+  opacity:.45;
+}
+
 /* message list */
 #list{
   width:100%;
@@ -759,9 +817,151 @@ elToggleTime.addEventListener("click",()=>{
 });
 
 /* snapshot logic kept intact (uses html2canvas included below) */
+let SNAPSHOT_DATE_ENABLED = false;
+let SNAPSHOT_RENDER_TOKEN = 0;
+let SNAPSHOT_OVERLAY = null;
+let SNAPSHOT_PREVIEW_IMG = null;
+let SNAPSHOT_DATE_BTN = null;
+
+function buildSnapshotWrap(rowsToClone, includeDate){
+  const wrap = document.createElement("div");
+  wrap.className = "export-wrap";
+
+  for(const row of rowsToClone){
+    wrap.appendChild(row.cloneNode(true));
+  }
+
+  if(includeDate){
+    const metaRow = document.createElement("div");
+    metaRow.className = "export-meta";
+    const metaRight = document.createElement("div");
+    metaRight.className = "export-meta-right";
+
+    const dateIcon = document.createElement("span");
+    dateIcon.textContent = "📅";
+    const dateText = document.createElement("span");
+    dateText.textContent = elStreamDate.textContent || "";
+
+    metaRight.appendChild(dateIcon);
+    metaRight.appendChild(dateText);
+    metaRow.appendChild(metaRight);
+    wrap.appendChild(metaRow);
+  }
+
+  return wrap;
+}
+
 async function waitImages(root){
   const imgs=[...root.querySelectorAll("img")];
   await Promise.all(imgs.map(img=> img.complete ? Promise.resolve() : new Promise(res=>{ img.onload=img.onerror=res; })));
+}
+
+async function createSnapshotDataUrl(rowsToClone, includeDate){
+  const wrap = buildSnapshotWrap(rowsToClone, includeDate);
+  document.body.appendChild(wrap);
+  await new Promise(r=>setTimeout(r,50));
+  await waitImages(wrap);
+
+  let canvas;
+  try{
+    canvas = await html2canvas(wrap,{backgroundColor:null,useCORS:true,allowTaint:false,scale:2});
+  }finally{
+    if(wrap.parentNode){
+      document.body.removeChild(wrap);
+    }
+  }
+
+  return canvas.toDataURL("image/png");
+}
+
+function updateSnapshotDateButton(){
+  if(!SNAPSHOT_DATE_BTN) return;
+  SNAPSHOT_DATE_BTN.classList.toggle("is-active", SNAPSHOT_DATE_ENABLED);
+  SNAPSHOT_DATE_BTN.classList.toggle("is-inactive", !SNAPSHOT_DATE_ENABLED);
+  SNAPSHOT_DATE_BTN.setAttribute("aria-pressed", SNAPSHOT_DATE_ENABLED ? "true" : "false");
+  SNAPSHOT_DATE_BTN.style.opacity = SNAPSHOT_DATE_ENABLED ? "1" : ".45";
+}
+
+async function rerenderSnapshotPreview(rowsToClone){
+  const token = ++SNAPSHOT_RENDER_TOKEN;
+  if(SNAPSHOT_PREVIEW_IMG){
+    SNAPSHOT_PREVIEW_IMG.style.opacity = "0.55";
+  }
+
+  try{
+    const url = await createSnapshotDataUrl(rowsToClone, SNAPSHOT_DATE_ENABLED);
+    if(token !== SNAPSHOT_RENDER_TOKEN) return;
+    if(SNAPSHOT_PREVIEW_IMG){
+      SNAPSHOT_PREVIEW_IMG.src = url;
+      SNAPSHOT_PREVIEW_IMG.style.opacity = "1";
+    }
+  }catch(err){
+    if(token !== SNAPSHOT_RENDER_TOKEN) return;
+    console.error("PNG render error:", err);
+    if(SNAPSHOT_PREVIEW_IMG){
+      SNAPSHOT_PREVIEW_IMG.style.opacity = "1";
+    }
+    const msg = String(err).toLowerCase();
+    if(msg.includes("size")||msg.includes("dimension")||msg.includes("height")) alert("Слишком большой фрагмент. Браузер не смог создать изображение.");
+    else alert("Ошибка создания изображения. Попробуйте уменьшить фрагмент.");
+  }
+}
+
+function openSnapshotOverlay(rowsToClone){
+  if(SNAPSHOT_OVERLAY){
+    SNAPSHOT_OVERLAY.remove();
+    SNAPSHOT_OVERLAY = null;
+    SNAPSHOT_PREVIEW_IMG = null;
+    SNAPSHOT_DATE_BTN = null;
+  }
+
+  const overlay = document.createElement("div");
+  overlay.className = "snapshot-overlay";
+
+  const panel = document.createElement("div");
+  panel.className = "snapshot-panel";
+
+  const img = document.createElement("img");
+  img.className = "snapshot-preview";
+  img.alt = "Снимок чата";
+
+  const actions = document.createElement("div");
+  actions.className = "snapshot-actions";
+
+  const dateBtn = document.createElement("button");
+  dateBtn.type = "button";
+  dateBtn.className = "snapshot-date-btn";
+  dateBtn.textContent = "🗓 Дата";
+  dateBtn.addEventListener("click", async (e)=>{
+    e.stopPropagation();
+    SNAPSHOT_DATE_ENABLED = !SNAPSHOT_DATE_ENABLED;
+    updateSnapshotDateButton();
+    await rerenderSnapshotPreview(rowsToClone);
+  });
+
+  SNAPSHOT_OVERLAY = overlay;
+  SNAPSHOT_PREVIEW_IMG = img;
+  SNAPSHOT_DATE_BTN = dateBtn;
+  updateSnapshotDateButton();
+
+  actions.appendChild(dateBtn);
+  panel.appendChild(img);
+  panel.appendChild(actions);
+  overlay.appendChild(panel);
+
+  overlay.addEventListener("click", ()=>{
+    overlay.remove();
+    SNAPSHOT_OVERLAY = null;
+    SNAPSHOT_PREVIEW_IMG = null;
+    SNAPSHOT_DATE_BTN = null;
+    document.body.style.overflow = "";
+  });
+
+  panel.addEventListener("click", (e)=>e.stopPropagation());
+  document.body.style.overflow = "hidden";
+  document.body.appendChild(overlay);
+
+  rerenderSnapshotPreview(rowsToClone);
 }
 
 elExportBtn.addEventListener("click", async ()=>{
@@ -779,43 +979,8 @@ elExportBtn.addEventListener("click", async ()=>{
   const from = Math.min(startIndex,endIndex), to = Math.max(startIndex,endIndex);
 
   sel.removeAllRanges();
-
-  const wrap = document.createElement("div");
-  wrap.className="export-wrap";
-  for(let i=from;i<=to;i++){
-    const clone = allRows[i].cloneNode(true);
-    wrap.appendChild(clone);
-  }
-  const metaRow = document.createElement("div"); metaRow.className="export-meta";
-  const metaLeft = document.createElement("div"); metaLeft.className="export-meta-left";
-  const metaRight = document.createElement("div"); metaRight.className="export-meta-right";
-  const dateIcon=document.createElement("span"); dateIcon.textContent="📅"; const dateText=document.createElement("span"); dateText.textContent = elStreamDate.textContent || "";
-  metaRight.appendChild(dateIcon); metaRight.appendChild(dateText);
-  metaRow.appendChild(metaRight); wrap.appendChild(metaRow);
-  document.body.appendChild(wrap);
-  await new Promise(r=>setTimeout(r,50)); await waitImages(wrap);
-  let canvas;
-  try{
-    canvas = await html2canvas(wrap,{backgroundColor:null,useCORS:true,allowTaint:false,scale:2});
-  }catch(err){
-    document.body.removeChild(wrap);
-    console.error("PNG render error:", err);
-    const msg = String(err).toLowerCase();
-    if(msg.includes("size")||msg.includes("dimension")||msg.includes("height")) alert("Слишком большой фрагмент. Браузер не смог создать изображение.");
-    else alert("Ошибка создания изображения. Попробуйте уменьшить фрагмент.");
-    return;
-  }
-  document.body.removeChild(wrap);
-  const url = canvas.toDataURL("image/png");
-  const overlay = document.createElement("div"); overlay.style.position="fixed"; overlay.style.inset="0"; overlay.style.background="rgba(0,0,0,.85)"; overlay.style.display="flex"; overlay.style.alignItems="center"; overlay.style.justifyContent="center"; overlay.style.zIndex="9999"; overlay.style.padding="20px";
-  const img = document.createElement("img"); img.src = url; img.style.maxWidth="100%"; img.style.maxHeight="100%"; img.style.borderRadius="12px"; img.style.boxShadow="0 10px 40px rgba(0,0,0,.6)"; img.addEventListener("click",e=>e.stopPropagation());
-  overlay.appendChild(img);
-  overlay.addEventListener("click",()=>{
-    overlay.remove();
-    document.body.style.overflow = "";
-  });
-  document.body.style.overflow = "hidden";
-  document.body.appendChild(overlay);
+  const rowsToClone = allRows.slice(from, to + 1).map(row => row.cloneNode(true));
+  openSnapshotOverlay(rowsToClone);
 });
 
 applyFilters();
