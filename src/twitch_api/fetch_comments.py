@@ -6,7 +6,7 @@ from typing import Optional, List
 import aiohttp
 
 from .fetch_page import gql_fetch_page
-from .meta import render_message, extract_message_fragments, extract_user_color, extract_user_badges, extract_reply_meta
+from .meta import render_message, extract_message_fragments, extract_user_color, extract_user_badges
 
 
 async def gql_fetch_comments(
@@ -54,10 +54,8 @@ async def gql_fetch_comments(
             text = render_message(node)
             color = extract_user_color(node)
             badges = extract_user_badges(node)
-            reply = extract_reply_meta(node)
-
             if text:
-                yield (offset, created_at, display, text, fragments, color, badges, reply)
+                yield (offset, created_at, display, text, fragments, color, badges)
 
         if not has_next or not next_cursor:
             return

@@ -186,85 +186,6 @@ header{
   background:rgba(255,255,255,0.03);
 }
 
-.row.has-reply{
-  padding-top:8px;
-}
-
-.reply{
-  display:block;
-  max-width:100%;
-  margin:0 0 6px;
-  padding:5px 8px 5px 10px;
-  border-left:2px solid rgba(145,70,255,0.55);
-  border-radius:0 8px 8px 0;
-  background:rgba(255,255,255,.02);
-  color:var(--muted);
-  cursor:text;
-  user-select:text;
-  -webkit-user-select:text;
-  touch-action:manipulation;
-  outline:none;
-}
-
-.reply:hover,
-.reply:focus-within,
-.reply.is-open{
-  background:rgba(255,255,255,.05);
-  border-left-color:rgba(145,70,255,0.95);
-}
-
-.reply-head{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  min-width:0;
-  line-height:1.2;
-  font-size:12px;
-}
-
-.reply-icon{
-  flex:0 0 auto;
-  opacity:.85;
-  font-size:12px;
-  line-height:1;
-}
-
-.reply-user{
-  flex:0 0 auto;
-  font-weight:600;
-  color:var(--text);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  min-width:0;
-}
-
-.reply-colon{
-  flex:0 0 auto;
-  opacity:.85;
-}
-
-.reply-preview{
-  display:-webkit-box;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:1;
-  overflow:hidden;
-  white-space:normal;
-  margin-top:2px;
-  font-size:12px;
-  line-height:1.3;
-  color:var(--muted);
-  word-break:break-word;
-}
-
-.reply:hover .reply-preview,
-.reply:focus-within .reply-preview,
-.reply.is-open .reply-preview{
-  display:block;
-  -webkit-line-clamp:unset;
-  overflow:visible;
-}
-
 /* message list */
 #list{
   width:100%;
@@ -667,222 +588,6 @@ function renderBadges(el, badges){
 }
 
 
-function normalizeReplyObject(reply){
-  if(!reply || typeof reply !== "object") return null;
-
-  const user = reply.user
-    || reply.display_name
-    || reply.displayName
-    || reply.login
-    || reply.login_name
-    || reply.name
-    || reply.target_user
-    || reply.reply_to
-    || reply.replyTo
-    || reply.author
-    || "";
-
-  const text = reply.text
-    || reply.body
-    || reply.message
-    || reply.excerpt
-    || reply.preview
-    || reply.message_text
-    || reply.messageText
-    || "";
-
-  const color = reply.color
-    || reply.userColor
-    || reply.user_color
-    || reply.userColorHex
-    || reply.user_color_hex
-    || "";
-
-  const id = reply.id
-    || reply.messageId
-    || reply.message_id
-    || reply.commentId
-    || reply.comment_id
-    || "";
-
-  if(!String(user || "").trim() && !String(text || "").trim()) return null;
-
-  return {
-    user: String(user || "").trim(),
-    text: String(text || "").trim(),
-    color: String(color || "").trim() || null,
-    id: String(id || "").trim() || null,
-  };
-}
-
-function parseLegacyReplyText(rawText){
-  const raw = String(rawText || "").replace(/\r/g, "").trim();
-  if(!raw) return {reply:null, body:raw};
-
-  const lines = raw.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-  const first = lines[0] || raw;
-  const bodyFromLines = lines.length >= 2 ? lines.slice(1).join(" ").trim() : "";
-
-  const patterns = [
-    /^(?:replying to|replied to|in reply to|в ответ(?: на)?|ответ(?: на| пользователю)?|отвечая на)\s+@?([^:]+):\s*(.+)$/i,
-    /^@([^\s:]{1,25})(?:\s*:\s*|\s+)(.+)$/i,
-  ];
-
-  for(const candidate of [first, raw]){
-    for(const pattern of patterns){
-      const m = candidate.match(pattern);
-      if(m){
-        const user = String(m[1] || "").trim();
-        const text = String(m[2] || "").trim();
-        if(!user || !text) continue;
-        return {
-          reply: {
-            user,
-            text,
-            color: null,
-            id: null,
-          },
-          body: bodyFromLines || text,
-        };
-      }
-    }
-  }
-
-  return {reply:null, body:raw};
-}
-
-function resolveReplyData(row){
-  const explicitSources = [
-    row.reply,
-    row.reply_meta,
-    row.replyMeta,
-    row.reply_to,
-    row.replyTo,
-  ];
-  for(const source of explicitSources){
-    const reply = normalizeReplyObject(source);
-    if(reply){
-      const originalBody = String(row.text || "");
-      const legacy = parseLegacyReplyText(originalBody);
-      const body = legacy.reply && legacy.body ? legacy.body : originalBody;
-      return {reply, body};
-    }
-  }
-
-  const scalarReply = normalizeReplyObject({
-    user: row.reply_user || row.replyUser || row.reply_display_name || row.replyDisplayName || row.reply_login || row.replyLogin,
-    text: row.reply_text || row.replyText || row.reply_body || row.replyBody || row.reply_excerpt || row.replyExcerpt || row.reply_preview || row.replyPreview,
-    color: row.reply_color || row.replyColor,
-    id: row.reply_id || row.replyId,
-  });
-  if(scalarReply) return {reply: scalarReply, body: String(row.text || "")};
-
-  const legacy = parseLegacyReplyText(row.text || "");
-  if(legacy.reply){
-    return {
-      reply: legacy.reply,
-      body: legacy.body || String(row.text || ""),
-    };
-  }
-
-  return {reply: null, body: String(row.text || "")};
-}
-
-function createReplyElement(reply){
-  const wrap = document.createElement("div");
-  wrap.className = "reply";
-  wrap.tabIndex = 0;
-
-  const head = document.createElement("div");
-  head.className = "reply-head";
-
-  const icon = document.createElement("span");
-  icon.className = "reply-icon";
-  icon.textContent = "↪";
-
-  const label = document.createElement("span");
-  label.textContent = "Replying to ";
-
-  const user = document.createElement("span");
-  user.className = "reply-user";
-  user.textContent = `@${reply.user || "—"}`;
-  user.style.color = String(reply.color || colorForUser(reply.user)).trim();
-
-  const colon = document.createElement("span");
-  colon.className = "reply-colon";
-  colon.textContent = ":";
-
-  const preview = document.createElement("span");
-  preview.className = "reply-preview";
-  preview.setAttribute("aria-label", `Reply preview for ${reply.user || "unknown"}`);
-  renderTextWithEmotes(preview, reply.text || "—", EMOTES);
-
-  head.appendChild(icon);
-  head.appendChild(label);
-  head.appendChild(user);
-  head.appendChild(colon);
-
-  wrap.appendChild(head);
-  wrap.appendChild(preview);
-
-  return wrap;
-}
-
-function bindReplyInteractions(){
-  if(window.__replyInteractionsBound) return;
-  window.__replyInteractionsBound = true;
-
-  let touchTimer = null;
-  let touchTarget = null;
-
-  const clearTimer = () => {
-    if(touchTimer){
-      clearTimeout(touchTimer);
-      touchTimer = null;
-    }
-    touchTarget = null;
-  };
-
-  const closeAll = () => {
-    document.querySelectorAll(".reply.is-open").forEach(el => el.classList.remove("is-open"));
-  };
-
-  document.addEventListener("pointerdown", (e) => {
-    const reply = e.target && e.target.closest ? e.target.closest(".reply") : null;
-    if(!reply || e.pointerType !== "touch") return;
-
-    clearTimer();
-    touchTarget = reply;
-    touchTimer = setTimeout(() => {
-      closeAll();
-      reply.classList.add("is-open");
-      touchTimer = null;
-      touchTarget = null;
-    }, 420);
-  }, true);
-
-  document.addEventListener("pointerup", () => {
-    clearTimer();
-  }, true);
-
-  document.addEventListener("pointercancel", () => {
-    clearTimer();
-  }, true);
-
-  document.addEventListener("scroll", () => {
-    clearTimer();
-  }, true);
-
-  document.addEventListener("click", (e) => {
-    const reply = e.target && e.target.closest ? e.target.closest(".reply") : null;
-    if(!reply){
-      closeAll();
-    }
-  }, true);
-}
-
-bindReplyInteractions();
-
 async function fetch7tvEmotes(channelId){
   if(!channelId) return new Map();
   try{
@@ -1006,21 +711,9 @@ function renderMore(){
   for(let i=rendered;i<end;i++){
     const r = filtered[i];
     const rowEl = document.createElement("div");
-    rowEl.dataset.id = i;
-    rowEl.className = "row";
-
-    const replyData = resolveReplyData(r);
-    if(replyData.reply){
-      rowEl.classList.add("has-reply");
-      rowEl.appendChild(createReplyElement(replyData.reply));
-    }
-
-    const tRaw = (r.t || "00:00:00");
-    const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
-    const timeEl = document.createElement("span");
-    timeEl.className = "time";
-    timeEl.textContent = tNorm;
-
+    rowEl.dataset.id = i; rowEl.className = "row";
+    const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
+    const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
     const nameWrap = document.createElement("span");
 
     renderBadges(nameWrap, r.badges || []);
@@ -1035,23 +728,18 @@ function renderMore(){
     const colonEl = document.createElement("span");
     colonEl.className = "colon";
     colonEl.textContent = ":";
-
-    const msgEl = document.createElement("span");
-    msgEl.className = "msg";
-
-    const bodyText = replyData.body || r.text || "";
+    const msgEl = document.createElement("span"); msgEl.className="msg";
     if(!renderFragmentsWithEmotes(msgEl, r.fragments || [], EMOTES)){
-      renderTextWithEmotes(msgEl, bodyText, EMOTES);
+      renderTextWithEmotes(msgEl, r.text || "", EMOTES);
     }
-
     if(SHOW_TIME) rowEl.appendChild(timeEl);
     rowEl.appendChild(nameWrap);
     rowEl.appendChild(colonEl);
     rowEl.appendChild(msgEl);
     frag.appendChild(rowEl);
   }
-  elList.appendChild(frag);
-  rendered = end;
+  elList.appendChild(frag); rendered=end;
+
 }
 
 document.addEventListener("scroll",()=>{
