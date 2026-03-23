@@ -33,21 +33,77 @@ header{
   max-width:none;
   background:#18181b;
   border-bottom:1px solid var(--border);
-  padding:8px;
+  padding:12px;
   box-sizing:border-box;
   position:sticky;
   top:0;
   z-index:50;
   border-radius:0;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  align-items:stretch;
+  transition:padding .2s ease, gap .2s ease;
 }
 .meta{
   display:flex;
   flex-direction:column;
-  gap:2px;
+  gap:4px;
   margin:0;
   min-width:0;
   height:100%;
 }
+
+.panel-top{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+  overflow:hidden;
+  transition:max-height .25s ease, opacity .2s ease, transform .25s ease, margin .2s ease;
+  max-height:1000px;
+  opacity:1;
+  transform:none;
+}
+
+.panel-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  width:100%;
+}
+
+.panel-actions{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  min-width:0;
+}
+
+.panel-toggle{
+  min-width:104px;
+  height:36px;
+  padding:0 14px;
+  border-radius:12px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.panel-toggle:hover{
+  border-color:rgba(145,70,255,0.6);
+  background:rgba(255,255,255,0.03);
+}
+
 
 .vod-heading{
   display:flex;
@@ -94,7 +150,7 @@ header{
 }
 
 .vod-card{
-  margin-bottom:6px;
+  margin-bottom:14px;
   border:1px solid var(--border);
   border-radius:18px;
   overflow:hidden;
@@ -136,8 +192,8 @@ header{
 .controls{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:4px;
-  margin-top:4px;
+  gap:8px;
+  margin-top:8px;
   width:100%;
   min-width:0;
 }
@@ -170,7 +226,7 @@ header{
 
 .controls input{
   min-width:0;
-  height:32px;
+  height:36px;
   padding:6px 12px;
   border-radius:10px;
   background:var(--panel);
@@ -199,12 +255,11 @@ header{
 .meta-buttons{
   display:flex;
   gap:6px;
-  margin-top:auto;
 }
 
 .meta-buttons button{
   flex:1;
-  height:32px;
+  height:36px;
   font-size:13px;
   border-radius:10px;
   background:var(--panel);
@@ -394,6 +449,11 @@ header{
   .page{justify-content:center}
 }
 
+@media (min-width: 701px){
+  .panel-toggle{display:none;}
+}
+
+
 /* small refinements for very narrow phones (so content not glued to edges) */
 @media (max-width:420px){
   .chat{padding:0 8px}
@@ -403,12 +463,32 @@ header{
 
 @media (max-width: 700px){
 
-  /* Mobile: preview on the left, metadata/actions on the right. */
   header{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  header.is-compact .panel-top{
+    max-height:0;
+    opacity:0;
+    transform:translateY(-8px);
+    pointer-events:none;
+    margin:0;
+    overflow:hidden;
+  }
+
+  header.is-expanded .panel-top{
+    max-height:420px;
+    opacity:1;
+    transform:none;
+  }
+
+  .panel-top{
     display:grid;
-    grid-template-columns: 170px minmax(0,1fr);
+    grid-template-columns:132px minmax(0,1fr);
     gap:10px;
-    align-items:stretch;
+    align-items:start;
   }
 
   .vod-card{
@@ -419,14 +499,27 @@ header{
     margin:0;
   }
 
-  /* поля и footer вниз */
+  .vod-title{
+    -webkit-line-clamp:2;
+    font-size:14px;
+  }
+
+  .vod-channel{
+    font-size:15px;
+    max-width:none;
+  }
+
+  .panel-meta{
+    margin-top:2px;
+  }
+
   .controls{
-    grid-column:1 / span 2;
-    margin-top:8px;
     display:grid;
-    grid-template-columns:repeat(6,minmax(0,1fr));
-    gap:6px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    margin-top:0;
     min-width:0;
+    width:100%;
   }
 
   .controls input{
@@ -437,10 +530,7 @@ header{
     padding:6px 12px;
   }
 
-
-  .controls-footer{
-    grid-column:1 / span 6;
-    grid-row:3;
+  .panel-actions{
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -449,10 +539,24 @@ header{
     min-width:0;
   }
 
-  .controls-footer .pill{
+  .meta-buttons{
+    display:flex;
+    gap:6px;
+    flex:1 1 auto;
     min-width:0;
-    overflow-wrap:anywhere;
-    word-break:break-word;
+  }
+
+  .meta-buttons button{
+    height:36px;
+    font-size:12px;
+  }
+
+  .panel-toggle{
+    display:flex;
+    min-width:94px;
+    height:36px;
+    font-size:12px;
+    flex:0 0 auto;
   }
 }
 </style>
@@ -462,35 +566,41 @@ header{
   <div class="chat">
 
     <header>
-      <div class="vod-card" id="vodCard" tabindex="0" role="button" aria-label="Открыть VOD">
-        <div class="vod-card-media">
-          <img id="vodPreviewImg" alt="" loading="eager" decoding="async" />
-          <div class="vod-card-shade"></div>
-        </div>
-      </div>
-
-      <div class="meta">
-        <div class="vod-heading">
-          <span id="channel" class="vod-channel">—</span>
-          <span class="vod-separator" aria-hidden="true">•</span>
-          <span id="title" class="vod-title">—</span>
+      <div class="panel-top">
+        <div class="vod-card" id="vodCard" tabindex="0" role="button" aria-label="Открыть VOD">
+          <div class="vod-card-media">
+            <img id="vodPreviewImg" alt="" loading="eager" decoding="async" />
+            <div class="vod-card-shade"></div>
+          </div>
         </div>
 
-        <div class="meta-buttons">
-          <button id="exportBtn" class="button-toggle active">📸 Снимок</button>
-          <button id="toggleTime" class="toggle-button is-active" aria-pressed="true">⏱️ Время</button>
+        <div class="meta">
+          <div class="vod-heading">
+            <span id="channel" class="vod-channel">—</span>
+            <span class="vod-separator" aria-hidden="true">•</span>
+            <span id="title" class="vod-title">—</span>
+          </div>
+
+          <div class="panel-meta">
+            <span class="pill">
+              <span id="streamDateWrap" style="display:none"><span id="streamDate">—</span></span>
+            </span>
+            <span class="pill" id="stat">—</span>
+          </div>
         </div>
       </div>
 
       <div class="controls">
         <input id="q" placeholder="Поиск по сообщениям…"/>
         <input id="u" placeholder="Фильтр по нику…"/>
-        <div class="controls-footer">
-          <span class="pill">
-            <span id="streamDateWrap" style="display:none"><span id="streamDate">—</span></span>
-          </span>
-          <span class="pill" id="stat">—</span>
+      </div>
+
+      <div class="panel-actions">
+        <div class="meta-buttons">
+          <button id="exportBtn" class="button-toggle active">📸 Снимок</button>
+          <button id="toggleTime" class="toggle-button is-active" aria-pressed="true">⏱️ Время</button>
         </div>
+        <button id="layoutToggle" class="panel-toggle" type="button" aria-expanded="false">Развернуть</button>
       </div>
     </header>
 
@@ -532,10 +642,13 @@ const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
+const elLayoutToggle=document.getElementById("layoutToggle");
+const elHeader=document.querySelector("header");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
 const elVodHeading=document.querySelector(".vod-heading");
 let SHOW_TIME=true;
+let PANEL_EXPANDED = !window.matchMedia("(max-width: 700px)").matches;
 
 elTitle.textContent = meta.title || "—";
 elChannel.textContent = meta.channel || "—";
@@ -571,6 +684,25 @@ function fitVodTitle(){
 }
 
 updateMainTimeButton();
+
+function updatePanelState(expanded){
+  PANEL_EXPANDED = !!expanded;
+  if(!elHeader) return;
+  elHeader.classList.toggle("is-expanded", PANEL_EXPANDED);
+  elHeader.classList.toggle("is-compact", !PANEL_EXPANDED);
+  if(elLayoutToggle){
+    elLayoutToggle.textContent = PANEL_EXPANDED ? "Свернуть" : "Развернуть";
+    elLayoutToggle.setAttribute("aria-expanded", PANEL_EXPANDED ? "true" : "false");
+  }
+}
+
+updatePanelState(PANEL_EXPANDED);
+
+if(elLayoutToggle){
+  elLayoutToggle.addEventListener("click", ()=>{
+    updatePanelState(!PANEL_EXPANDED);
+  });
+}
 
 function openVod(){
   if(meta.vod_url){
