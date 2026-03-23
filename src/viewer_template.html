@@ -76,6 +76,19 @@ header{
   min-width:0;
 }
 
+.panel-stats-main{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  overflow:hidden;
+}
+
+.panel-stats-separator{
+  color:var(--muted);
+  flex:0 0 auto;
+}
+
 .panel-stats .pill{
   min-width:0;
   white-space:nowrap;
@@ -481,7 +494,7 @@ header{
 @media (max-width: 700px){
 
   #list{
-    padding-top:160px;
+    padding-top:176px;
   }
 
   header{
@@ -493,7 +506,7 @@ header{
     padding:10px 12px 12px;
     background:#18181b;
     box-shadow:0 18px 40px rgba(0,0,0,.38);
-    overflow:hidden;
+    overflow:visible;
     z-index:80;
     display:flex;
     flex-direction:column;
@@ -586,11 +599,13 @@ header{
   }
 
   .panel-actions{
+    position:relative;
     display:flex;
     flex-direction:column;
     gap:6px;
     width:100%;
     min-width:0;
+    overflow:visible;
   }
 
   .meta-buttons{
@@ -609,9 +624,13 @@ header{
 
   .panel-handle{
     display:flex;
+    position:absolute;
+    left:50%;
+    bottom:-16px;
+    transform:translateX(-50%);
     width:150px;
     height:32px;
-    margin:0 auto;
+    margin:0;
     border-radius:10px;
     background:var(--panel);
     border:1px solid var(--border);
@@ -620,7 +639,7 @@ header{
     touch-action:none;
     user-select:none;
     flex:0 0 auto;
-    position:relative;
+    z-index:1;
   }
 
   .panel-handle span{
@@ -652,18 +671,19 @@ header{
 
         <div class="meta">
           <div class="vod-heading">
-            <span id="channel" class="vod-channel">—</span>
-            <span class="vod-separator" aria-hidden="true">•</span>
             <span id="title" class="vod-title">—</span>
           </div>
         </div>
       </div>
 
       <div class="panel-stats">
-        <span class="pill panel-stats-channel" id="mobileChannel">—</span>
-        <span class="pill">
-          <span id="streamDateWrap" style="display:none"><span id="streamDate">—</span></span>
-        </span>
+        <div class="panel-stats-main">
+          <span class="pill panel-stats-channel" id="mobileChannel">—</span>
+          <span class="panel-stats-separator" aria-hidden="true">•</span>
+          <span class="pill">
+            <span id="streamDateWrap" style="display:none"><span id="streamDate">—</span></span>
+          </span>
+        </div>
         <span class="pill" id="stat">—</span>
       </div>
 
@@ -708,7 +728,6 @@ const BADGE_IMAGES = meta.badge_images || {};
 const TWITCH_CHANNEL_ID = meta.channel_id || null;
 
 const elTitle=document.getElementById("title");
-const elChannel=document.getElementById("channel");
 const elStat=document.getElementById("stat");
 const elMobileChannel=document.getElementById("mobileChannel");
 const elList=document.getElementById("list");
@@ -730,7 +749,6 @@ let SHOW_TIME=true;
 let PANEL_EXPANDED = window.matchMedia("(min-width: 701px)").matches;
 
 elTitle.textContent = meta.title || "—";
-elChannel.textContent = meta.channel || "—";
 if(elMobileChannel) elMobileChannel.textContent = meta.channel || "—";
 
 function updateMainTimeButton(){
