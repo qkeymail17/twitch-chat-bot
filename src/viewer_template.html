@@ -92,24 +92,30 @@ header{
   min-width:0;
 }
 
-.panel-toggle{
-  min-width:104px;
-  height:36px;
-  padding:0 14px;
-  border-radius:12px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  color:var(--text);
-  cursor:pointer;
-  display:flex;
+.panel-handle{
+  display:none;
   align-items:center;
   justify-content:center;
+  width:120px;
+  height:24px;
+  border-radius:999px;
+  background:#111116;
+  border:1px solid var(--border);
+  box-shadow:0 10px 24px rgba(0,0,0,.36);
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+  flex:0 0 auto;
+  position:relative;
 }
-
-.panel-toggle:hover{
-  background:var(--panel);
-  border-color:var(--border);
+.panel-handle span{
+  display:block;
+  width:42px;
+  height:4px;
+  border-radius:999px;
+  background:rgba(255,255,255,.12);
 }
+.panel-handle.is-dragging{cursor:grabbing;}
 
 
 .vod-heading{
@@ -459,7 +465,7 @@ header{
 }
 
 @media (min-width: 701px){
-  .panel-toggle{display:none;}
+  .panel-handle{display:none;}
 }
 
 
@@ -477,21 +483,10 @@ header{
     display:flex;
     flex-direction:column;
     gap:8px;
-    padding-bottom:58px;
-  }
-
-  header::after{
-    content:"";
-    position:absolute;
-    left:50%;
-    bottom:-6px;
-    transform:translateX(-50%);
-    width:72px;
-    height:14px;
-    background:var(--bg);
-    border-radius:999px;
-    pointer-events:none;
-    z-index:0;
+    padding:10px 12px 12px;
+    overflow:hidden;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), 66% calc(100% - 12px), 50% 100%, 34% calc(100% - 12px), 0 calc(100% - 12px));
+    transition:height .24s ease, clip-path .2s ease, padding .2s ease;
   }
 
   header.is-compact .panel-top,
@@ -586,16 +581,14 @@ header{
   }
 
   .panel-actions{
-    position:absolute;
-    left:12px;
-    right:12px;
-    bottom:8px;
-    display:flex;
-    justify-content:space-between;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
     align-items:center;
     gap:8px;
-    width:auto;
+    width:100%;
     min-width:0;
+    margin-top:-4px;
+    position:relative;
     z-index:1;
   }
 
@@ -609,13 +602,14 @@ header{
   .meta-buttons button{
     height:32px;
     font-size:12px;
+    box-shadow:0 8px 20px rgba(0,0,0,.24);
   }
 
-  .panel-toggle{
-    min-width:94px;
-    height:32px;
-    font-size:12px;
-    flex:0 0 auto;
+  .panel-handle{
+    display:flex;
+    justify-self:center;
+    width:128px;
+    height:24px;
   }
 }
 </style>
@@ -657,12 +651,12 @@ header{
       </div>
 
       <div class="panel-actions">
-        <div class="meta-buttons">
-          <button id="exportBtn" class="button-toggle active">📸 Снимок</button>
-          <button id="toggleTime" class="toggle-button is-active" aria-pressed="true">⏱️ Время</button>
-        </div>
-        <button id="layoutToggle" class="panel-toggle" type="button" aria-expanded="false">Развернуть</button>
-      </div>
+  <div class="meta-buttons">
+    <button id="exportBtn" class="button-toggle active">📸 Снимок</button>
+    <button id="toggleTime" class="toggle-button is-active" aria-pressed="true">⏱️ Время</button>
+  </div>
+  <div class="panel-handle" id="panelHandle" aria-hidden="true"><span></span></div>
+</div>
     </header>
 
     <div id="list"></div>
@@ -704,7 +698,8 @@ const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
-const elLayoutToggle=document.getElementById("layoutToggle");
+const elPanelHandle=document.getElementById("panelHandle");
+const MOBILE_MQ = window.matchMedia("(max-width: 700px)");
 const elHeader=document.querySelector("header");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
@@ -748,24 +743,111 @@ function fitVodTitle(){
 
 updateMainTimeButton();
 
-function updatePanelState(expanded){
+function clampNumber(value, min, max){
+  return Math.max(min, Math.min(max, value));
+}
+
+let PANEL_SIZES = { compact: 132, expanded: 280 };
+let PANEL_DRAG = null;
+
+function measureMobilePanelHeight(expanded){
+  if(!elHeader) return expanded ? PANEL_SIZES.expanded : PANEL_SIZES.compact;
+  const clone = elHeader.cloneNode(true);
+  clone.classList.toggle("is-expanded", !!expanded);
+  clone.classList.toggle("is-compact", !expanded);
+  clone.style.position = "absolute";
+  clone.style.visibility = "hidden";
+  clone.style.pointerEvents = "none";
+  clone.style.left = "-99999px";
+  clone.style.top = "0";
+  clone.style.width = `${elHeader.getBoundingClientRect().width || document.documentElement.clientWidth}px`;
+  clone.style.height = "auto";
+  clone.style.maxHeight = "none";
+  clone.style.transition = "none";
+  document.body.appendChild(clone);
+  const height = Math.ceil(clone.getBoundingClientRect().height);
+  clone.remove();
+  return height;
+}
+
+function refreshMobilePanelSizes(){
+  if(!MOBILE_MQ.matches || !elHeader) return;
+  const compact = measureMobilePanelHeight(false);
+  const expandedMeasured = measureMobilePanelHeight(true);
+  const expandedMin = Math.round(window.innerHeight * 0.34);
+  const expandedMax = Math.round(window.innerHeight * 0.44);
+  PANEL_SIZES.compact = compact;
+  PANEL_SIZES.expanded = clampNumber(Math.max(expandedMeasured, expandedMin), compact + 96, expandedMax);
+}
+
+function applyPanelState(expanded, animate=true){
   PANEL_EXPANDED = !!expanded;
   if(!elHeader) return;
+
   elHeader.classList.toggle("is-expanded", PANEL_EXPANDED);
   elHeader.classList.toggle("is-compact", !PANEL_EXPANDED);
-  if(elLayoutToggle){
-    elLayoutToggle.textContent = PANEL_EXPANDED ? "Свернуть" : "Развернуть";
-    elLayoutToggle.setAttribute("aria-expanded", PANEL_EXPANDED ? "true" : "false");
+
+  if(MOBILE_MQ.matches){
+    refreshMobilePanelSizes();
+    const target = PANEL_EXPANDED ? PANEL_SIZES.expanded : PANEL_SIZES.compact;
+    elHeader.style.transition = animate ? "height .24s ease, clip-path .2s ease, padding .2s ease" : "none";
+    elHeader.style.height = `${target}px`;
+  }else{
+    elHeader.style.height = "";
+    elHeader.style.transition = "";
   }
 }
 
-updatePanelState(PANEL_EXPANDED);
-
-if(elLayoutToggle){
-  elLayoutToggle.addEventListener("click", ()=>{
-    updatePanelState(!PANEL_EXPANDED);
-  });
+function updatePanelState(expanded, animate=true){
+  applyPanelState(expanded, animate);
 }
+
+updatePanelState(PANEL_EXPANDED, false);
+
+if(elPanelHandle){
+  elPanelHandle.addEventListener("pointerdown", (e)=>{
+    if(!MOBILE_MQ.matches) return;
+    e.preventDefault();
+    refreshMobilePanelSizes();
+    PANEL_DRAG = {
+      pointerId: e.pointerId,
+      startY: e.clientY,
+      startHeight: elHeader.getBoundingClientRect().height,
+      sizes: {...PANEL_SIZES},
+    };
+    elPanelHandle.setPointerCapture(e.pointerId);
+    elHeader.style.transition = "none";
+    elPanelHandle.classList.add("is-dragging");
+  });
+
+  elPanelHandle.addEventListener("pointermove", (e)=>{
+    if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
+    const nextHeight = clampNumber(
+      PANEL_DRAG.startHeight + (e.clientY - PANEL_DRAG.startY),
+      PANEL_DRAG.sizes.compact,
+      PANEL_DRAG.sizes.expanded
+    );
+    elHeader.style.height = `${nextHeight}px`;
+  });
+
+  const finishDrag = (e)=>{
+    if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
+    try{ elPanelHandle.releasePointerCapture(e.pointerId); }catch(err){}
+    elPanelHandle.classList.remove("is-dragging");
+    const currentHeight = elHeader.getBoundingClientRect().height;
+    const midpoint = (PANEL_DRAG.sizes.compact + PANEL_DRAG.sizes.expanded) / 2;
+    PANEL_DRAG = null;
+    updatePanelState(currentHeight > midpoint, true);
+  };
+
+  elPanelHandle.addEventListener("pointerup", finishDrag);
+  elPanelHandle.addEventListener("pointercancel", finishDrag);
+}
+
+window.addEventListener("resize", ()=>{
+  requestAnimationFrame(fitVodTitle);
+  updatePanelState(PANEL_EXPANDED, false);
+});
 
 function openVod(){
   if(meta.vod_url){
@@ -960,6 +1042,44 @@ function renderFragmentsWithEmotes(el, fragments, emotes){
 }
 
 const CHUNK = 800;
+function createRowElement(r, includeTime, rowIndex){
+  const rowEl = document.createElement("div");
+  if(rowIndex !== undefined && rowIndex !== null){
+    rowEl.dataset.id = String(rowIndex);
+  }
+  rowEl.className = "row";
+  const tRaw = (r.t || "00:00:00");
+  const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
+  if(includeTime){
+    const timeEl = document.createElement("span");
+    timeEl.className = "time";
+    timeEl.textContent = tNorm;
+    rowEl.appendChild(timeEl);
+  }
+
+  const nameWrap = document.createElement("span");
+  renderBadges(nameWrap, r.badges || []);
+
+  const userEl = document.createElement("span");
+  userEl.className = "user";
+  userEl.textContent = r.user || "—";
+  userEl.style.color = String(r.color || colorForUser(r.user)).trim();
+  nameWrap.appendChild(userEl);
+
+  const colonEl = document.createElement("span");
+  colonEl.className = "colon";
+  colonEl.textContent = ":";
+  const msgEl = document.createElement("span");
+  msgEl.className = "msg";
+  if(!renderFragmentsWithEmotes(msgEl, r.fragments || [], EMOTES)){
+    renderTextWithEmotes(msgEl, r.text || "", EMOTES);
+  }
+  rowEl.appendChild(nameWrap);
+  rowEl.appendChild(colonEl);
+  rowEl.appendChild(msgEl);
+  return rowEl;
+}
+
 
 /* Rows are appended in chunks so huge chats do not freeze the page. */
 let filtered = rows;
@@ -997,37 +1117,10 @@ function renderMore(){
   const end = Math.min(rendered+CHUNK, filtered.length);
   const frag = document.createDocumentFragment();
   for(let i=rendered;i<end;i++){
-    const r = filtered[i];
-    const rowEl = document.createElement("div");
-    rowEl.dataset.id = i; rowEl.className = "row";
-    const tRaw = (r.t || "00:00:00"); const tNorm = String(tRaw).replace(/\s*:\s*/g,":");
-    const timeEl = document.createElement("span"); timeEl.className="time"; timeEl.textContent = tNorm;
-    const nameWrap = document.createElement("span");
-
-    renderBadges(nameWrap, r.badges || []);
-
-    const userEl = document.createElement("span");
-    userEl.className = "user";
-    userEl.textContent = r.user || "—";
-    userEl.style.color = String(r.color || colorForUser(r.user)).trim();
-
-    nameWrap.appendChild(userEl);
-
-    const colonEl = document.createElement("span");
-    colonEl.className = "colon";
-    colonEl.textContent = ":";
-    const msgEl = document.createElement("span"); msgEl.className="msg";
-    if(!renderFragmentsWithEmotes(msgEl, r.fragments || [], EMOTES)){
-      renderTextWithEmotes(msgEl, r.text || "", EMOTES);
-    }
-    if(SHOW_TIME) rowEl.appendChild(timeEl);
-    rowEl.appendChild(nameWrap);
-    rowEl.appendChild(colonEl);
-    rowEl.appendChild(msgEl);
-    frag.appendChild(rowEl);
+    frag.appendChild(createRowElement(filtered[i], SHOW_TIME, i));
   }
-  elList.appendChild(frag); rendered=end;
-
+  elList.appendChild(frag);
+  rendered=end;
 }
 
 document.addEventListener("scroll",()=>{
@@ -1055,16 +1148,16 @@ let SNAPSHOT_PREVIEW_IMG = null;
 let SNAPSHOT_TIME_BTN = null;
 let SNAPSHOT_DATE_BTN = null;
 
-function buildSnapshotWrap(rowsToClone, includeTime, includeDate){
+function buildSnapshotWrap(rowsToUse, includeTime, includeDate){
   const wrap = document.createElement("div");
   wrap.className = "export-wrap";
   if(!includeTime){
     wrap.classList.add("snapshot-hide-time");
   }
 
-  for(const row of rowsToClone){
-    wrap.appendChild(row.cloneNode(true));
-  }
+  rowsToUse.forEach((r, idx)=>{
+    wrap.appendChild(createRowElement(r, includeTime, idx));
+  });
 
   if(includeDate){
     const metaRow = document.createElement("div");
@@ -1236,14 +1329,13 @@ elExportBtn.addEventListener("click", async ()=>{
   const startRow = node.closest(".row"); if(!startRow) return;
   node = range.endContainer; if(node.nodeType===3) node=node.parentNode;
   const endRow = node.closest(".row"); if(!endRow) return;
-  const allRows = [...document.querySelectorAll("#list .row")];
-  const startIndex = allRows.indexOf(startRow);
-  const endIndex   = allRows.indexOf(endRow);
-  if(startIndex===-1||endIndex===-1) return;
+  const startIndex = Number(startRow.dataset.id);
+  const endIndex   = Number(endRow.dataset.id);
+  if(Number.isNaN(startIndex)||Number.isNaN(endIndex)) return;
   const from = Math.min(startIndex,endIndex), to = Math.max(startIndex,endIndex);
 
   sel.removeAllRanges();
-  const rowsToClone = allRows.slice(from, to + 1).map(row => row.cloneNode(true));
+  const rowsToClone = filtered.slice(from, to + 1);
   openSnapshotOverlay(rowsToClone);
 });
 
