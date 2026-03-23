@@ -902,6 +902,54 @@ elHeader.addEventListener("pointercancel", (e)=>{
   elHeader.classList.remove("is-dragging");
 });
 
+let TOUCH_DRAG = null;
+
+elHeader.addEventListener("touchstart", (e)=>{
+  if(!MOBILE_MQ.matches) return;
+
+  const t = e.touches[0];
+
+  TOUCH_DRAG = {
+    startY: t.clientY,
+    startOffset: PANEL_OFFSET,
+    fromInput: !!e.target.closest("input"),
+    moved: false
+  };
+}, { passive: true });
+
+elHeader.addEventListener("touchmove", (e)=>{
+  if(!TOUCH_DRAG) return;
+
+  const t = e.touches[0];
+  const dy = t.clientY - TOUCH_DRAG.startY;
+
+  if(TOUCH_DRAG.fromInput && !TOUCH_DRAG.moved){
+    if(Math.abs(dy) < 8) return;
+    TOUCH_DRAG.moved = true;
+  }
+
+  e.preventDefault(); // ← КЛЮЧЕВОЕ
+
+  applyPanelOffset(
+    TOUCH_DRAG.startOffset + dy,
+    false
+  );
+}, { passive: false });
+
+elHeader.addEventListener("touchend", ()=>{
+  if(!TOUCH_DRAG) return;
+
+  const threshold = MOBILE_PANEL_OFFSET * 0.6;
+  const shouldExpand = PANEL_OFFSET > threshold;
+
+  TOUCH_DRAG = null;
+  syncPanelState(shouldExpand, true);
+});
+
+elHeader.addEventListener("touchcancel", ()=>{
+  TOUCH_DRAG = null;
+});
+
 window.addEventListener("resize", ()=>{
   requestAnimationFrame(fitVodTitle);
   syncPanelState(PANEL_EXPANDED, false);
