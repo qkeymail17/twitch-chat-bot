@@ -477,43 +477,47 @@ header{
 }
 
 
+
 @media (max-width: 700px){
 
   header{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:260px;
+    padding:10px 12px 12px;
+    background:rgba(24,24,27,.88);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 40px rgba(0,0,0,.38);
+    overflow:hidden;
+    z-index:80;
     display:flex;
     flex-direction:column;
     gap:8px;
-    padding:10px 12px 12px;
-    overflow:hidden;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), 66% calc(100% - 12px), 50% 100%, 34% calc(100% - 12px), 0 calc(100% - 12px));
-    transition:height .24s ease, clip-path .2s ease, padding .2s ease;
+    align-items:stretch;
+    transform:translateY(-100px);
+    transition:transform .24s ease, clip-path .2s ease, box-shadow .2s ease;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),66% calc(100% - 12px),50% 100%,34% calc(100% - 12px),0 calc(100% - 12px));
+    will-change:transform;
+  }
+
+  header.is-expanded{
+    transform:translateY(0);
   }
 
   header.is-compact .panel-top,
   header.is-compact .panel-stats{
-    max-height:0;
     opacity:0;
     transform:translateY(-8px);
     pointer-events:none;
-    margin:0;
-    overflow:hidden;
   }
 
-  header.is-expanded .panel-top{
-    max-height:420px;
-    opacity:1;
-    transform:none;
-  }
-
+  header.is-expanded .panel-top,
   header.is-expanded .panel-stats{
-    max-height:64px;
     opacity:1;
     transform:none;
-  }
-
-  header.is-expanded .vod-heading .vod-channel,
-  header.is-expanded .vod-heading .vod-separator{
-    display:none;
   }
 
   .panel-top{
@@ -521,7 +525,7 @@ header{
     grid-template-columns:132px minmax(0,1fr);
     gap:10px;
     min-width:0;
-    overflow:hidden;
+    transition:opacity .2s ease, transform .24s ease;
   }
 
   .panel-stats{
@@ -531,7 +535,7 @@ header{
     justify-content:space-between;
     width:100%;
     min-width:0;
-    overflow:hidden;
+    transition:opacity .2s ease, transform .24s ease;
   }
 
   .panel-stats .pill{
@@ -581,37 +585,35 @@ header{
   }
 
   .panel-actions{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-    align-items:center;
-    gap:8px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
     width:100%;
     min-width:0;
-    margin-top:-4px;
-    position:relative;
-    z-index:1;
   }
 
   .meta-buttons{
     display:flex;
     gap:6px;
-    flex:1 1 auto;
+    width:100%;
     min-width:0;
   }
 
   .meta-buttons button{
-    height:32px;
+    flex:1 1 0;
+    height:34px;
     font-size:12px;
     box-shadow:0 8px 20px rgba(0,0,0,.24);
   }
 
   .panel-handle{
     display:flex;
-    justify-self:center;
-    width:128px;
-    height:24px;
+    width:140px;
+    height:28px;
+    margin:0 auto;
   }
 }
+
 </style>
 
 </head>
@@ -747,97 +749,69 @@ function clampNumber(value, min, max){
   return Math.max(min, Math.min(max, value));
 }
 
-let PANEL_SIZES = { compact: 132, expanded: 280 };
+
+const MOBILE_PANEL_EXPANDED = 260;
+const MOBILE_PANEL_COMPACT = 160;
+const MOBILE_PANEL_OFFSET = MOBILE_PANEL_COMPACT - MOBILE_PANEL_EXPANDED; // negative
 let PANEL_DRAG = null;
+let PANEL_OFFSET = MOBILE_MQ.matches ? MOBILE_PANEL_OFFSET : 0;
 
-function measureMobilePanelHeight(expanded){
-  if(!elHeader) return expanded ? PANEL_SIZES.expanded : PANEL_SIZES.compact;
-  const clone = elHeader.cloneNode(true);
-  clone.classList.toggle("is-expanded", !!expanded);
-  clone.classList.toggle("is-compact", !expanded);
-  clone.style.position = "absolute";
-  clone.style.visibility = "hidden";
-  clone.style.pointerEvents = "none";
-  clone.style.left = "-99999px";
-  clone.style.top = "0";
-  clone.style.width = `${elHeader.getBoundingClientRect().width || document.documentElement.clientWidth}px`;
-  clone.style.height = "auto";
-  clone.style.maxHeight = "none";
-  clone.style.transition = "none";
-  document.body.appendChild(clone);
-  const height = Math.ceil(clone.getBoundingClientRect().height);
-  clone.remove();
-  return height;
+function clampPanelOffset(v){
+  return Math.max(MOBILE_PANEL_OFFSET, Math.min(0, v));
 }
 
-function refreshMobilePanelSizes(){
-  if(!MOBILE_MQ.matches || !elHeader) return;
-  const compact = measureMobilePanelHeight(false);
-  const expandedMeasured = measureMobilePanelHeight(true);
-  const expandedMin = Math.round(window.innerHeight * 0.34);
-  const expandedMax = Math.round(window.innerHeight * 0.44);
-  PANEL_SIZES.compact = compact;
-  PANEL_SIZES.expanded = clampNumber(Math.max(expandedMeasured, expandedMin), compact + 96, expandedMax);
+function applyPanelOffset(value, animate=true){
+  PANEL_OFFSET = clampPanelOffset(value);
+  if(!MOBILE_MQ.matches){
+    elHeader.style.transform = "";
+    return;
+  }
+  elHeader.style.transition = animate ? "transform .24s ease, clip-path .2s ease, box-shadow .2s ease" : "none";
+  elHeader.style.transform = `translateY(${PANEL_OFFSET}px)`;
 }
 
-function applyPanelState(expanded, animate=true){
+function syncPanelState(expanded, animate=true){
   PANEL_EXPANDED = !!expanded;
   if(!elHeader) return;
-
   elHeader.classList.toggle("is-expanded", PANEL_EXPANDED);
   elHeader.classList.toggle("is-compact", !PANEL_EXPANDED);
 
   if(MOBILE_MQ.matches){
-    refreshMobilePanelSizes();
-    const target = PANEL_EXPANDED ? PANEL_SIZES.expanded : PANEL_SIZES.compact;
-    elHeader.style.transition = animate ? "height .24s ease, clip-path .2s ease, padding .2s ease" : "none";
-    elHeader.style.height = `${target}px`;
+    applyPanelOffset(PANEL_EXPANDED ? 0 : MOBILE_PANEL_OFFSET, animate);
   }else{
-    elHeader.style.height = "";
-    elHeader.style.transition = "";
+    elHeader.style.transform = "";
   }
 }
 
-function updatePanelState(expanded, animate=true){
-  applyPanelState(expanded, animate);
-}
-
-updatePanelState(PANEL_EXPANDED, false);
+syncPanelState(PANEL_EXPANDED, false);
 
 if(elPanelHandle){
   elPanelHandle.addEventListener("pointerdown", (e)=>{
     if(!MOBILE_MQ.matches) return;
     e.preventDefault();
-    refreshMobilePanelSizes();
     PANEL_DRAG = {
       pointerId: e.pointerId,
       startY: e.clientY,
-      startHeight: elHeader.getBoundingClientRect().height,
-      sizes: {...PANEL_SIZES},
+      startOffset: PANEL_OFFSET,
     };
-    elPanelHandle.setPointerCapture(e.pointerId);
-    elHeader.style.transition = "none";
+    try{ elPanelHandle.setPointerCapture(e.pointerId); }catch(err){}
     elPanelHandle.classList.add("is-dragging");
+    elHeader.style.transition = "none";
   });
 
   elPanelHandle.addEventListener("pointermove", (e)=>{
     if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
-    const nextHeight = clampNumber(
-      PANEL_DRAG.startHeight + (e.clientY - PANEL_DRAG.startY),
-      PANEL_DRAG.sizes.compact,
-      PANEL_DRAG.sizes.expanded
-    );
-    elHeader.style.height = `${nextHeight}px`;
+    applyPanelOffset(PANEL_DRAG.startOffset + (e.clientY - PANEL_DRAG.startY), false);
   });
 
   const finishDrag = (e)=>{
     if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
     try{ elPanelHandle.releasePointerCapture(e.pointerId); }catch(err){}
     elPanelHandle.classList.remove("is-dragging");
-    const currentHeight = elHeader.getBoundingClientRect().height;
-    const midpoint = (PANEL_DRAG.sizes.compact + PANEL_DRAG.sizes.expanded) / 2;
+    const midpoint = MOBILE_PANEL_OFFSET / 2;
+    const shouldExpand = PANEL_OFFSET > midpoint;
     PANEL_DRAG = null;
-    updatePanelState(currentHeight > midpoint, true);
+    syncPanelState(shouldExpand, true);
   };
 
   elPanelHandle.addEventListener("pointerup", finishDrag);
@@ -846,7 +820,7 @@ if(elPanelHandle){
 
 window.addEventListener("resize", ()=>{
   requestAnimationFrame(fitVodTitle);
-  updatePanelState(PANEL_EXPANDED, false);
+  syncPanelState(PANEL_EXPANDED, false);
 });
 
 function openVod(){
