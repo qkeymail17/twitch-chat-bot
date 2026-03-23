@@ -661,17 +661,16 @@ header{
   header.is-dragging{
   transition:none !important;
   }
+
   #dragZone{
   position:fixed;
   top:0;
   left:0;
   right:0;
-
-  height:220px; /* регулируешь потом */
-
-  z-index:70; /* ниже header (80), выше чата */
-
+  height:220px;
+  z-index:70;
   pointer-events:auto;
+  touch-action: none;
 }
 }
 </style>
@@ -858,7 +857,7 @@ elDragZone.addEventListener("pointerdown", (e)=>{
     startOffset: PANEL_OFFSET,
   };
 
-  try{ elHeader.setPointerCapture(e.pointerId); }catch(err){}
+  try{ elDragZone.setPointerCapture(e.pointerId); }catch(err){}
   elHeader.style.transition = "none";
   elHeader.classList.add("is-dragging");
 });
@@ -871,7 +870,7 @@ elDragZone.addEventListener("pointermove", (e)=>{
 elDragZone.addEventListener("pointerup", (e)=>{
   if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
 
-  try{ elHeader.releasePointerCapture(e.pointerId); }catch(err){}
+  try{ elDragZone.releasePointerCapture(e.pointerId); }catch(err){}
 
   const threshold = MOBILE_PANEL_OFFSET * 0.6;
   const shouldExpand = PANEL_OFFSET > threshold;
@@ -884,7 +883,7 @@ elDragZone.addEventListener("pointerup", (e)=>{
   elDragZone.addEventListener("pointercancel", (e)=>{
   if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
 
-  try{ elHeader.releasePointerCapture(e.pointerId); }catch(err){}
+  try{ elDragZone.releasePointerCapture(e.pointerId); }catch(err){}
 
   PANEL_DRAG = null;
   elHeader.classList.remove("is-dragging");
