@@ -54,10 +54,11 @@ header{
   height:100%;
 }
 
+
 .panel-top{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
+  display:grid;
+  grid-template-columns:132px minmax(0,1fr);
+  gap:10px;
   min-width:0;
   overflow:hidden;
   transition:max-height .25s ease, opacity .2s ease, transform .25s ease, margin .2s ease;
@@ -66,13 +67,20 @@ header{
   transform:none;
 }
 
-.panel-meta{
+.panel-stats{
   display:flex;
-  justify-content:space-between;
-  align-items:center;
   gap:8px;
-  min-width:0;
+  align-items:center;
+  justify-content:space-between;
   width:100%;
+  min-width:0;
+}
+
+.panel-stats .pill{
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .panel-actions{
@@ -96,12 +104,11 @@ header{
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:background .15s ease, border-color .15s ease, transform .15s ease;
 }
 
 .panel-toggle:hover{
-  border-color:rgba(145,70,255,0.6);
-  background:rgba(255,255,255,0.03);
+  background:var(--panel);
+  border-color:var(--border);
 }
 
 
@@ -235,16 +242,18 @@ header{
   font-size:13px;
 }
 .button-toggle.active{
-  background:rgba(145,70,255,0.18);
-  border-color:rgba(145,70,255,0.6);
+  background:var(--panel);
+  border-color:var(--border);
 }
 
 .toggle-button{
-  transition:background .15s ease, border-color .15s ease, transform .15s ease;
+  background:var(--panel);
+  border:1px solid var(--border);
 }
+
 .toggle-button.is-active{
-  background:rgba(145,70,255,0.18);
-  border-color:rgba(145,70,255,0.6);
+  background:var(--panel);
+  border-color:var(--border);
 }
 
 .toggle-button.is-inactive{
@@ -265,6 +274,7 @@ header{
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
+  cursor:pointer;
 }
 
 .meta-buttons button:hover{
@@ -314,17 +324,16 @@ header{
   border:1px solid var(--border);
   color:var(--text);
   cursor:pointer;
-  transition:background .15s ease, border-color .15s ease, transform .15s ease;
 }
 
 .snapshot-toggle:hover{
-  border-color:var(--border);
   background:var(--panel);
+  border-color:var(--border);
 }
 
 .snapshot-toggle.is-active{
-  background:rgba(145,70,255,0.18);
-  border-color:rgba(145,70,255,0.6);
+  background:var(--panel);
+  border-color:var(--border);
 }
 
 .snapshot-toggle.is-inactive{
@@ -461,15 +470,32 @@ header{
   #list{margin-top:0;border-radius:0}
 }
 
+
 @media (max-width: 700px){
 
   header{
     display:flex;
     flex-direction:column;
     gap:8px;
+    padding-bottom:58px;
   }
 
-  header.is-compact .panel-top{
+  header::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-6px;
+    transform:translateX(-50%);
+    width:72px;
+    height:14px;
+    background:var(--bg);
+    border-radius:999px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  header.is-compact .panel-top,
+  header.is-compact .panel-stats{
     max-height:0;
     opacity:0;
     transform:translateY(-8px);
@@ -484,11 +510,44 @@ header{
     transform:none;
   }
 
+  header.is-expanded .panel-stats{
+    max-height:64px;
+    opacity:1;
+    transform:none;
+  }
+
+  header.is-expanded .vod-heading .vod-channel,
+  header.is-expanded .vod-heading .vod-separator{
+    display:none;
+  }
+
   .panel-top{
     display:grid;
     grid-template-columns:132px minmax(0,1fr);
     gap:10px;
-    align-items:start;
+    min-width:0;
+    overflow:hidden;
+  }
+
+  .panel-stats{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    min-width:0;
+    overflow:hidden;
+  }
+
+  .panel-stats .pill{
+    min-width:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .panel-stats-channel{
+    flex:1 1 auto;
   }
 
   .vod-card{
@@ -509,10 +568,6 @@ header{
     max-width:none;
   }
 
-  .panel-meta{
-    margin-top:2px;
-  }
-
   .controls{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -531,12 +586,17 @@ header{
   }
 
   .panel-actions{
+    position:absolute;
+    left:12px;
+    right:12px;
+    bottom:8px;
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:8px;
-    width:100%;
+    width:auto;
     min-width:0;
+    z-index:1;
   }
 
   .meta-buttons{
@@ -547,19 +607,19 @@ header{
   }
 
   .meta-buttons button{
-    height:36px;
+    height:32px;
     font-size:12px;
   }
 
   .panel-toggle{
-    display:flex;
     min-width:94px;
-    height:36px;
+    height:32px;
     font-size:12px;
     flex:0 0 auto;
   }
 }
 </style>
+
 </head>
 <body>
 <div class="page">
@@ -580,14 +640,15 @@ header{
             <span class="vod-separator" aria-hidden="true">•</span>
             <span id="title" class="vod-title">—</span>
           </div>
-
-          <div class="panel-meta">
-            <span class="pill">
-              <span id="streamDateWrap" style="display:none"><span id="streamDate">—</span></span>
-            </span>
-            <span class="pill" id="stat">—</span>
-          </div>
         </div>
+      </div>
+
+      <div class="panel-stats">
+        <span class="pill panel-stats-channel" id="mobileChannel">—</span>
+        <span class="pill">
+          <span id="streamDateWrap" style="display:none"><span id="streamDate">—</span></span>
+        </span>
+        <span class="pill" id="stat">—</span>
       </div>
 
       <div class="controls">
@@ -633,6 +694,7 @@ const TWITCH_CHANNEL_ID = meta.channel_id || null;
 const elTitle=document.getElementById("title");
 const elChannel=document.getElementById("channel");
 const elStat=document.getElementById("stat");
+const elMobileChannel=document.getElementById("mobileChannel");
 const elList=document.getElementById("list");
 
 const elStreamDate=document.getElementById("streamDate");
@@ -648,10 +710,11 @@ const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
 const elVodHeading=document.querySelector(".vod-heading");
 let SHOW_TIME=true;
-let PANEL_EXPANDED = !window.matchMedia("(max-width: 700px)").matches;
+let PANEL_EXPANDED = window.matchMedia("(min-width: 701px)").matches;
 
 elTitle.textContent = meta.title || "—";
 elChannel.textContent = meta.channel || "—";
+if(elMobileChannel) elMobileChannel.textContent = meta.channel || "—";
 
 function updateMainTimeButton(){
   elToggleTime.classList.toggle("is-active", SHOW_TIME);
@@ -1046,6 +1109,8 @@ async function createSnapshotDataUrl(rowsToClone, includeTime, includeDate){
   return canvas.toDataURL("image/png");
 }
 
+const nextFrame = () => new Promise(requestAnimationFrame);
+
 function updateSnapshotTimeButton(){
   if(!SNAPSHOT_TIME_BTN) return;
   SNAPSHOT_TIME_BTN.classList.toggle("is-active", SNAPSHOT_TIME_ENABLED);
@@ -1118,6 +1183,7 @@ function openSnapshotOverlay(rowsToClone){
     e.stopPropagation();
     SNAPSHOT_TIME_ENABLED = !SNAPSHOT_TIME_ENABLED;
     updateSnapshotTimeButton();
+    await nextFrame();
     await rerenderSnapshotPreview(rowsToClone);
   });
 
@@ -1129,6 +1195,7 @@ function openSnapshotOverlay(rowsToClone){
     e.stopPropagation();
     SNAPSHOT_DATE_ENABLED = !SNAPSHOT_DATE_ENABLED;
     updateSnapshotDateButton();
+    await nextFrame();
     await rerenderSnapshotPreview(rowsToClone);
   });
 
