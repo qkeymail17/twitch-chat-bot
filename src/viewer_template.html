@@ -234,7 +234,6 @@ header{
 .meta-buttons{
   display:flex;
   gap:6px;
-  margin-top:auto;
 }
 
 .meta-buttons button{
@@ -471,10 +470,12 @@ header{
     grid-template-columns: 170px minmax(0,1fr);
     gap:10px;
     align-items:stretch;
+    grid-template-rows:auto auto auto;
   }
 
   .vod-card{
     margin:0;
+    grid-row:1 / span 2;
   }
 
   /* убираем текст под превью (иначе раздувает блок) */
@@ -484,6 +485,8 @@ header{
 
   .meta{
     margin:0;
+    grid-column:2;
+    grid-row:1;
   }
 
   /* кнопки вниз */
@@ -494,6 +497,7 @@ header{
     grid-template-columns:repeat(6,minmax(0,1fr));
     gap:6px;
     min-width:0;
+    grid-row:3;
   }
 
   .controls input{
@@ -526,6 +530,14 @@ header{
     min-width:0;
     overflow-wrap:anywhere;
     word-break:break-word;
+  }
+
+  /* кнопки под заголовком */
+  .meta-buttons{
+    grid-column:2;
+    grid-row:2;
+    display:flex;
+    gap:6px;
   }
 }
 </style>
