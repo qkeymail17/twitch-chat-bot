@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Twitch Chat Viewer</title>
 <style>
+*{
+  -webkit-tap-highlight-color: transparent;
+}
 :root{
   --bg:#0f0f12;
   --panel:#15151b;
@@ -292,10 +295,12 @@ header{
   border:1px solid var(--border);
   color:var(--text);
   cursor:pointer;
+  transition: background .15s ease, border-color .15s ease, transform .08s ease;
 }
 
-.meta-buttons button{
-  transition: background .15s ease, border-color .15s ease, transform .08s ease;
+button, .vod-card{
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* активное состояние */
@@ -888,13 +893,9 @@ elHeader.addEventListener("pointermove", (e)=>{
 
   const dy = e.clientY - PANEL_DRAG.startY;
 
-  if(PANEL_DRAG.fromInput && !PANEL_DRAG.moved){
-    if(Math.abs(dy) < 8) return;
-    PANEL_DRAG.moved = true;
-    e.preventDefault();
-  } else {
-    e.preventDefault();
-  }
+  if(Math.abs(dy) < 5) return; // ← КЛЮЧ
+
+  e.preventDefault();
 
   applyPanelOffset(
     PANEL_DRAG.startOffset + dy,
@@ -946,10 +947,11 @@ elHeader.addEventListener("touchmove", (e)=>{
   const t = e.touches[0];
   const dy = t.clientY - TOUCH_DRAG.startY;
 
-  if(TOUCH_DRAG.fromInput && !TOUCH_DRAG.moved){
-    if(Math.abs(dy) < 8) return;
-    TOUCH_DRAG.moved = true;
-  }
+if(Math.abs(dy) < 5) return;
+
+if(TOUCH_DRAG.fromInput && !TOUCH_DRAG.moved){
+  TOUCH_DRAG.moved = true;
+}
 
   e.preventDefault(); // ← КЛЮЧЕВОЕ
 
