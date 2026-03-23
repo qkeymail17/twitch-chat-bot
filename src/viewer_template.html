@@ -845,10 +845,14 @@ syncPanelState(PANEL_EXPANDED, false);
 elHeader.addEventListener("pointerdown", (e)=>{
   if(!MOBILE_MQ.matches) return;
 
+  const isInput = e.target.closest("input");
+
   PANEL_DRAG = {
     pointerId: e.pointerId,
     startY: e.clientY,
     startOffset: PANEL_OFFSET,
+    fromInput: !!isInput,
+    moved: false
   };
 
   elHeader.setPointerCapture(e.pointerId);
@@ -859,8 +863,18 @@ elHeader.addEventListener("pointerdown", (e)=>{
 elHeader.addEventListener("pointermove", (e)=>{
   if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
 
+  const dy = e.clientY - PANEL_DRAG.startY;
+
+  if(PANEL_DRAG.fromInput && !PANEL_DRAG.moved){
+    if(Math.abs(dy) < 8) return;
+    PANEL_DRAG.moved = true;
+    e.preventDefault();
+  } else {
+    e.preventDefault();
+  }
+
   applyPanelOffset(
-    PANEL_DRAG.startOffset + (e.clientY - PANEL_DRAG.startY),
+    PANEL_DRAG.startOffset + dy,
     false
   );
 });
