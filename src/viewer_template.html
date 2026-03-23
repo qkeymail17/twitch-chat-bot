@@ -662,16 +662,6 @@ header{
   transition:none !important;
   }
 
-  #dragZone{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  height:220px;
-  z-index:90;
-  pointer-events:none;
-  touch-action: none;
-}
 }
 </style>
 
@@ -721,7 +711,6 @@ header{
 </div>
     </header>
 
-    <div id="dragZone"></div>
     <div id="list"></div>
 
   </div>
@@ -763,7 +752,6 @@ const elExportBtn=document.getElementById("exportBtn");
 const elPanelHandle=document.getElementById("panelHandle");
 const MOBILE_MQ = window.matchMedia("(max-width: 700px)");
 const elHeader=document.querySelector("header");
-const elDragZone = document.getElementById("dragZone");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
 const elVodHeading=document.querySelector(".vod-heading");
@@ -845,14 +833,10 @@ function syncPanelState(expanded, animate=true){
 
 syncPanelState(PANEL_EXPANDED, false);
 
-// === drag по всей панели (кроме кнопок и input) ===
-elDragZone.addEventListener("pointerdown", (e)=>{
+elHeader.addEventListener("pointerdown", (e)=>{
   if(!MOBILE_MQ.matches) return;
 
   if(e.target.closest("input")) return;
-  if(e.target.closest("button")) return;
-
-  elDragZone.style.pointerEvents = "auto"; // ← ВОТ СЮДА
 
   PANEL_DRAG = {
     pointerId: e.pointerId,
@@ -860,38 +844,41 @@ elDragZone.addEventListener("pointerdown", (e)=>{
     startOffset: PANEL_OFFSET,
   };
 
-  try{ elDragZone.setPointerCapture(e.pointerId); }catch(err){}
+  elHeader.setPointerCapture(e.pointerId);
   elHeader.style.transition = "none";
   elHeader.classList.add("is-dragging");
 });
 
-elDragZone.addEventListener("pointermove", (e)=>{
+elHeader.addEventListener("pointermove", (e)=>{
   if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
-  applyPanelOffset(PANEL_DRAG.startOffset + (e.clientY - PANEL_DRAG.startY), false);
+
+  applyPanelOffset(
+    PANEL_DRAG.startOffset + (e.clientY - PANEL_DRAG.startY),
+    false
+  );
 });
 
-elDragZone.addEventListener("pointerup", (e)=>{
+elHeader.addEventListener("pointerup", (e)=>{
   if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
 
-  try{ elDragZone.releasePointerCapture(e.pointerId); }catch(err){}
+  elHeader.releasePointerCapture(e.pointerId);
 
   const threshold = MOBILE_PANEL_OFFSET * 0.6;
   const shouldExpand = PANEL_OFFSET > threshold;
 
   PANEL_DRAG = null;
   elHeader.classList.remove("is-dragging");
+
   syncPanelState(shouldExpand, true);
-  elDragZone.style.pointerEvents = "none";
 });
 
-  elDragZone.addEventListener("pointercancel", (e)=>{
+elHeader.addEventListener("pointercancel", (e)=>{
   if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
 
-  try{ elDragZone.releasePointerCapture(e.pointerId); }catch(err){}
+  elHeader.releasePointerCapture(e.pointerId);
 
   PANEL_DRAG = null;
   elHeader.classList.remove("is-dragging");
-  elDragZone.style.pointerEvents = "none";
 });
 
 window.addEventListener("resize", ()=>{
