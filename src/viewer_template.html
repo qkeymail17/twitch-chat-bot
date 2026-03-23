@@ -8,6 +8,12 @@
 *{
   -webkit-tap-highlight-color: transparent;
 }
+*{
+  -webkit-touch-callout: none;
+}
+button{
+  -webkit-tap-highlight-color: transparent;
+}
 :root{
   --bg:#0f0f12;
   --panel:#15151b;
@@ -883,7 +889,6 @@ elHeader.addEventListener("pointerdown", (e)=>{
     moved: false
   };
 
-  elHeader.setPointerCapture(e.pointerId);
   elHeader.style.transition = "none";
   elHeader.classList.add("is-dragging");
 });
@@ -893,7 +898,12 @@ elHeader.addEventListener("pointermove", (e)=>{
 
   const dy = e.clientY - PANEL_DRAG.startY;
 
-  if(Math.abs(dy) < 5) return; // ← КЛЮЧ
+  if(Math.abs(dy) < 5) return;
+
+  // ← ДОБАВЬ ЭТО
+  if(!elHeader.hasPointerCapture(e.pointerId)){
+    elHeader.setPointerCapture(e.pointerId);
+  }
 
   e.preventDefault();
 
