@@ -669,7 +669,7 @@ header{
   right:0;
   height:220px;
   z-index:90;
-  pointer-events:auto;
+  pointer-events:none;
   touch-action: none;
 }
 }
@@ -852,6 +852,8 @@ elDragZone.addEventListener("pointerdown", (e)=>{
   if(e.target.closest("input")) return;
   if(e.target.closest("button")) return;
 
+  elDragZone.style.pointerEvents = "auto"; // ← ВОТ СЮДА
+
   PANEL_DRAG = {
     pointerId: e.pointerId,
     startY: e.clientY,
@@ -879,6 +881,7 @@ elDragZone.addEventListener("pointerup", (e)=>{
   PANEL_DRAG = null;
   elHeader.classList.remove("is-dragging");
   syncPanelState(shouldExpand, true);
+  elDragZone.style.pointerEvents = "none";
 });
 
   elDragZone.addEventListener("pointercancel", (e)=>{
@@ -888,6 +891,7 @@ elDragZone.addEventListener("pointerup", (e)=>{
 
   PANEL_DRAG = null;
   elHeader.classList.remove("is-dragging");
+  elDragZone.style.pointerEvents = "none";
 });
 
 window.addEventListener("resize", ()=>{
