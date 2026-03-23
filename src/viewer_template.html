@@ -598,12 +598,12 @@ header{
     padding:6px 12px;
   }
 
-    .panel-actions{
-      display:flex;
-      flex-direction:column;
-      gap:0;
-      width:100%;
-    }
+  .panel-actions{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    width:100%;
+  }
 
   .meta-buttons{
     display:flex;
@@ -620,25 +620,26 @@ header{
   }
 
   .panel-handle{
-    display:flex;
     position:absolute;
     left:50%;
     bottom:-33px;
     transform:translateX(-50%);
+
+    display:flex;
     width:150px;
     height:32px;
-    margin:0;
+
+    background:rgba(255,255,255,0.06);
+    border:none;
     border-radius:0 0 10px 10px;
-    background:#18181b;
-    border:1px solid var(--border);
-    border-top:none;
+
     box-shadow:0 10px 24px rgba(0,0,0,.36);
+
     cursor:grab;
-    touch-action:none;
     user-select:none;
-    flex:0 0 auto;
+    touch-action:none;
+
     z-index:10;
-    pointer-events:auto;
   }
 
   .panel-handle span{
