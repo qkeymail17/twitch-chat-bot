@@ -668,7 +668,7 @@ header{
   left:0;
   right:0;
   height:220px;
-  z-index:70;
+  z-index:90;
   pointer-events:auto;
   touch-action: none;
 }
@@ -850,6 +850,7 @@ elDragZone.addEventListener("pointerdown", (e)=>{
   if(!MOBILE_MQ.matches) return;
 
   if(e.target.closest("input")) return;
+  if(e.target.closest("button")) return;
 
   PANEL_DRAG = {
     pointerId: e.pointerId,
