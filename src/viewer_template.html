@@ -294,6 +294,29 @@ header{
   cursor:pointer;
 }
 
+.meta-buttons button{
+  transition: background .15s ease, border-color .15s ease, transform .08s ease;
+}
+
+/* активное состояние */
+.meta-buttons button.is-active,
+.button-toggle.active{
+  background:#2a2a35;
+  border-color:#3a3a48;
+}
+
+/* неактивное */
+.meta-buttons button.is-inactive{
+  background:#15151b;
+  border-color:var(--border);
+  opacity:.7;
+}
+
+/* нажатие */
+.meta-buttons button:active{
+  transform:scale(0.96);
+}
+
 .meta-buttons button:hover{
   border-color:var(--border);
   background:var(--panel);
@@ -1430,8 +1453,16 @@ function openSnapshotOverlay(rowsToClone){
 
 elExportBtn.addEventListener("click", async (e)=>{
   e.stopPropagation();
+
+  elExportBtn.classList.add("active");
+  setTimeout(()=>elExportBtn.classList.remove("active"), 150);
+
   const sel = window.getSelection();
-  if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){ alert("Выделите текст сообщений"); return; }
+  if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){
+    alert("Выделите текст сообщений");
+    return;
+  }
+
   const range = sel.getRangeAt(0);
   let node = range.startContainer; if(node.nodeType===3) node=node.parentNode;
   const startRow = node.closest(".row"); if(!startRow) return;
@@ -1440,6 +1471,7 @@ elExportBtn.addEventListener("click", async (e)=>{
   const startIndex = Number(startRow.dataset.id);
   const endIndex   = Number(endRow.dataset.id);
   if(Number.isNaN(startIndex)||Number.isNaN(endIndex)) return;
+
   const from = Math.min(startIndex,endIndex), to = Math.max(startIndex,endIndex);
 
   sel.removeAllRanges();
