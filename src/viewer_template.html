@@ -33,7 +33,7 @@ header{
   max-width:none;
   background:#18181b;
   border-bottom:1px solid var(--border);
-  padding:12px;
+  padding:8px;
   box-sizing:border-box;
   position:sticky;
   top:0;
@@ -43,7 +43,7 @@ header{
 .meta{
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:2px;
   margin:0;
   min-width:0;
   height:100%;
@@ -94,7 +94,7 @@ header{
 }
 
 .vod-card{
-  margin-bottom:14px;
+  margin-bottom:6px;
   border:1px solid var(--border);
   border-radius:18px;
   overflow:hidden;
@@ -136,8 +136,8 @@ header{
 .controls{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:8px;
-  margin-top:8px;
+  gap:4px;
+  margin-top:4px;
   width:100%;
   min-width:0;
 }
@@ -170,7 +170,7 @@ header{
 
 .controls input{
   min-width:0;
-  height:36px;
+  height:32px;
   padding:6px 12px;
   border-radius:10px;
   background:var(--panel);
@@ -199,11 +199,12 @@ header{
 .meta-buttons{
   display:flex;
   gap:6px;
+  margin-top:auto;
 }
 
 .meta-buttons button{
   flex:1;
-  height:36px;
+  height:32px;
   font-size:13px;
   border-radius:10px;
   background:var(--panel);
@@ -407,7 +408,7 @@ header{
     display:grid;
     grid-template-columns: 170px minmax(0,1fr);
     gap:10px;
-    align-items:start;
+    align-items:stretch;
   }
 
   .vod-card{
@@ -416,7 +417,6 @@ header{
 
   .meta{
     margin:0;
-    align-self:start;
   }
 
   /* поля и footer вниз */
