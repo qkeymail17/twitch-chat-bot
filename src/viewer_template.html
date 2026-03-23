@@ -33,7 +33,7 @@ header{
   max-width:none;
   background:#18181b;
   border-bottom:1px solid var(--border);
-  padding:8px;
+  padding:12px;
   box-sizing:border-box;
   position:sticky;
   top:0;
@@ -43,7 +43,7 @@ header{
 .meta{
   display:flex;
   flex-direction:column;
-  gap:2px;
+  gap:6px;
   margin:0;
   min-width:0;
   height:100%;
@@ -94,7 +94,7 @@ header{
 }
 
 .vod-card{
-  margin-bottom:6px;
+  margin-bottom:14px;
   border:1px solid var(--border);
   border-radius:18px;
   overflow:hidden;
@@ -128,7 +128,6 @@ header{
   inset:0;
   background:linear-gradient(180deg, rgba(0,0,0,.06) 35%, rgba(0,0,0,.7) 100%);
 }
-.vod-card-title{font-size:14px;font-weight:700;line-height:1.25;color:var(--text);overflow-wrap:anywhere;word-break:break-word;}
 .pill{
   font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   color:var(--muted);
@@ -137,8 +136,8 @@ header{
 .controls{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:6px;
-  margin-top:4px;
+  gap:8px;
+  margin-top:8px;
   width:100%;
   min-width:0;
 }
@@ -152,20 +151,6 @@ header{
   grid-row:1;
 }
 
-.controls #vodBtn{
-  grid-column:1 / span 2;
-  grid-row:2;
-}
-
-.controls #exportBtn{
-  grid-column:3 / span 2;
-  grid-row:2;
-}
-
-.controls #toggleTime{
-  grid-column:5 / span 2;
-  grid-row:2;
-}
 
 .controls-footer{
   grid-column:1 / span 6;
@@ -184,7 +169,6 @@ header{
 }
 
 .controls input{
-  flex:1 1 140px;
   min-width:0;
   height:36px;
   padding:6px 12px;
@@ -194,28 +178,9 @@ header{
   color:var(--text);
   font-size:13px;
 }
-.controls button{
-  width:100%;
-  height:36px;
-  padding:0 12px;
-  border-radius:10px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  color:var(--text);
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
 .button-toggle.active{
   background:rgba(145,70,255,0.18);
   border-color:rgba(145,70,255,0.6);
-}
-
-.controls button:hover{
-  border-color:var(--border);
-  background:var(--panel);
 }
 
 .toggle-button{
@@ -234,6 +199,7 @@ header{
 .meta-buttons{
   display:flex;
   gap:6px;
+  margin-top:auto;
 }
 
 .meta-buttons button{
@@ -378,15 +344,6 @@ header{
   display:none !important;
 }
 .export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
-.export-meta-left{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.export-meta-left img{
-  height:20px;
-}
 
 /* ===== Desktop layout ===== */
 @media (min-width: 900px){
@@ -401,7 +358,7 @@ header{
     position:sticky;
     top:24px; /* offset from viewport top */
     border-radius:14px;
-    padding:12px;
+    padding:16px;
     height:fit-content;
   }
 
@@ -415,30 +372,11 @@ header{
 }
 
 .controls input{
-  flex:0 0 auto;
-  height:36px !important;
-  padding:6px 12px !important;
-  line-height:1.2;
-}
-
-.controls button{
-  flex:0 0 auto;
-  height:36px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:0 12px;
-}
-.controls button{
   width:100%;
   height:36px;
-  font-size:13px;
-}
-
-.controls input{
-  width:100%;
-  height:36px;
+  flex:0 0 auto;
   padding:6px 12px;
+  line-height:1.2;
   font-size:13px;
 }
 
@@ -465,31 +403,23 @@ header{
 
 @media (max-width: 700px){
 
+  /* Mobile: preview on the left, metadata/actions on the right. */
   header{
     display:grid;
     grid-template-columns: 170px minmax(0,1fr);
     gap:10px;
     align-items:stretch;
-    grid-template-rows:auto auto auto;
   }
 
   .vod-card{
     margin:0;
-    grid-row:1 / span 2;
-  }
-
-  /* убираем текст под превью (иначе раздувает блок) */
-  .vod-card-copy{
-    display:none;
   }
 
   .meta{
     margin:0;
-    grid-column:2;
-    grid-row:1;
   }
 
-  /* кнопки вниз */
+  /* поля и footer вниз */
   .controls{
     grid-column:1 / span 2;
     margin-top:8px;
@@ -497,7 +427,6 @@ header{
     grid-template-columns:repeat(6,minmax(0,1fr));
     gap:6px;
     min-width:0;
-    grid-row:3;
   }
 
   .controls input{
@@ -508,12 +437,6 @@ header{
     padding:6px 12px;
   }
 
-  .controls button{
-    width:100%;
-    min-width:0;
-    height:36px;
-    font-size:12px;
-  }
 
   .controls-footer{
     grid-column:1 / span 6;
@@ -530,14 +453,6 @@ header{
     min-width:0;
     overflow-wrap:anywhere;
     word-break:break-word;
-  }
-
-  /* кнопки под заголовком */
-  .meta-buttons{
-    grid-column:2;
-    grid-row:2;
-    display:flex;
-    gap:6px;
   }
 }
 </style>
@@ -587,10 +502,9 @@ header{
 <script id="chat-data" type="application/json">{{CHAT_DATA_JSON}}</script>
 
 <script>
-/* JS оставил без изменений логики — только адаптирован под новый DOM.
-   Если что-то ломается, это будет видно в консоли, но визуальная часть
-   теперь управляется только CSS (mobile: header scrolls away;
-   desktop: left column sticky). */
+/* DOM is shared by two layouts:
+   desktop = sticky sidebar, mobile = 2-column header grid. */
+
 
 const DATA = JSON.parse(document.getElementById("chat-data").textContent || "{}");
 const meta = DATA.meta || {};
@@ -732,12 +646,6 @@ function colorForUser(name){
   const last = u.charCodeAt(u.length - 1) || 0;
   return DEFAULT_COLORS[(first + last) % DEFAULT_COLORS.length];
 }
-function badgeKey(setId, version){
-  const sid = String(setId || "").trim().toLowerCase();
-  const ver = String(version || "").trim();
-  return sid && ver ? `${sid}/${ver}` : "";
-}
-
 function renderBadges(el, badges){
   if(!Array.isArray(badges) || badges.length === 0) return false;
 
@@ -857,8 +765,8 @@ function renderFragmentsWithEmotes(el, fragments, emotes){
 }
 
 const CHUNK = 800;
-const MAX_ROWS = 3000;
 
+/* Rows are appended in chunks so huge chats do not freeze the page. */
 let filtered = rows;
 let rendered = 0;
 let EMOTES = new Map();
@@ -943,7 +851,7 @@ elToggleTime.addEventListener("click",()=>{
   elList.innerHTML=""; rendered=0; renderMore();
 });
 
-/* snapshot logic kept intact (uses html2canvas included below) */
+/* Snapshot overlay: clone visible rows and render a fresh PNG every toggle. */
 let SNAPSHOT_TIME_ENABLED = SHOW_TIME;
 let SNAPSHOT_DATE_ENABLED = false;
 let SNAPSHOT_RENDER_TOKEN = 0;
