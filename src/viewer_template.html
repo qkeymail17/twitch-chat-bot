@@ -644,7 +644,7 @@ header{
 
   align-items:center;
   justify-content:center;
-}
+  }
 
   .panel-handle span{
     display:block;
@@ -660,6 +660,15 @@ header{
   }
   header.is-dragging{
   transition:none !important;
+  }
+
+  .panel-handle::before{
+    content:"";
+    position:absolute;
+    left:-40px;
+    right:-40px;
+    top:-20px;
+    bottom:-20px;
   }
 
 }
@@ -835,8 +844,6 @@ syncPanelState(PANEL_EXPANDED, false);
 
 elHeader.addEventListener("pointerdown", (e)=>{
   if(!MOBILE_MQ.matches) return;
-
-  if(e.target.closest("input")) return;
 
   PANEL_DRAG = {
     pointerId: e.pointerId,
