@@ -736,7 +736,7 @@ header{
 
       <div class="panel-actions">
   <div class="meta-buttons">
-    <button id="exportBtn" class="button-toggle active">📸 Снимок</button>
+    <button id="exportBtn" class="button-toggle">📸 Снимок</button>
     <button id="toggleTime" class="toggle-button is-active" aria-pressed="true">⏱️ Время</button>
   </div>
   <div class="panel-handle" id="panelHandle" aria-hidden="true"><span></span></div>
@@ -1454,8 +1454,8 @@ function openSnapshotOverlay(rowsToClone){
 elExportBtn.addEventListener("click", async (e)=>{
   e.stopPropagation();
 
-  elExportBtn.classList.add("active");
-  setTimeout(()=>elExportBtn.classList.remove("active"), 150);
+  elExportBtn.classList.add("is-active");
+  setTimeout(()=>elExportBtn.classList.remove("is-active"), 150);
 
   const sel = window.getSelection();
   if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){
