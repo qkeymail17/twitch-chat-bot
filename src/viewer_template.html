@@ -112,8 +112,8 @@ header{
   width:120px;
   height:24px;
   border-radius:999px;
-  background:#111116;
-  border:1px solid var(--border);
+  background:#18181b;
+  border:none;
   box-shadow:0 10px 24px rgba(0,0,0,.36);
   cursor:grab;
   touch-action:none;
@@ -121,6 +121,7 @@ header{
   flex:0 0 auto;
   position:relative;
 }
+
 .panel-handle span{
   display:block;
   width:42px;
@@ -128,8 +129,6 @@ header{
   border-radius:999px;
   background:rgba(255,255,255,.12);
 }
-.panel-handle.is-dragging{cursor:grabbing;}
-
 
 .vod-heading{
   display:flex;
@@ -622,14 +621,14 @@ header{
   .panel-handle{
     position:absolute;
     left:50%;
-    bottom:-33px;
+    bottom:-26px;
     transform:translateX(-50%);
 
     display:flex;
-    width:150px;
-    height:32px;
+    width:120px;
+    height:22px;
 
-    background:rgba(255,255,255,0.15);
+    background:#18181b;
     border:none;
     border-radius:0 0 10px 10px;
 
@@ -640,6 +639,9 @@ header{
     touch-action:none;
 
     z-index:10;
+
+    align-items:center;
+    justify-content:center;
   }
 
   .panel-handle span{
@@ -647,12 +649,17 @@ header{
     width:46px;
     height:4px;
     border-radius:999px;
-    background:rgba(255,255,255,.12);
+    background: rgba(255,255,255,0.22);
   }
 
-  .panel-handle.is-dragging{cursor:grabbing;}
+  .panel-handle.is-dragging{
+  cursor:grabbing;
+  transform:translateX(-50%) scale(0.96);
+  }
+  header.is-dragging{
+  transition:none !important;
+  }
 }
-
 </style>
 
 </head>
@@ -827,6 +834,7 @@ if(elPanelHandle){
   elPanelHandle.addEventListener("pointerdown", (e)=>{
     if(!MOBILE_MQ.matches) return;
     e.preventDefault();
+    e.stopPropagation();
     PANEL_DRAG = {
       pointerId: e.pointerId,
       startY: e.clientY,
@@ -835,6 +843,7 @@ if(elPanelHandle){
     try{ elPanelHandle.setPointerCapture(e.pointerId); }catch(err){}
     elPanelHandle.classList.add("is-dragging");
     elHeader.style.transition = "none";
+    elHeader.classList.add("is-dragging");
   });
 
   elPanelHandle.addEventListener("pointermove", (e)=>{
@@ -846,15 +855,60 @@ if(elPanelHandle){
     if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
     try{ elPanelHandle.releasePointerCapture(e.pointerId); }catch(err){}
     elPanelHandle.classList.remove("is-dragging");
-    const midpoint = MOBILE_PANEL_OFFSET / 2;
-    const shouldExpand = PANEL_OFFSET > midpoint;
+    const threshold = MOBILE_PANEL_OFFSET * 0.6;
+    const shouldExpand = PANEL_OFFSET > threshold;
     PANEL_DRAG = null;
+    elHeader.classList.remove("is-dragging");
     syncPanelState(shouldExpand, true);
   };
 
   elPanelHandle.addEventListener("pointerup", finishDrag);
   elPanelHandle.addEventListener("pointercancel", finishDrag);
 }
+
+// === drag по всей панели (кроме кнопок и input) ===
+elHeader.addEventListener("pointerdown", (e)=>{
+  if(!MOBILE_MQ.matches) return;
+
+  if(e.target.closest("input, button, .row")) return;
+
+  PANEL_DRAG = {
+    pointerId: e.pointerId,
+    startY: e.clientY,
+    startOffset: PANEL_OFFSET,
+  };
+
+  try{ elHeader.setPointerCapture(e.pointerId); }catch(err){}
+  elHeader.style.transition = "none";
+  elHeader.classList.add("is-dragging");
+});
+
+elHeader.addEventListener("pointermove", (e)=>{
+  if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
+  applyPanelOffset(PANEL_DRAG.startOffset + (e.clientY - PANEL_DRAG.startY), false);
+});
+
+elHeader.addEventListener("pointerup", (e)=>{
+  if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
+
+  try{ elHeader.releasePointerCapture(e.pointerId); }catch(err){}
+
+  const threshold = MOBILE_PANEL_OFFSET * 0.6;
+  const shouldExpand = PANEL_OFFSET > threshold;
+
+  PANEL_DRAG = null;
+  elHeader.classList.remove("is-dragging");
+  syncPanelState(shouldExpand, true);
+});
+
+  elHeader.addEventListener("pointercancel", (e)=>{
+  if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
+
+  try{ elHeader.releasePointerCapture(e.pointerId); }catch(err){}
+
+  PANEL_DRAG = null;
+  elHeader.classList.remove("is-dragging");
+});
 
 window.addEventListener("resize", ()=>{
   requestAnimationFrame(fitVodTitle);
