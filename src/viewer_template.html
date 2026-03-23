@@ -661,6 +661,18 @@ header{
   header.is-dragging{
   transition:none !important;
   }
+  #dragZone{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+
+  height:220px; /* регулируешь потом */
+
+  z-index:70; /* ниже header (80), выше чата */
+
+  pointer-events:auto;
+}
 }
 </style>
 
@@ -670,6 +682,7 @@ header{
   <div class="chat">
 
     <header>
+      <div id="dragZone"></div>
       <div class="panel-top">
         <div class="vod-card" id="vodCard" tabindex="0" role="button" aria-label="Открыть VOD">
           <div class="vod-card-media">
@@ -751,6 +764,7 @@ const elExportBtn=document.getElementById("exportBtn");
 const elPanelHandle=document.getElementById("panelHandle");
 const MOBILE_MQ = window.matchMedia("(max-width: 700px)");
 const elHeader=document.querySelector("header");
+const elDragZone = document.getElementById("dragZone");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
 const elVodHeading=document.querySelector(".vod-heading");
@@ -833,7 +847,7 @@ function syncPanelState(expanded, animate=true){
 syncPanelState(PANEL_EXPANDED, false);
 
 // === drag по всей панели (кроме кнопок и input) ===
-elHeader.addEventListener("pointerdown", (e)=>{
+elDragZone.addEventListener("pointerdown", (e)=>{
   if(!MOBILE_MQ.matches) return;
 
   if(e.target.closest("input")) return;
@@ -849,12 +863,12 @@ elHeader.addEventListener("pointerdown", (e)=>{
   elHeader.classList.add("is-dragging");
 });
 
-elHeader.addEventListener("pointermove", (e)=>{
+elDragZone.addEventListener("pointermove", (e)=>{
   if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
   applyPanelOffset(PANEL_DRAG.startOffset + (e.clientY - PANEL_DRAG.startY), false);
 });
 
-elHeader.addEventListener("pointerup", (e)=>{
+elDragZone.addEventListener("pointerup", (e)=>{
   if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
 
   try{ elHeader.releasePointerCapture(e.pointerId); }catch(err){}
@@ -867,7 +881,7 @@ elHeader.addEventListener("pointerup", (e)=>{
   syncPanelState(shouldExpand, true);
 });
 
-  elHeader.addEventListener("pointercancel", (e)=>{
+  elDragZone.addEventListener("pointercancel", (e)=>{
   if(!PANEL_DRAG || e.pointerId !== PANEL_DRAG.pointerId) return;
 
   try{ elHeader.releasePointerCapture(e.pointerId); }catch(err){}
