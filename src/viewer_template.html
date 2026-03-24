@@ -395,6 +395,13 @@ button, .vod-card{
   justify-content:flex-end;
   gap:8px;
   width:100%;
+  opacity:0;
+  pointer-events:none;
+}
+
+.snapshot-actions.is-ready{
+  opacity:1;
+  pointer-events:auto;
 }
 
 .snapshot-toggle{
@@ -1395,6 +1402,8 @@ async function rerenderSnapshotPreview(rowsToClone){
     if(token !== SNAPSHOT_RENDER_TOKEN) return;
     if(SNAPSHOT_PREVIEW_IMG){
       SNAPSHOT_PREVIEW_IMG.src = url;
+      const actions = SNAPSHOT_PREVIEW_IMG.closest(".snapshot-panel").querySelector(".snapshot-actions");
+      actions.classList.add("is-ready");
       SNAPSHOT_PREVIEW_IMG.style.opacity = "1";
     }
   }catch(err){
@@ -1433,6 +1442,7 @@ function openSnapshotOverlay(rowsToClone){
 
   const actions = document.createElement("div");
   actions.className = "snapshot-actions";
+  actions.classList.remove("is-ready");
 
   const timeBtn = document.createElement("button");
   timeBtn.type = "button";
