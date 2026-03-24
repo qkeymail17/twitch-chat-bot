@@ -335,6 +335,12 @@ button, .vod-card{
   border-color:#3a3a48;
 }
 
+.button-toggle:active{
+  transform:scale(0.96);
+  background:#23232d; /* чуть темнее */
+  border-color:#3a3a48;
+}
+
 /* неактивное */
 .meta-buttons button.is-inactive{
   background:#15151b;
@@ -774,7 +780,7 @@ button, .vod-card{
 
       <div class="panel-actions">
   <div class="meta-buttons">
-    <button id="exportBtn" class="button-toggle">📸 Снимок</button>
+    <button id="exportBtn" class="button-toggle is-active">📸 Снимок</button>
     <button id="toggleTime" class="toggle-button is-active" aria-pressed="true">⏱️ Время</button>
   </div>
   <div class="panel-handle" id="panelHandle" aria-hidden="true"><span></span></div>
@@ -1493,20 +1499,6 @@ function openSnapshotOverlay(rowsToClone){
   rerenderSnapshotPreview(rowsToClone);
 }
 
-elExportBtn.addEventListener("pointerdown", (e)=>{
-  if(!MOBILE_MQ.matches) return;
-
-  elExportBtn.classList.add("is-active");
-});
-
-elExportBtn.addEventListener("pointerup", ()=>{
-  elExportBtn.classList.remove("is-active");
-});
-
-elExportBtn.addEventListener("pointercancel", ()=>{
-  elExportBtn.classList.remove("is-active");
-});
-
 elExportBtn.addEventListener("click", async (e)=>{
   e.stopPropagation();
 
@@ -1514,26 +1506,38 @@ elExportBtn.addEventListener("click", async (e)=>{
 
   await new Promise(r => setTimeout(r, 0));
 
-  const sel = window.getSelection();
-  if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){
-    alert("Выделите текст сообщений");
-    return;
-  }
+const sel = window.getSelection();
 
-  const range = sel.getRangeAt(0);
-  let node = range.startContainer; if(node.nodeType===3) node=node.parentNode;
-  const startRow = node.closest(".row"); if(!startRow) return;
-  node = range.endContainer; if(node.nodeType===3) node=node.parentNode;
-  const endRow = node.closest(".row"); if(!endRow) return;
-  const startIndex = Number(startRow.dataset.id);
-  const endIndex   = Number(endRow.dataset.id);
-  if(Number.isNaN(startIndex)||Number.isNaN(endIndex)) return;
+if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){
+  alert("Выделите текст сообщений");
+  return;
+}
 
-  const from = Math.min(startIndex,endIndex), to = Math.max(startIndex,endIndex);
+// 👉 КЛОНИРУЕМ range (это главное)
+const range = sel.getRangeAt(0).cloneRange();
 
-  sel.removeAllRanges();
-  const rowsToClone = filtered.slice(from, to + 1);
-  openSnapshotOverlay(rowsToClone);
+let node = range.startContainer;
+if(node.nodeType===3) node=node.parentNode;
+const startRow = node.closest(".row");
+if(!startRow) return;
+
+node = range.endContainer;
+if(node.nodeType===3) node=node.parentNode;
+const endRow = node.closest(".row");
+if(!endRow) return;
+
+const startIndex = Number(startRow.dataset.id);
+const endIndex   = Number(endRow.dataset.id);
+if(Number.isNaN(startIndex)||Number.isNaN(endIndex)) return;
+
+const from = Math.min(startIndex,endIndex);
+const to   = Math.max(startIndex,endIndex);
+
+// ❗ теперь можно безопасно очищать
+sel.removeAllRanges();
+
+const rowsToClone = filtered.slice(from, to + 1);
+openSnapshotOverlay(rowsToClone);
 });
 
 applyFilters();
