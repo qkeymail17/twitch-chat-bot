@@ -515,7 +515,6 @@ button, .vod-card{
   height: 1.3em;
   width: 1.3em;
   object-fit: contain;
-  display: block;
 }
 
 #mobileChannel{
@@ -1071,22 +1070,35 @@ function openVodOverlay(){
   const panel = document.createElement("div");
   panel.className = "snapshot-panel";
 
-  const img = document.createElement("img");
-  img.src = "assets/twitch_icon.webp";
-  img.style.height = "1em";
-  img.style.verticalAlign = "middle";
-  img.style.marginRight = "6px";
+  // ПРЕВЬЮ
+  const preview = document.createElement("img");
+  preview.className = "snapshot-preview";
+  preview.alt = "";
+  panel.appendChild(preview);
 
-  linkBtn.appendChild(img);
-  img.src = "assets/twitch_icon.webp";
-  img.style.height = "1em";
-  img.style.verticalAlign = "middle";
-  img.style.marginRight = "6px";
+  // ЛОАДЕР
+  const loader = document.createElement("div");
+  loader.className = "snapshot-loader";
+  panel.appendChild(loader);
+
+  // ACTIONS
+  const actions = document.createElement("div");
+  actions.className = "snapshot-actions";
+
+  const linkBtn = document.createElement("button");
+  linkBtn.className = "snapshot-toggle is-active";
+
+  // ИКОНКА
+  const icon = document.createElement("img");
+  icon.src = "assets/twitch_icon.webp";
+  icon.style.height = "1em";
+  icon.style.verticalAlign = "middle";
+  icon.style.marginRight = "6px";
 
   const text = document.createElement("span");
   text.textContent = "Twitch VOD";
 
-  linkBtn.appendChild(img);
+  linkBtn.appendChild(icon);
   linkBtn.appendChild(text);
 
   linkBtn.addEventListener("click", (e)=>{
@@ -1097,14 +1109,6 @@ function openVodOverlay(){
   });
 
   actions.appendChild(linkBtn);
-
-  panel.appendChild(img);
-
-  // loader
-  const loader = document.createElement("div");
-  loader.className = "snapshot-loader";
-  panel.appendChild(loader);
-
   panel.appendChild(actions);
   overlay.appendChild(panel);
 
@@ -1118,14 +1122,12 @@ function openVodOverlay(){
   document.body.style.overflow = "hidden";
   document.body.appendChild(overlay);
 
-  // загрузка изображения
+  // ЗАГРУЗКА КАРТИНКИ
   const full = new Image();
   full.src = meta.thumbnail_full_url || meta.thumbnail_preview_url;
 
   full.onload = ()=>{
-    img.src = full.src;
-    img.style.display = "block";
-
+    preview.src = full.src;
     loader.remove();
     actions.classList.add("is-ready");
   };
