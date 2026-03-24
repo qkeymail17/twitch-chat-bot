@@ -262,12 +262,13 @@ header{
 .controls input{
   min-width:0;
   height:48px;
+  font-size:14px;
   padding:6px 12px;
   border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
-  font-size:14px;
+
 }
 .button-toggle.active{
   background:var(--panel);
@@ -644,7 +645,7 @@ button, .vod-card{
   }
 
   .vod-title{
-    -webkit-line-clamp:2;
+    -webkit-line-clamp:4;
     font-size:14px;
   }
 
@@ -665,8 +666,8 @@ button, .vod-card{
   .controls input{
     width:100%;
     min-width:0;
-    height:36px;
-    font-size:12px;
+    height:48px;
+    font-size:14px;
     padding:6px 12px;
   }
 
@@ -686,7 +687,7 @@ button, .vod-card{
 
   .meta-buttons button{
     flex:1 1 0;
-    height:44px;
+    height:48px;
     font-size:14px;
     box-shadow:0 8px 20px rgba(0,0,0,.24);
   }
@@ -699,7 +700,7 @@ button, .vod-card{
 
   display:flex;
   width:140px;
-  height:30px;
+  height:48px;
 
   background:#18181b;
 
@@ -1508,6 +1509,8 @@ function openSnapshotOverlay(rowsToClone){
 elExportBtn.addEventListener("pointerup", async (e)=>{
   e.stopPropagation();
   e.preventDefault();
+
+  await new Promise(r => setTimeout(r, 30)); // ← ДОБАВИТЬ
 
   const sel = window.getSelection();
 
