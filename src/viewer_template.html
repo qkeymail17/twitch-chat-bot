@@ -394,6 +394,7 @@ button, .vod-card{
   width:100%;
   opacity:0;
   pointer-events:none;
+  max-width: var(--controls-w);
 }
 
 .snapshot-actions.is-ready{
@@ -418,6 +419,8 @@ button, .vod-card{
   cursor:pointer;
 
   transition: background .15s ease, border-color .15s ease, transform .08s ease;
+
+  flex:1;
 }
 
 .snapshot-loader{
