@@ -507,6 +507,10 @@ button, .vod-card{
   margin: 0 2px;
 }
 
+.panel-stats img{
+  height: 1em;
+}
+
 /* export helper (unchanged) */
 .export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
 .export-wrap.snapshot-hide-time .time{
@@ -843,10 +847,23 @@ let SHOW_TIME=true;
 let PANEL_EXPANDED = window.matchMedia("(min-width: 901px)").matches;
 
 elTitle.textContent = meta.title || "—";
-if(elMobileChannel) elMobileChannel.textContent = meta.channel || "—";
+if(elMobileChannel){
+  elMobileChannel.textContent = "";
+
+  const img = document.createElement("img");
+  img.src = "https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/1x.webp";
+  img.className = "emote";
+  img.style.marginRight = "4px";
+
+  const text = document.createElement("span");
+  text.textContent = meta.channel || "—";
+
+  elMobileChannel.appendChild(img);
+  elMobileChannel.appendChild(text);
+}
 
 function updateMainTimeButton(){
-  elToggleTime.classList.toggle("is-active", SHOW_TIME);
+  elToggleTime.classList.toggle("is-active", SHOW_TIME);г
   elToggleTime.classList.toggle("is-inactive", !SHOW_TIME);
   elToggleTime.setAttribute("aria-pressed", SHOW_TIME ? "true" : "false");
 }
@@ -1130,7 +1147,7 @@ function fmtStreamStart(iso){
 }
 const streamStart = fmtStreamStart(meta.created_at);
 if(streamStart){
-  elStreamDate.textContent = streamStart;
+  elStreamDate.textContent = `📅 ${streamStart}`;
 }
 
 const DEFAULT_COLORS = [
@@ -1344,7 +1361,7 @@ async function applyFilters(){
   const q=(elQ.value||"").trim().toLowerCase();
   const u=(elU.value||"").trim().toLowerCase();
   filtered = rows.filter(r=>matches(r,q,u));
-  elStat.textContent = `${filtered.length} / ${rows.length}`;
+  elStat.textContent = `💬 ${filtered.length} / ${rows.length}`;
   elList.innerHTML=""; rendered=0; renderMore();
 }
 
