@@ -511,9 +511,14 @@ button, .vod-card{
   height: 1em;
 }
 
+#mobileChannel{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 #mobileChannel img{
   height: 1.4em;
-  vertical-align: middle;
 }
 
 /* export helper (unchanged) */
@@ -858,7 +863,6 @@ if(elMobileChannel){
   const img = document.createElement("img");
   img.src = "https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/4x.webp";
   img.className = "emote";
-  img.style.marginRight = "4px";
 
   const text = document.createElement("span");
   text.textContent = meta.channel || "—";
