@@ -113,13 +113,6 @@ header{
   flex:0 0 auto;
 }
 
-#mobileChannel img{
-  width:1.1em;
-  height:1.1em;
-  object-fit:contain;
-  flex:0 0 auto;
-}
-
 .vod-heading{
   display:block;
   min-width:0;
@@ -1117,8 +1110,8 @@ panel.appendChild(previewImg);
   full.src = meta.thumbnail_full_url || meta.thumbnail_preview_url;
 
   full.onload = ()=>{
-    previewImg.src = full.src;
-    img.style.display = "block";
+  previewImg.src = full.src;
+  previewImg.style.display = "block";
 
     loader.remove();
     actions.classList.add("is-ready");
@@ -1539,9 +1532,9 @@ function openSnapshotOverlay(rowsToClone){
   const panel = document.createElement("div");
   panel.className = "snapshot-panel";
 
-  const img = document.createElement("img");
-  img.className = "snapshot-preview";
-  img.alt = "";
+  const previewImg = document.createElement("img");
+  previewImg.className = "snapshot-preview";
+  previewImg.alt = "";
 
   const actions = document.createElement("div");
   actions.className = "snapshot-actions";
@@ -1572,7 +1565,7 @@ function openSnapshotOverlay(rowsToClone){
   });
 
   SNAPSHOT_OVERLAY = overlay;
-  SNAPSHOT_PREVIEW_IMG = img;
+  SNAPSHOT_PREVIEW_IMG = previewImg;
   SNAPSHOT_TIME_BTN = timeBtn;
   SNAPSHOT_DATE_BTN = dateBtn;
   updateSnapshotTimeButton();
