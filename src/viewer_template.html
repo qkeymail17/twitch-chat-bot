@@ -115,30 +115,6 @@ header{
   min-width:0;
 }
 
-.panel-handle{
-  display:none;
-  align-items:center;
-  justify-content:center;
-  width:120px;
-  height:24px;
-  border-radius:999px;
-  background:#18181b;
-  border:none;
-  box-shadow:0 10px 24px rgba(0,0,0,.36);
-  cursor:grab;
-  user-select:none;
-  flex:0 0 auto;
-  position:relative;
-}
-
-.panel-handle span{
-  display:block;
-  width:42px;
-  height:4px;
-  border-radius:999px;
-  background:rgba(255,255,255,.12);
-}
-
 .vod-heading{
   display:flex;
   align-items:flex-start;
@@ -532,7 +508,7 @@ button, .vod-card{
 .export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
 
 /* ===== Desktop layout ===== */
-@media (min-width: 900px){
+@media (min-width: 701px){
   .page{padding:24px}
   .chat{max-width: calc(var(--controls-w) + var(--chat-w) + var(--gap)); display:flex; gap:var(--gap); align-items:flex-start}
 
@@ -605,11 +581,6 @@ button, .vod-card{
   /* center whole layout horizontally */
   .page{justify-content:center}
 }
-
-@media (min-width: 701px){
-  .panel-handle{display:none;}
-}
-
 
 /* small refinements for very narrow phones (so content not glued to edges) */
 @media (max-width:420px){
@@ -783,10 +754,6 @@ button, .vod-card{
     background:rgba(255,255,255,.12);
   }
 
-  .panel-handle.is-dragging{
-  cursor:grabbing;
-  transform:translateX(-50%) scale(0.96);
-  }
   header.is-dragging{
   transition:none !important;
   }
@@ -877,7 +844,6 @@ const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
-const elPanelHandle=document.getElementById("panelHandle");
 const MOBILE_MQ = window.matchMedia("(max-width: 700px)");
 const elHeader=document.querySelector("header");
 const elVodCard=document.getElementById("vodCard");
