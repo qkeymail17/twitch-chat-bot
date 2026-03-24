@@ -718,21 +718,20 @@ button, .vod-card{
   }
 
   .panel-handle{
-    position:relative;
-    left:auto;
-    bottom:auto;
-    transform:none;
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:-8px; /* можно -6 / -10 под вкус */
 
     display:flex;
     align-items:center;
     justify-content:center;
 
-    width:100%;
-    height:16px;
+    width:42px;
+    height:20px;
 
-    background:transparent;
-    border:none;
-    box-shadow:none;
+    background:#18181b;
+    border-radius:0 0 10px 10px;
 
     cursor:grab;
     user-select:none;
@@ -1038,19 +1037,70 @@ window.addEventListener("resize", ()=>{
   syncPanelState(PANEL_EXPANDED, false);
 });
 
-function openVod(){
-  if(meta.vod_url){
-    window.open(meta.vod_url,"_blank");
-  }
+function openVodOverlay(){
+  if(!meta.thumbnail_url) return;
+
+  const overlay = document.createElement("div");
+  overlay.className = "snapshot-overlay";
+
+  const panel = document.createElement("div");
+  panel.className = "snapshot-panel";
+
+  const img = document.createElement("img");
+  img.className = "snapshot-preview";
+  img.alt = "";
+
+  const actions = document.createElement("div");
+  actions.className = "snapshot-actions";
+  actions.classList.remove("is-ready");
+
+  const linkBtn = document.createElement("button");
+  linkBtn.className = "snapshot-toggle is-active";
+  linkBtn.textContent = "🔗 Ссылка VOD";
+
+  linkBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    if(meta.vod_url){
+      window.open(meta.vod_url,"_blank");
+    }
+  });
+
+  actions.appendChild(linkBtn);
+
+  panel.appendChild(img);
+
+  // loader
+  const loader = document.createElement("div");
+  loader.className = "snapshot-loader";
+  panel.appendChild(loader);
+
+  panel.appendChild(actions);
+  overlay.appendChild(panel);
+
+  overlay.addEventListener("click", ()=>{
+    overlay.remove();
+    document.body.style.overflow = "";
+  });
+
+  panel.addEventListener("click", (e)=>e.stopPropagation());
+
+  document.body.style.overflow = "hidden";
+  document.body.appendChild(overlay);
+
+  // загрузка изображения
+  const full = new Image();
+  full.src = meta.thumbnail_url;
+
+  full.onload = ()=>{
+    img.src = full.src;
+    img.style.display = "block";
+
+    loader.remove();
+    actions.classList.add("is-ready");
+  };
 }
 
-elVodCard.addEventListener("click", openVod);
-elVodCard.addEventListener("keydown",(e)=>{
-  if(e.key==="Enter" || e.key===" "){
-    e.preventDefault();
-    openVod();
-  }
-});
+elVodCard.addEventListener("click", openVodOverlay);
 
 const previewUrl = meta.thumbnail_url || "";
 
@@ -1512,6 +1562,11 @@ function openSnapshotOverlay(rowsToClone){
   overlay.appendChild(panel);
 
   overlay.addEventListener("click", ()=>{
+    if(elHeader){
+      PANEL_DRAG = null;
+      elHeader.classList.remove("is-dragging");
+    }
+
     overlay.remove();
     SNAPSHOT_OVERLAY = null;
     SNAPSHOT_PREVIEW_IMG = null;
@@ -1530,6 +1585,12 @@ function openSnapshotOverlay(rowsToClone){
 elExportBtn.addEventListener("pointerup", async (e)=>{
   e.stopPropagation();
   e.preventDefault();
+
+  if(elHeader.hasPointerCapture(e.pointerId)){
+  elHeader.releasePointerCapture(e.pointerId);
+  }
+  PANEL_DRAG = null;
+  elHeader.classList.remove("is-dragging");
 
   await new Promise(r => setTimeout(r, 30)); // ← ДОБАВИТЬ
 
