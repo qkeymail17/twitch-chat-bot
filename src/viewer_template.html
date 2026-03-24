@@ -588,10 +588,6 @@ button, .vod-card{
     grid-column: 1 / -1; /* вся строка */
   }
 
-  .panel-stats-separator{
-    display: none;
-  }
-
   #stat{
     grid-column: 2 / 3;
     justify-self: end;
@@ -820,13 +816,14 @@ button, .vod-card{
       </div>
 
       <div class="panel-stats">
+        <span class="pill panel-stats-channel" id="mobileChannel">—</span>
+
         <div class="panel-stats-main">
-          <span class="pill panel-stats-channel" id="mobileChannel">—</span>
-          <span class="panel-stats-separator" aria-hidden="true">•</span>
           <span class="pill">
-            <span id="streamDateWrap" style="display:none"><span id="streamDate">—</span></span>
+            <span id="streamDate">—</span>
           </span>
         </div>
+
         <span class="pill" id="stat">—</span>
       </div>
 
