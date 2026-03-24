@@ -113,6 +113,13 @@ header{
   flex:0 0 auto;
 }
 
+#mobileChannel img{
+  width:1.1em;
+  height:1.1em;
+  object-fit:contain;
+  flex:0 0 auto;
+}
+
 .vod-heading{
   display:block;
   min-width:0;
@@ -803,7 +810,7 @@ if(elMobileChannel){
   elMobileChannel.textContent = "";
 
   const img = document.createElement("img");
-  icon.src = "assets/twitch_icon.webp";
+  img.src = "https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/2x.webp";
   img.className = "channel-icon";
 
   const text = document.createElement("span");
@@ -1058,40 +1065,33 @@ function openVodOverlay(){
   const panel = document.createElement("div");
   panel.className = "snapshot-panel";
 
-  const img = document.createElement("img");
-  img.className = "snapshot-preview";
-  img.alt = "";
+const previewImg = document.createElement("img");
+previewImg.className = "snapshot-preview";
+previewImg.alt = "";
 
-  const actions = document.createElement("div");
-  actions.className = "snapshot-actions";
-  actions.classList.remove("is-ready");
+const actions = document.createElement("div");
+actions.className = "snapshot-actions";
+actions.classList.remove("is-ready");
 
-  const linkBtn = document.createElement("button");
-  linkBtn.className = "snapshot-toggle is-active";
-  linkBtn.textContent = "";
+const linkBtn = document.createElement("button");
+linkBtn.className = "snapshot-toggle is-active";
+linkBtn.textContent = "";
 
-  const img = document.createElement("img");
-  img.src = "assets/twitch_icon.webp";
-  img.style.height = "1em";
-  img.style.verticalAlign = "middle";
-  img.style.marginRight = "6px";
+const icon = document.createElement("img");
+icon.src = "https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/2x.webp";
+icon.style.height = "1em";
+icon.style.verticalAlign = "middle";
+icon.style.marginRight = "6px";
 
-  const text = document.createElement("span");
-  text.textContent = "Twitch VOD";
+const text = document.createElement("span");
+text.textContent = "Twitch VOD";
 
-  linkBtn.appendChild(img);
-  linkBtn.appendChild(text);
+linkBtn.appendChild(icon);
+linkBtn.appendChild(text);
 
-  linkBtn.addEventListener("click", (e)=>{
-    e.stopPropagation();
-    if(meta.vod_url){
-      window.open(meta.vod_url,"_blank");
-    }
-  });
+actions.appendChild(linkBtn);
 
-  actions.appendChild(linkBtn);
-
-  panel.appendChild(img);
+panel.appendChild(previewImg);
 
   // loader
   const loader = document.createElement("div");
@@ -1116,7 +1116,7 @@ function openVodOverlay(){
   full.src = meta.thumbnail_full_url || meta.thumbnail_preview_url;
 
   full.onload = ()=>{
-    img.src = full.src;
+    previewImg.src = full.src;
     img.style.display = "block";
 
     loader.remove();
@@ -1579,7 +1579,7 @@ function openSnapshotOverlay(rowsToClone){
 
   actions.appendChild(timeBtn);
   actions.appendChild(dateBtn);
-  panel.appendChild(img);
+  panel.appendChild(previewImg);
 
   const loader = document.createElement("div");
   loader.className = "snapshot-loader";
