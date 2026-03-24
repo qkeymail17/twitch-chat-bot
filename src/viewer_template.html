@@ -26,6 +26,8 @@ button{
   --controls-w:312px; /* ширина левого блока на десктопе */
   --chat-w:515px;     /* ширина блока сообщений на десктопе */
   --gap:16px;
+
+  --panel-handle-offset: 36px;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
@@ -259,13 +261,13 @@ header{
 
 .controls input{
   min-width:0;
-  height:36px;
+  height:44px;
   padding:6px 12px;
   border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
-  font-size:13px;
+  font-size:14px;
 }
 .button-toggle.active{
   background:var(--panel);
@@ -551,7 +553,7 @@ button, .vod-card{
 @media (max-width: 700px){
 
   #list{
-    padding-top: 130px;
+    padding-top: 160px;
   }
 
   header{
@@ -659,7 +661,7 @@ button, .vod-card{
   .panel-actions{
     display:flex;
     flex-direction:column;
-    gap:0;
+    gap:8px;
     width:100%;
   }
 
@@ -672,20 +674,20 @@ button, .vod-card{
 
   .meta-buttons button{
     flex:1 1 0;
-    height:34px;
-    font-size:12px;
+    height:44px;
+    font-size:14px;
     box-shadow:0 8px 20px rgba(0,0,0,.24);
   }
 
 .panel-handle{
   position:absolute;
   left:50%;
-  bottom:-26px;
+  bottom: calc(-1 * var(--panel-handle-offset));
   transform:translateX(-50%);
 
   display:flex;
-  width:120px;
-  height:22px;
+  width:140px;
+  height:30px;
 
   background:#18181b;
 
@@ -707,8 +709,8 @@ button, .vod-card{
 
   .panel-handle span{
     display:block;
-    width:46px;
-    height:4px;
+    width:54px;
+    height:5px;
     border-radius:999px;
     background: rgba(255,255,255,0.22);
   }
@@ -1491,13 +1493,24 @@ function openSnapshotOverlay(rowsToClone){
   rerenderSnapshotPreview(rowsToClone);
 }
 
+elExportBtn.addEventListener("pointerdown", (e)=>{
+  if(!MOBILE_MQ.matches) return;
+
+  elExportBtn.classList.add("is-active");
+});
+
+elExportBtn.addEventListener("pointerup", ()=>{
+  elExportBtn.classList.remove("is-active");
+});
+
+elExportBtn.addEventListener("pointercancel", ()=>{
+  elExportBtn.classList.remove("is-active");
+});
+
 elExportBtn.addEventListener("click", async (e)=>{
   e.stopPropagation();
 
   e.currentTarget.blur(); // ← добавить
-
-  elExportBtn.classList.add("is-active");
-  setTimeout(()=>elExportBtn.classList.remove("is-active"), 180);
 
   const sel = window.getSelection();
   if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){
