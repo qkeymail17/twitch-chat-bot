@@ -613,6 +613,21 @@ button, .vod-card{
     transition:transform .24s ease, box-shadow .2s ease;
     will-change:transform;
     touch-action: none;
+    padding-bottom: 18px;
+  }
+
+    header::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:6px;
+    transform:translateX(-50%);
+
+    width:46px;
+    height:4px;
+
+    border-radius:999px;
+    background:rgba(255,255,255,.18);
   }
 
   header.is-expanded{
@@ -717,12 +732,6 @@ button, .vod-card{
     box-shadow:0 8px 20px rgba(0,0,0,.24);
   }
 
-  .panel-handle{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:-8px;
-
     display:flex;
     align-items:center;
     justify-content:center;
@@ -736,12 +745,6 @@ button, .vod-card{
     cursor:grab;
     user-select:none;
   }
-
-  .panel-handle span{
-    position:absolute;
-    left:50%;
-    bottom:6px;
-    transform:translateX(-50%);
 
     width:46px;
     height:4px;
