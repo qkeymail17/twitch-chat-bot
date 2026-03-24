@@ -416,6 +416,20 @@ button, .vod-card{
   transition: background .15s ease, border-color .15s ease, transform .08s ease;
 }
 
+.snapshot-loader{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,.15);
+  border-top-color:#fff;
+  animation:spin 1s linear infinite;
+  align-self:center;
+}
+
+@keyframes spin{
+  to{ transform:rotate(360deg); }
+}
+
 /* активное */
 .snapshot-toggle.is-active{
   background:#2a2a35;
@@ -1408,6 +1422,10 @@ async function rerenderSnapshotPreview(rowsToClone){
     if(token !== SNAPSHOT_RENDER_TOKEN) return;
     if(SNAPSHOT_PREVIEW_IMG){
       SNAPSHOT_PREVIEW_IMG.src = url;
+      SNAPSHOT_PREVIEW_IMG.style.display = "block";
+
+      const loader = SNAPSHOT_PREVIEW_IMG.closest(".snapshot-panel").querySelector(".snapshot-loader");
+      if(loader) loader.remove();
       const panel = SNAPSHOT_PREVIEW_IMG?.closest(".snapshot-panel");
       const actions = panel?.querySelector(".snapshot-actions");
       if(actions) actions.classList.add("is-ready");
@@ -1485,6 +1503,11 @@ function openSnapshotOverlay(rowsToClone){
   actions.appendChild(timeBtn);
   actions.appendChild(dateBtn);
   panel.appendChild(img);
+
+  const loader = document.createElement("div");
+  loader.className = "snapshot-loader";
+  panel.appendChild(loader);
+
   panel.appendChild(actions);
   overlay.appendChild(panel);
 
