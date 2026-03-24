@@ -23,6 +23,7 @@ button{
   --control-h: 48px;
   --control-radius: 12px;
   --control-gap: 10px;
+  --control-h: 52px;
 
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
 
@@ -66,7 +67,6 @@ header{
   min-width:0;
   height:100%;
 }
-
 
 .panel-top{
   display:grid;
@@ -148,9 +148,9 @@ header{
 .vod-title{
   flex:1 1 auto;
   min-width:0;
-  font-size:15px;
+  font-size:17px;
   font-weight:400;
-  line-height:1.22;
+  line-height:1.3;
   color:var(--text);
   display:-webkit-box;
   -webkit-line-clamp:6;
@@ -164,7 +164,7 @@ header{
 
 .vod-card{
   margin-bottom: var(--control-gap);
-  border:1px solid var(--border);
+  border:1px solid rgba(145,70,255,0.25);
   border-radius:18px;
   overflow:hidden;
   background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
@@ -174,8 +174,17 @@ header{
 }
 .vod-card:hover{
   transform:translateY(-1px);
-  border-color:rgba(145,70,255,0.45);
-  box-shadow:0 14px 34px rgba(0,0,0,.28);
+  border-color:rgba(145,70,255,0.8);
+  box-shadow:
+    0 0 0 2px rgba(145,70,255,0.35),
+    0 14px 34px rgba(0,0,0,.28);
+}
+.vod-card:active{
+  transform:scale(0.96);
+  border-color:rgba(145,70,255,0.9);
+  box-shadow:
+    0 0 0 3px rgba(145,70,255,0.4),
+    0 10px 24px rgba(0,0,0,.35);
 }
 .vod-card:focus-visible{
   outline:2px solid rgba(145,70,255,0.65);
@@ -200,7 +209,7 @@ header{
 .pill{
   font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   color:var(--muted);
-  font-size:12px;
+  font-size:13px;
 }
 .controls{
   display:grid;
@@ -219,7 +228,6 @@ header{
   grid-column:4 / span 3;
   grid-row:1;
 }
-
 
 .controls-footer{
   grid-column:1 / span 6;
@@ -248,26 +256,6 @@ header{
   color:var(--text);
 
 }
-.button-toggle.active{
-  background:var(--panel);
-  border-color:var(--border);
-}
-
-.toggle-button{
-  background:var(--panel);
-  border:1px solid var(--border);
-}
-
-.toggle-button.is-active{
-  background:var(--panel);
-  border-color:var(--border);
-}
-
-.toggle-button.is-inactive{
-  background:var(--panel);
-  border-color:var(--border);
-}
-
 .meta-buttons{
   display:flex;
   gap: var(--control-gap);
@@ -294,11 +282,6 @@ header{
   transition: background .15s ease, border-color .15s ease, transform .08s ease;
 }
 
-.meta-buttons .button-toggle.is-active{
-  background:#2a2a35;
-  border-color:#3a3a48;
-}
-
 button:focus{
   outline:none;
 }
@@ -314,11 +297,6 @@ button, .vod-card{
 
 /* активное состояние */
 .meta-buttons button.is-active{
-  background:#2a2a35;
-  border-color:#3a3a48;
-}
-
-.button-toggle.is-active{
   background:#2a2a35;
   border-color:#3a3a48;
 }
@@ -339,6 +317,8 @@ button, .vod-card{
 /* нажатие */
 .meta-buttons button:active{
   transform:scale(0.96);
+  border-color:rgba(145,70,255,0.9);
+  box-shadow:0 0 0 3px rgba(145,70,255,0.35);
 }
 
 .meta-buttons button:not(.is-active):hover{
@@ -380,6 +360,7 @@ button, .vod-card{
   width:100%;
   opacity:0;
   pointer-events:none;
+  max-width: var(--controls-w);
 }
 
 .snapshot-actions.is-ready{
@@ -392,11 +373,20 @@ button, .vod-card{
   border-radius: var(--control-radius);
   padding:0 14px;
   font-size:14px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
   cursor:pointer;
+
   transition: background .15s ease, border-color .15s ease, transform .08s ease;
+
+  flex:1;
 }
 
 .snapshot-loader{
@@ -427,6 +417,8 @@ button, .vod-card{
 /* нажатие */
 .snapshot-toggle:active{
   transform:scale(0.96);
+  border-color:rgba(145,70,255,0.9);
+  box-shadow:0 0 0 3px rgba(145,70,255,0.35);
 }
 
 /* hover (не ломает active) */
@@ -507,20 +499,15 @@ button, .vod-card{
   margin: 0 2px;
 }
 
-.panel-stats img{
-  height: 1em;
-}
-
-#mobileChannel img{
-  height: 1.3em;
-  width: 1.3em;
-  object-fit: contain;
-}
-
 #mobileChannel{
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+#mobileChannel span{
+  margin-left: 2px;
 }
 
 /* export helper (unchanged) */
@@ -543,7 +530,7 @@ button, .vod-card{
     position:sticky;
     top:24px; /* offset from viewport top */
     border-radius:14px;
-    padding:16px;
+    padding:20px;
     height:fit-content;
   }
 
@@ -600,8 +587,6 @@ button, .vod-card{
   header{padding:10px;border-radius:12px}
   #list{margin-top:0;border-radius:0}
 }
-
-
 
 @media (max-width: 900px){
 
@@ -664,14 +649,14 @@ button, .vod-card{
   .panel-top{
     display:grid;
     grid-template-columns:132px minmax(0,1fr);
-    gap:10px;
+    gap:14px;
     min-width:0;
     transition:opacity .2s ease, transform .24s ease;
   }
 
   .panel-stats{
     display:flex;
-    gap: var(--control-gap);
+    gap: row-gap:6px;
     align-items:center;
     justify-content:space-between;
     width:100%;
@@ -711,7 +696,7 @@ button, .vod-card{
   .controls{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
-    gap: var(--control-gap);
+    gap:12px;
     margin-top:0;
     min-width:0;
     width:100%;
@@ -814,7 +799,6 @@ button, .vod-card{
 /* DOM is shared by two layouts:
    desktop = sticky sidebar, mobile = 2-column header grid. */
 
-
 const DATA = JSON.parse(document.getElementById("chat-data").textContent || "{}");
 const meta = DATA.meta || {};
 const rows = DATA.rows || [];
@@ -898,7 +882,6 @@ updateMainTimeButton();
 function clampNumber(value, min, max){
   return Math.max(min, Math.min(max, value));
 }
-
 
 const MOBILE_PANEL_EXPANDED = 260;
 const MOBILE_PANEL_VISIBLE = 140;
@@ -1219,7 +1202,6 @@ function renderBadges(el, badges){
   return rendered;
 }
 
-
 async function fetch7tvEmotes(channelId){
   if(!channelId) return new Map();
   try{
@@ -1341,7 +1323,6 @@ function createRowElement(r, includeTime, rowIndex){
   rowEl.appendChild(msgEl);
   return rowEl;
 }
-
 
 /* Rows are appended in chunks so huge chats do not freeze the page. */
 let filtered = rows;
