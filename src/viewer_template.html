@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Twitch Chat Viewer</title>
+
 <style>
 *{
   -webkit-tap-highlight-color: transparent;
@@ -20,24 +21,37 @@ button{
   --text:#e7e7ea;
   --muted:#a6a6b0;
   --border:#2a2a35;
+  --control-h:48px;
+  --control-radius:10px;
+  --control-gap:8px;
 
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
 
-  --controls-w:312px; /* ширина левого блока на десктопе */
-  --chat-w:515px;     /* ширина блока сообщений на десктопе */
+  --controls-w:312px;
+  --chat-w:515px;
   --gap:16px;
-
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
-.page{width:100%;display:flex;justify-content:center;padding:0}
+html,body{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased
+}
+.page{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  padding:0;
+}
 .chat{
   width:100%;
   max-width:none;
   margin:0;
 }
 
-/* header / controls (mobile first) */
 header{
   width:100%;
   max-width:none;
@@ -55,6 +69,7 @@ header{
   align-items:stretch;
   transition:padding .2s ease, gap .2s ease;
 }
+
 .meta{
   display:flex;
   flex-direction:column;
@@ -63,7 +78,6 @@ header{
   min-width:0;
   height:100%;
 }
-
 
 .panel-top{
   display:flex;
@@ -77,95 +91,32 @@ header{
   transform:none;
 }
 
-.panel-stats{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  gap:6px;
-  width:100%;
-  min-width:0;
-  flex-wrap:wrap;
-}
-
-.panel-dot{
-  color:var(--muted);
-  flex:0 0 auto;
-}
-
-.panel-stats .pill,
-.panel-date .pill,
 .panel-channel{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
   min-width:0;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-}
-
-.panel-date{
-  display:block;
-  width:100%;
-  color:var(--muted);
-  font-size:12.5px;
+  font-size:16px;
+  font-weight:600;
   line-height:1.2;
-  margin-top:2px;
 }
 
-.panel-actions{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  width:100%;
-  min-width:0;
-}
-
-.panel-handle{
-  display:none;
-  align-items:center;
-  justify-content:center;
-  width:120px;
-  height:24px;
-  border-radius:999px;
-  background:#18181b;
-  border:none;
-  box-shadow:0 10px 24px rgba(0,0,0,.36);
-  cursor:grab;
-  user-select:none;
-  flex:0 0 auto;
-  position:relative;
-}
-
-.panel-handle span{
+.panel-channel img,
+.channel-icon{
+  width:1.1em;
+  height:1.1em;
+  object-fit:contain;
   display:block;
-  width:42px;
-  height:4px;
-  border-radius:999px;
-  background:rgba(255,255,255,.12);
+  flex:0 0 auto;
 }
 
 .vod-heading{
   display:block;
   min-width:0;
   width:100%;
-}
-
-.vod-channel{
-  flex:0 1 auto;
-  max-width:min(45%, 240px);
-  font-size:16px;
-  font-weight:700;
-  line-height:1.2;
-  color:var(--text);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.vod-separator{
-  flex:0 0 auto;
-  color:var(--muted);
-  line-height:1.25;
-  transform:translateY(0.05em);
 }
 
 .vod-title{
@@ -183,9 +134,44 @@ header{
   overflow:visible;
 }
 
+.panel-stats{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:6px;
+  width:100%;
+  min-width:0;
+  flex-wrap:wrap;
+}
+
+.panel-dot{
+  color:var(--muted);
+  flex:0 0 auto;
+}
+
+.panel-stats .pill{
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.panel-date{
+  display:block;
+  width:100%;
+  color:var(--muted);
+  font-size:12.5px;
+  line-height:1.2;
+  margin-top:2px;
+}
+
+#streamDate{
+  min-width:0;
+}
+
 .vod-card{
   margin-bottom:14px;
-  border:1px solid var(--border);
+  border:1px solid rgba(145,70,255,0.25);
   border-radius:18px;
   overflow:hidden;
   background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
@@ -195,8 +181,17 @@ header{
 }
 .vod-card:hover{
   transform:translateY(-1px);
-  border-color:rgba(145,70,255,0.45);
-  box-shadow:0 14px 34px rgba(0,0,0,.28);
+  border-color:rgba(145,70,255,0.8);
+  box-shadow:
+    0 0 0 2px rgba(145,70,255,0.35),
+    0 14px 34px rgba(0,0,0,.28);
+}
+.vod-card:active{
+  transform:scale(0.96);
+  border-color:rgba(145,70,255,0.9);
+  box-shadow:
+    0 0 0 3px rgba(145,70,255,0.4),
+    0 10px 24px rgba(0,0,0,.35);
 }
 .vod-card:focus-visible{
   outline:2px solid rgba(145,70,255,0.65);
@@ -218,20 +213,13 @@ header{
   inset:0;
   background:linear-gradient(180deg, rgba(0,0,0,.06) 35%, rgba(0,0,0,.7) 100%);
 }
+
 .pill{
   font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   color:var(--muted);
-  font-size:12px;
+  font-size:13px;
 }
 
-.panel-channel{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-size:16px;
-  font-weight:600;
-  line-height:1.2;
-}
 .controls{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
@@ -244,55 +232,34 @@ header{
   grid-column:1 / span 3;
   grid-row:1;
 }
-
 .controls #u{
   grid-column:4 / span 3;
   grid-row:1;
 }
 
-
-.controls-footer{
-  grid-column:1 / span 6;
-  grid-row:3;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  width:100%;
-  min-width:0;
-}
-.controls-footer .pill{
-  min-width:0;
-  overflow-wrap:anywhere;
-  word-break:break-word;
-}
-
 .controls input{
   min-width:0;
-  height:48px;
+  height:var(--control-h);
   font-size:14px;
   padding:6px 12px;
-  border-radius:10px;
+  border-radius:var(--control-radius);
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
-
 }
+
 .button-toggle.active{
   background:var(--panel);
   border-color:var(--border);
 }
-
 .toggle-button{
   background:var(--panel);
   border:1px solid var(--border);
 }
-
 .toggle-button.is-active{
   background:var(--panel);
   border-color:var(--border);
 }
-
 .toggle-button.is-inactive{
   background:var(--panel);
   border-color:var(--border);
@@ -303,73 +270,67 @@ header{
   gap:8px;
   width:100%;
 }
-
 .panel-actions{
   width:100%;
 }
-
 .meta-buttons button{
   flex:1;
-  height:48px;
+  height:var(--control-h);
   font-size:14px;
-  border-radius:10px;
+  border-radius:var(--control-radius);
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
   cursor:pointer;
-  transition: background .15s ease, border-color .15s ease, transform .08s ease;
+  transition: background .15s ease, border-color .15s ease, transform .08s ease, box-shadow .15s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
 }
-
 .meta-buttons .button-toggle.is-active{
   background:#2a2a35;
   border-color:#3a3a48;
 }
-
 button:focus{
   outline:none;
 }
-
 button:focus-visible{
   outline:none;
 }
-
 button, .vod-card{
-  user-select: none;
-  -webkit-user-select: none;
+  user-select:none;
+  -webkit-user-select:none;
 }
-
-/* активное состояние */
 .meta-buttons button.is-active{
   background:#2a2a35;
   border-color:#3a3a48;
 }
-
 .button-toggle.is-active{
   background:#2a2a35;
   border-color:#3a3a48;
 }
-
 .button-toggle:active{
   transform:scale(0.96);
-  background:#23232d; /* чуть темнее */
+  background:#23232d;
   border-color:#3a3a48;
 }
-
-/* неактивное */
 .meta-buttons button.is-inactive{
   background:#15151b;
   border-color:var(--border);
   opacity:.7;
 }
-
-/* нажатие */
 .meta-buttons button:active{
   transform:scale(0.96);
+  border-color:rgba(145,70,255,0.9);
+  box-shadow:0 0 0 3px rgba(145,70,255,0.35);
 }
-
-.meta-buttons button:not(.is-active):hover{
-  border-color:var(--border);
-  background:var(--panel);
+.meta-buttons button:hover{
+  transform:translateY(-1px);
+  border-color:rgba(145,70,255,0.8);
+  box-shadow:
+    0 0 0 2px rgba(145,70,255,0.35),
+    0 14px 34px rgba(0,0,0,.28);
 }
 
 .snapshot-overlay{
@@ -382,7 +343,6 @@ button, .vod-card{
   z-index:9999;
   padding:20px;
 }
-
 .snapshot-panel{
   display:flex;
   flex-direction:column;
@@ -390,7 +350,6 @@ button, .vod-card{
   gap:10px;
   max-width:100%;
 }
-
 .snapshot-preview{
   max-width:min(100%, 1200px);
   max-height:min(80vh, 900px);
@@ -398,7 +357,6 @@ button, .vod-card{
   box-shadow:0 10px 40px rgba(0,0,0,.6);
   display:block;
 }
-
 .snapshot-actions{
   display:flex;
   justify-content:flex-end;
@@ -406,25 +364,28 @@ button, .vod-card{
   width:100%;
   opacity:0;
   pointer-events:none;
+  max-width:var(--controls-w);
 }
-
 .snapshot-actions.is-ready{
   opacity:1;
   pointer-events:auto;
 }
-
 .snapshot-toggle{
-  height:48px;
-  font-size:14px;
+  height:var(--control-h);
+  border-radius:var(--control-radius);
   padding:0 14px;
-  border-radius:10px;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
   cursor:pointer;
-  transition: background .15s ease, border-color .15s ease, transform .08s ease;
+  transition: background .15s ease, border-color .15s ease, transform .08s ease, box-shadow .15s ease;
+  flex:1;
 }
-
 .snapshot-loader{
   width:60px;
   height:60px;
@@ -434,34 +395,29 @@ button, .vod-card{
   animation:spin 1s linear infinite;
   align-self:center;
 }
-
 @keyframes spin{
   to{ transform:rotate(360deg); }
 }
-
-/* активное */
 .snapshot-toggle.is-active{
   background:#2a2a35;
   border-color:#3a3a48;
 }
-
-/* неактивное */
 .snapshot-toggle.is-inactive{
   opacity:.7;
 }
-
-/* нажатие */
 .snapshot-toggle:active{
   transform:scale(0.96);
+  border-color:rgba(145,70,255,0.9);
+  box-shadow:0 0 0 3px rgba(145,70,255,0.35);
+}
+.snapshot-toggle:hover{
+  transform:translateY(-1px);
+  border-color:rgba(145,70,255,0.8);
+  box-shadow:
+    0 0 0 2px rgba(145,70,255,0.35),
+    0 14px 34px rgba(0,0,0,.28);
 }
 
-/* hover (не ломает active) */
-.snapshot-toggle:not(.is-active):hover{
-  background:var(--panel);
-  border-color:var(--border);
-}
-
-/* message list */
 #list{
   width:100%;
   max-width:390px;
@@ -475,7 +431,6 @@ button, .vod-card{
   overflow-x:hidden;
 }
 
-/* row */
 .row{
   display:flex;
   flex-wrap:wrap;
@@ -498,7 +453,7 @@ button, .vod-card{
 }
 .colon{
   color:var(--text);
-  margin-right:6px;          /* пространство между ':' и началом сообщения */
+  margin-right:6px;
   white-space:nowrap;
 }
 .msg{
@@ -525,84 +480,98 @@ button, .vod-card{
   object-fit:contain;
   image-rendering:auto;
 }
-.emote{vertical-align:middle;margin:0 2px}
+.emote{
+  vertical-align:middle;
+  margin:0 2px;
+}
 
-/* export helper (unchanged) */
-.export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
+.export-wrap{
+  position:fixed;
+  left:-99999px;
+  top:0;
+  width:390px;
+  background:#18181f;
+  padding:24px;
+}
 .export-wrap.snapshot-hide-time .time{
   display:none !important;
 }
-.export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
+.export-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:18px;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.08);
+  font-size:14px;
+  color:#b9b9c6;
+}
 
-/* ===== Desktop layout ===== */
-@media (min-width: 900px){
-  .page{padding:24px}
-  .chat{max-width: calc(var(--controls-w) + var(--chat-w) + var(--gap)); display:flex; gap:var(--gap); align-items:flex-start}
-
-  /* left column becomes fixed-ish via sticky */
+@media (min-width: 901px){
+  .page{
+    padding:24px;
+  }
+  .chat{
+    max-width: calc(var(--controls-w) + var(--chat-w) + var(--gap));
+    display:flex;
+    gap:var(--gap);
+    align-items:flex-start;
+  }
   header{
     width:var(--controls-w);
     max-width:none;
     flex:0 0 var(--controls-w);
     position:sticky;
-    top:24px; /* offset from viewport top */
+    top:24px;
     border-radius:14px;
     padding:16px;
     height:fit-content;
   }
-
-  /* make controls vertical and full width of left column */
-.controls{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  margin-top:12px;
-  align-items:stretch;
-}
-
-.controls input{
-  width:100%;
-  height:36px;
-  flex:0 0 auto;
-  padding:6px 12px;
-  line-height:1.2;
-  font-size:13px;
-}
-
-  /* messages column */
+  .controls{
+    display:flex;
+    flex-direction:column;
+    gap:var(--control-gap);
+    margin-top:2px;
+    align-items:stretch;
+  }
+  .controls input{
+    width:100%;
+    height:var(--control-h);
+    font-size:14px;
+    padding:0 12px;
+    flex:0 0 auto;
+  }
   #list{
     width:var(--chat-w);
     max-width:var(--chat-w);
     flex:0 0 var(--chat-w);
     border-radius:14px;
     min-height:calc(100vh - 48px);
-    margin-top:0; /* header is in left column, not above messages */
+    margin-top:0;
   }
-
-  /* center whole layout horizontally */
-  .page{justify-content:center}
+  .page{
+    justify-content:center;
+  }
 }
 
-@media (min-width: 701px){
-  .panel-handle{display:none;}
+@media (max-width: 420px){
+  .chat{
+    padding:0 8px;
+  }
+  header{
+    padding:10px;
+    border-radius:12px;
+  }
+  #list{
+    margin-top:0;
+    border-radius:0;
+  }
 }
 
-
-/* small refinements for very narrow phones (so content not glued to edges) */
-@media (max-width:420px){
-  .chat{padding:0 8px}
-  header{padding:10px;border-radius:12px}
-  #list{margin-top:0;border-radius:0}
-}
-
-
-
-@media (max-width: 700px){
-
+@media (max-width: 900px){
   #list{
     padding-top: var(--mobile-header-space, 140px);
   }
-
   header{
     position:fixed;
     top:0;
@@ -620,41 +589,34 @@ button, .vod-card{
     align-items:stretch;
     transition:transform .24s ease, box-shadow .2s ease;
     will-change:transform;
-    touch-action: none;
-    padding-bottom: 32px;
+    touch-action:none;
+    padding-bottom:32px;
   }
-
-    header::after{
+  header::after{
     content:"";
     position:absolute;
     left:50%;
     bottom:14px;
     transform:translateX(-50%);
-
     width:46px;
     height:4px;
-
     border-radius:999px;
     background:rgba(255,255,255,.18);
   }
-
   header.is-expanded{
     transform:translateY(0);
   }
-
   header.is-compact .panel-top,
   header.is-compact .panel-stats{
     opacity:0;
     transform:translateY(-8px);
     pointer-events:none;
   }
-
   header.is-expanded .panel-top,
   header.is-expanded .panel-stats{
     opacity:1;
     transform:none;
   }
-
   .panel-top{
     display:flex;
     flex-direction:column;
@@ -662,11 +624,12 @@ button, .vod-card{
     min-width:0;
     transition:opacity .2s ease, transform .24s ease;
   }
-
   .meta{
     gap:8px;
   }
-
+  .panel-channel{
+    font-size:15px;
+  }
   .panel-stats{
     display:flex;
     gap:6px;
@@ -677,39 +640,26 @@ button, .vod-card{
     flex-wrap:wrap;
     transition:opacity .2s ease, transform .24s ease;
   }
-
-  .panel-stats .pill{
-    min-width:0;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-
   .panel-date{
     width:100%;
     color:var(--muted);
     font-size:12.5px;
     line-height:1.2;
   }
-
   .vod-card{
     margin:0;
   }
-
   .meta{
     margin:0;
   }
-
   .vod-title{
-    -webkit-line-clamp:4;
     font-size:14px;
+    line-height:1.25;
   }
-
   .vod-channel{
     font-size:15px;
     max-width:none;
   }
-
   .controls{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -718,66 +668,37 @@ button, .vod-card{
     min-width:0;
     width:100%;
   }
-
   .controls input{
     width:100%;
     min-width:0;
-    height:48px;
+    height:var(--control-h);
     font-size:14px;
     padding:6px 12px;
   }
-
   .panel-actions{
     display:flex;
     flex-direction:column;
     gap:8px;
     width:100%;
   }
-
   .meta-buttons{
     display:flex;
     gap:6px;
     width:100%;
     min-width:0;
   }
-
   .meta-buttons button{
     flex:1 1 0;
-    height:48px;
+    height:var(--control-h);
     font-size:14px;
     box-shadow:0 8px 20px rgba(0,0,0,.24);
   }
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    width:120px;
-    height:24px;
-
-    background:#18181b;
-    border-radius:0 0 10px 10px;
-
-    cursor:grab;
-    user-select:none;
-  }
-
-    width:46px;
-    height:4px;
-    border-radius:999px;
-    background:rgba(255,255,255,.12);
-  }
-
-  .panel-handle.is-dragging{
-  cursor:grabbing;
-  transform:translateX(-50%) scale(0.96);
-  }
   header.is-dragging{
-  transition:none !important;
+    transition:none !important;
   }
-
 }
 </style>
+
 
 </head>
 <body>
@@ -869,21 +790,20 @@ const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
-const elPanelHandle=document.getElementById("panelHandle");
-const MOBILE_MQ = window.matchMedia("(max-width: 700px)");
+const MOBILE_MQ = window.matchMedia("(max-width: 900px)");
 const elHeader=document.querySelector("header");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
 const elVodHeading=document.querySelector(".vod-heading");
 let SHOW_TIME=true;
-let PANEL_EXPANDED = window.matchMedia("(min-width: 701px)").matches;
+let PANEL_EXPANDED = window.matchMedia("(min-width: 901px)").matches;
 
 elTitle.textContent = meta.title || "—";
 if(elMobileChannel){
   elMobileChannel.textContent = "";
 
   const img = document.createElement("img");
-  img.src = "https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/2x.webp";
+  icon.src = "assets/twitch_icon.webp";
   img.className = "channel-icon";
 
   const text = document.createElement("span");
@@ -897,18 +817,6 @@ function updateMainTimeButton(){
   elToggleTime.classList.toggle("is-active", SHOW_TIME);
   elToggleTime.classList.toggle("is-inactive", !SHOW_TIME);
   elToggleTime.setAttribute("aria-pressed", SHOW_TIME ? "true" : "false");
-}
-
-function fitVodTitle(){
-  if(!elTitle) return;
-  elTitle.style.fontSize = "";
-  elTitle.classList.remove("is-truncated");
-}
-
-updateMainTimeButton();
-
-function clampNumber(value, min, max){
-  return Math.max(min, Math.min(max, value));
 }
 
 function parseTimecodeToSeconds(raw){
@@ -961,9 +869,40 @@ function updateStreamMeta(){
   }
 }
 
-let MOBILE_PANEL_EXPANDED = 260;
+function fitVodTitle(){
+  if(!elTitle) return;
+  const maxLines = 3;
+  const minFont = 12;
+  const maxFont = 15;
+
+  elTitle.style.fontSize = `${maxFont}px`;
+  elTitle.classList.remove("is-truncated");
+
+  const cs = getComputedStyle(elTitle);
+  const lineHeight = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.22) || 18;
+  const maxHeight = lineHeight * maxLines + 1;
+
+  let size = maxFont;
+  while(size > minFont && elTitle.scrollHeight > maxHeight){
+    size -= 0.5;
+    elTitle.style.fontSize = `${size}px`;
+  }
+
+  if(elTitle.scrollHeight > maxHeight){
+    elTitle.classList.add("is-truncated");
+  }
+}
+
+updateMainTimeButton();
+
+function clampNumber(value, min, max){
+  return Math.max(min, Math.min(max, value));
+}
+
+
+const MOBILE_PANEL_EXPANDED = 260;
 const MOBILE_PANEL_VISIBLE = 140;
-let MOBILE_PANEL_OFFSET = MOBILE_PANEL_VISIBLE - MOBILE_PANEL_EXPANDED; // negative
+const MOBILE_PANEL_OFFSET = MOBILE_PANEL_VISIBLE - MOBILE_PANEL_EXPANDED; // negative
 let PANEL_DRAG = null;
 let PANEL_OFFSET = MOBILE_MQ.matches ? MOBILE_PANEL_OFFSET : 0;
 
@@ -994,21 +933,6 @@ function syncPanelState(expanded, animate=true){
   }
 }
 
-function recalcMobilePanelMetrics(){
-  if(!elHeader) return;
-  if(MOBILE_MQ.matches){
-    const expanded = Math.max(Math.ceil(elHeader.scrollHeight || 0), 140);
-    MOBILE_PANEL_EXPANDED = expanded;
-    MOBILE_PANEL_OFFSET = MOBILE_PANEL_VISIBLE - MOBILE_PANEL_EXPANDED;
-    document.documentElement.style.setProperty('--mobile-header-space', `${MOBILE_PANEL_EXPANDED + 12}px`);
-  }else{
-    document.documentElement.style.removeProperty('--mobile-header-space');
-    MOBILE_PANEL_EXPANDED = 260;
-    MOBILE_PANEL_OFFSET = MOBILE_PANEL_VISIBLE - MOBILE_PANEL_EXPANDED;
-  }
-}
-
-recalcMobilePanelMetrics();
 syncPanelState(PANEL_EXPANDED, false);
 
 elHeader.addEventListener("pointerdown", (e)=>{
@@ -1121,15 +1045,12 @@ elHeader.addEventListener("touchcancel", ()=>{
 });
 
 window.addEventListener("resize", ()=>{
-  requestAnimationFrame(()=>{
-    fitVodTitle();
-    recalcMobilePanelMetrics();
-    syncPanelState(PANEL_EXPANDED, false);
-  });
+  requestAnimationFrame(fitVodTitle);
+  syncPanelState(PANEL_EXPANDED, false);
 });
 
 function openVodOverlay(){
-  if(!meta.thumbnail_url) return;
+  if(!meta.thumbnail_full_url && !meta.thumbnail_preview_url && !meta.thumbnail_url) return;
 
   const overlay = document.createElement("div");
   overlay.className = "snapshot-overlay";
@@ -1147,7 +1068,19 @@ function openVodOverlay(){
 
   const linkBtn = document.createElement("button");
   linkBtn.className = "snapshot-toggle is-active";
-  linkBtn.textContent = "🔗 Ссылка VOD";
+  linkBtn.textContent = "";
+
+  const img = document.createElement("img");
+  img.src = "assets/twitch_icon.webp";
+  img.style.height = "1em";
+  img.style.verticalAlign = "middle";
+  img.style.marginRight = "6px";
+
+  const text = document.createElement("span");
+  text.textContent = "Twitch VOD";
+
+  linkBtn.appendChild(img);
+  linkBtn.appendChild(text);
 
   linkBtn.addEventListener("click", (e)=>{
     e.stopPropagation();
@@ -1180,7 +1113,7 @@ function openVodOverlay(){
 
   // загрузка изображения
   const full = new Image();
-  full.src = meta.thumbnail_url;
+  full.src = meta.thumbnail_full_url || meta.thumbnail_preview_url;
 
   full.onload = ()=>{
     img.src = full.src;
@@ -1193,7 +1126,7 @@ function openVodOverlay(){
 
 elVodCard.addEventListener("click", openVodOverlay);
 
-const previewUrl = meta.thumbnail_url || "";
+const previewUrl = meta.thumbnail_preview_url || meta.thumbnail_full_url || meta.thumbnail_url || "";
 
 if(previewUrl){
   elVodPreviewImg.src = previewUrl;
@@ -1207,15 +1140,9 @@ if(previewUrl){
 
 requestAnimationFrame(fitVodTitle);
 window.addEventListener("resize", ()=>requestAnimationFrame(fitVodTitle));
-if("ResizeObserver" in window){
-  const ro = new ResizeObserver(()=>{
-    requestAnimationFrame(()=>{
-      fitVodTitle();
-      recalcMobilePanelMetrics();
-      syncPanelState(PANEL_EXPANDED, false);
-    });
-  });
-  ro.observe(elHeader);
+if(elVodHeading && "ResizeObserver" in window){
+  const ro = new ResizeObserver(()=>requestAnimationFrame(fitVodTitle));
+  ro.observe(elVodHeading);
 }
 
 function fmtStreamStart(iso){
@@ -1232,8 +1159,9 @@ function fmtStreamStart(iso){
   }catch(e){ return null; }
 }
 const streamStart = fmtStreamStart(meta.created_at);
-if(streamStart){ elStreamDate.textContent = `🗓 ${streamStart}`; elStreamDateWrap.style.display = ""; }
-
+if(streamStart){
+  elStreamDate.textContent = `🗓 ${streamStart}`;
+}
 updateStreamMeta();
 
 const DEFAULT_COLORS = [
@@ -1447,7 +1375,7 @@ async function applyFilters(){
   const q=(elQ.value||"").trim().toLowerCase();
   const u=(elU.value||"").trim().toLowerCase();
   filtered = rows.filter(r=>matches(r,q,u));
-  elStat.textContent = `${filtered.length} / ${rows.length}`;
+  elStat.textContent = `💬 ${filtered.length} / ${rows.length}`;
   elList.innerHTML=""; rendered=0; renderMore();
 }
 
