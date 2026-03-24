@@ -1127,7 +1127,7 @@ function openVodOverlay(){
 
   // загрузка изображения
   const full = new Image();
-  full.src = meta.thumbnail_url;
+  full.src = meta.thumbnail_full_url || meta.thumbnail_preview_url;
 
   full.onload = ()=>{
     img.src = full.src;
@@ -1140,7 +1140,7 @@ function openVodOverlay(){
 
 elVodCard.addEventListener("click", openVodOverlay);
 
-const previewUrl = meta.thumbnail_url || "";
+const previewUrl = meta.thumbnail_preview_url || meta.thumbnail_full_url || "";
 
 if(previewUrl){
   elVodPreviewImg.src = previewUrl;

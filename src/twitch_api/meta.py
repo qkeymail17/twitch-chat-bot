@@ -6,6 +6,25 @@ import aiohttp
 
 from src.config import TWITCH_CLIENT_ID, TWITCH_ACCESS_TOKEN
 
+async def resolve_thumbnail(session, thumb_template):
+    sizes = [
+        (1920, 1080),
+        (1280, 720),
+        (640, 360),
+        (480, 270),
+    ]
+
+    for w, h in sizes:
+        url = thumb_template.replace("%{width}", str(w)).replace("%{height}", str(h))
+        try:
+            async with session.head(url) as resp:
+                if resp.status == 200:
+                    return url
+        except:
+            continue
+
+    return None
+
 @dataclass
 class VodMeta:
     vod_id: str
@@ -143,7 +162,11 @@ async def fetch_vod_meta(session: aiohttp.ClientSession, client_id: str, vod_id:
                     if videos:
                         thumb = videos[0].get("thumbnail_url")
                         if thumb:
-                            meta.thumbnail_url = thumb.replace("%{width}", "1920").replace("%{height}", "1080")
+                            preview = thumb.replace("%{width}", "480").replace("%{height}", "270")
+                            full = await resolve_thumbnail(session, thumb)
+
+                            meta.thumbnail_preview_url = preview
+                            meta.thumbnail_full_url = full or preview
             except Exception:
                 pass
 
