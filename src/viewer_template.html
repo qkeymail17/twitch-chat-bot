@@ -916,6 +916,7 @@ function syncPanelState(expanded, animate=true){
   }else{
     elHeader.style.transform = "";
   }
+  updateListOffset();
 }
 
 syncPanelState(PANEL_EXPANDED, false);
@@ -1040,15 +1041,20 @@ function updateListOffset(){
 
   const wasExpanded = elHeader.classList.contains("is-expanded");
 
+  // временно в compact
   elHeader.classList.remove("is-expanded");
   elHeader.classList.add("is-compact");
 
   const h = elHeader.offsetHeight;
 
+  // возвращаем состояние
   elHeader.classList.toggle("is-expanded", wasExpanded);
   elHeader.classList.toggle("is-compact", !wasExpanded);
 
-  elList.style.paddingTop = h + "px";
+  // ВАЖНО: учитываем сдвиг панели
+  const offset = MOBILE_MQ.matches ? MOBILE_PANEL_OFFSET : 0;
+
+  elList.style.paddingTop = (h + Math.abs(offset)) + "px";
 }
 
 function openVodOverlay(){
