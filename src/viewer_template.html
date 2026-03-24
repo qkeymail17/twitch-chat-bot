@@ -468,8 +468,7 @@ button, .vod-card{
 
 /* row */
 .row{
-  display:flex;
-  flex-wrap:wrap;
+  display:block;
   padding:6px 12px;
   line-height:1.4;
   overflow-wrap:anywhere;
@@ -480,6 +479,7 @@ button, .vod-card{
   margin-right:6px;
 }
 .user{
+  display:inline;
   font-weight:600;
   white-space:normal;
   overflow-wrap:anywhere;
@@ -487,7 +487,9 @@ button, .vod-card{
   min-width:0;
   max-width:100%;
 }
+
 .colon{
+  display:inline;
   color:var(--text);
   margin-right:6px;          /* пространство между ':' и началом сообщения */
   white-space:nowrap;
