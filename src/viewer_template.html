@@ -261,7 +261,7 @@ header{
 
 .controls input{
   min-width:0;
-  height:44px;
+  height:48px;
   padding:6px 12px;
   border-radius:10px;
   background:var(--panel);
@@ -291,13 +291,18 @@ header{
 
 .meta-buttons{
   display:flex;
-  gap:6px;
+  gap:8px;
+  width:100%;
+}
+
+.panel-actions{
+  width:100%;
 }
 
 .meta-buttons button{
   flex:1;
-  height:36px;
-  font-size:13px;
+  height:48px;
+  font-size:14px;
   border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
@@ -393,7 +398,8 @@ button, .vod-card{
 }
 
 .snapshot-toggle{
-  height:36px;
+  height:48px;
+  font-size:14px;
   padding:0 14px;
   border-radius:10px;
   background:var(--panel);
@@ -1499,45 +1505,40 @@ function openSnapshotOverlay(rowsToClone){
   rerenderSnapshotPreview(rowsToClone);
 }
 
-elExportBtn.addEventListener("click", async (e)=>{
+elExportBtn.addEventListener("pointerup", async (e)=>{
   e.stopPropagation();
+  e.preventDefault();
 
-  e.currentTarget.blur(); // ← добавить
+  const sel = window.getSelection();
 
-  await new Promise(r => setTimeout(r, 0));
+  if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){
+    alert("Выделите текст сообщений");
+    return;
+  }
 
-const sel = window.getSelection();
+  const range = sel.getRangeAt(0).cloneRange();
 
-if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){
-  alert("Выделите текст сообщений");
-  return;
-}
+  let node = range.startContainer;
+  if(node.nodeType===3) node=node.parentNode;
+  const startRow = node.closest(".row");
+  if(!startRow) return;
 
-// 👉 КЛОНИРУЕМ range (это главное)
-const range = sel.getRangeAt(0).cloneRange();
+  node = range.endContainer;
+  if(node.nodeType===3) node=node.parentNode;
+  const endRow = node.closest(".row");
+  if(!endRow) return;
 
-let node = range.startContainer;
-if(node.nodeType===3) node=node.parentNode;
-const startRow = node.closest(".row");
-if(!startRow) return;
+  const startIndex = Number(startRow.dataset.id);
+  const endIndex   = Number(endRow.dataset.id);
+  if(Number.isNaN(startIndex)||Number.isNaN(endIndex)) return;
 
-node = range.endContainer;
-if(node.nodeType===3) node=node.parentNode;
-const endRow = node.closest(".row");
-if(!endRow) return;
+  const from = Math.min(startIndex,endIndex);
+  const to   = Math.max(startIndex,endIndex);
 
-const startIndex = Number(startRow.dataset.id);
-const endIndex   = Number(endRow.dataset.id);
-if(Number.isNaN(startIndex)||Number.isNaN(endIndex)) return;
+  sel.removeAllRanges();
 
-const from = Math.min(startIndex,endIndex);
-const to   = Math.max(startIndex,endIndex);
-
-// ❗ теперь можно безопасно очищать
-sel.removeAllRanges();
-
-const rowsToClone = filtered.slice(from, to + 1);
-openSnapshotOverlay(rowsToClone);
+  const rowsToClone = filtered.slice(from, to + 1);
+  openSnapshotOverlay(rowsToClone);
 });
 
 applyFilters();
