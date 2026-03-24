@@ -609,19 +609,18 @@ button, .vod-card{
     flex-direction:column;
     gap:8px;
     align-items:stretch;
-    transform:translateY(-140px);
     transition:transform .24s ease, box-shadow .2s ease;
     will-change:transform;
     touch-action: none;
-    padding-bottom: 18px;
+    padding-bottom: 32px;
   }
 
     header::after{
     content:"";
     position:absolute;
     left:50%;
-    bottom:6px;
-    transform:translateX(-50%);
+    bottom:50%;
+    transform:translate(-50%, 50%);
 
     width:46px;
     height:4px;
@@ -895,8 +894,8 @@ function clampNumber(value, min, max){
 }
 
 
-const MOBILE_PANEL_EXPANDED = 300;
-const MOBILE_PANEL_VISIBLE = 160;
+const MOBILE_PANEL_EXPANDED = 260;
+const MOBILE_PANEL_VISIBLE = 140;
 const MOBILE_PANEL_OFFSET = MOBILE_PANEL_VISIBLE - MOBILE_PANEL_EXPANDED; // negative
 let PANEL_DRAG = null;
 let PANEL_OFFSET = MOBILE_MQ.matches ? MOBILE_PANEL_OFFSET : 0;
