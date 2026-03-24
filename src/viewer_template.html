@@ -4,7 +4,6 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Twitch Chat Viewer</title>
-
 <style>
 *{
   -webkit-tap-highlight-color: transparent;
@@ -21,37 +20,27 @@ button{
   --text:#e7e7ea;
   --muted:#a6a6b0;
   --border:#2a2a35;
-  --control-h:48px;
-  --control-radius:10px;
-  --control-gap:8px;
+  --control-h: 48px;
+  --control-radius: 12px;
+  --control-gap: 10px;
 
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
 
-  --controls-w:312px;
-  --chat-w:515px;
+  --controls-w:312px; /* ширина левого блока на десктопе */
+  --chat-w:515px;     /* ширина блока сообщений на десктопе */
   --gap:16px;
+
 }
 *{box-sizing:border-box}
-html,body{
-  height:100%;
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--sans);
-  -webkit-font-smoothing:antialiased
-}
-.page{
-  width:100%;
-  display:flex;
-  justify-content:center;
-  padding:0;
-}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+.page{width:100%;display:flex;justify-content:center;padding:0}
 .chat{
   width:100%;
   max-width:none;
   margin:0;
 }
 
+/* header / controls (mobile first) */
 header{
   width:100%;
   max-width:none;
@@ -65,86 +54,50 @@ header{
   border-radius:0;
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap: var(--control-gap);
   align-items:stretch;
   transition:padding .2s ease, gap .2s ease;
 }
-
 .meta{
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:4px;
   margin:0;
   min-width:0;
   height:100%;
 }
 
+
 .panel-top{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
+  display:grid;
+  grid-template-columns:132px minmax(0,1fr);
+  gap:10px;
   min-width:0;
-  overflow:visible;
+  overflow:hidden;
   transition:max-height .25s ease, opacity .2s ease, transform .25s ease, margin .2s ease;
   max-height:1000px;
   opacity:1;
   transform:none;
 }
 
-.panel-channel{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  min-width:0;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  font-size:16px;
-  font-weight:600;
-  line-height:1.2;
-}
-
-.panel-channel img,
-.channel-icon{
-  width:1.1em;
-  height:1.1em;
-  object-fit:contain;
-  display:block;
-  flex:0 0 auto;
-}
-
-.vod-heading{
-  display:block;
-  min-width:0;
-  width:100%;
-}
-
-.vod-title{
-  display:block;
-  min-width:0;
-  font-size:18px;
-  font-weight:500;
-  line-height:1.25;
-  color:var(--text);
-  white-space:normal;
-  overflow:visible;
-  word-break:break-word;
-}
-.vod-title.is-truncated{
-  overflow:visible;
-}
-
 .panel-stats{
   display:flex;
+  gap: var(--control-gap);
   align-items:center;
-  justify-content:flex-start;
-  gap:6px;
+  justify-content:space-between;
   width:100%;
   min-width:0;
-  flex-wrap:wrap;
 }
 
-.panel-dot{
+.panel-stats-main{
+  display:flex;
+  align-items:center;
+  gap: var(--control-gap);
+  min-width:0;
+  overflow:hidden;
+}
+
+.panel-stats-separator{
   color:var(--muted);
   flex:0 0 auto;
 }
@@ -156,22 +109,62 @@ header{
   text-overflow:ellipsis;
 }
 
-.panel-date{
-  display:block;
+.panel-actions{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap: var(--control-gap);
   width:100%;
-  color:var(--muted);
-  font-size:12.5px;
-  line-height:1.2;
-  margin-top:2px;
-}
-
-#streamDate{
   min-width:0;
 }
 
+.vod-heading{
+  display:flex;
+  align-items:flex-start;
+  gap: var(--control-gap);
+  min-width:0;
+  width:100%;
+}
+
+.vod-channel{
+  flex:0 1 auto;
+  max-width:min(45%, 240px);
+  font-size:16px;
+  font-weight:700;
+  line-height:1.2;
+  color:var(--text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.vod-separator{
+  flex:0 0 auto;
+  color:var(--muted);
+  line-height:1.25;
+  transform:translateY(0.05em);
+}
+
+.vod-title{
+  flex:1 1 auto;
+  min-width:0;
+  font-size:15px;
+  font-weight:400;
+  line-height:1.22;
+  color:var(--text);
+  display:-webkit-box;
+  -webkit-line-clamp:6;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  word-break:break-word;
+}
+.vod-title.is-truncated{
+  overflow:hidden;
+}
+
 .vod-card{
-  margin-bottom:14px;
-  border:1px solid rgba(145,70,255,0.25);
+  margin-bottom: var(--control-gap);
+  border:1px solid var(--border);
   border-radius:18px;
   overflow:hidden;
   background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
@@ -181,17 +174,8 @@ header{
 }
 .vod-card:hover{
   transform:translateY(-1px);
-  border-color:rgba(145,70,255,0.8);
-  box-shadow:
-    0 0 0 2px rgba(145,70,255,0.35),
-    0 14px 34px rgba(0,0,0,.28);
-}
-.vod-card:active{
-  transform:scale(0.96);
-  border-color:rgba(145,70,255,0.9);
-  box-shadow:
-    0 0 0 3px rgba(145,70,255,0.4),
-    0 10px 24px rgba(0,0,0,.35);
+  border-color:rgba(145,70,255,0.45);
+  box-shadow:0 14px 34px rgba(0,0,0,.28);
 }
 .vod-card:focus-visible{
   outline:2px solid rgba(145,70,255,0.65);
@@ -213,17 +197,15 @@ header{
   inset:0;
   background:linear-gradient(180deg, rgba(0,0,0,.06) 35%, rgba(0,0,0,.7) 100%);
 }
-
 .pill{
   font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   color:var(--muted);
-  font-size:13px;
+  font-size:12px;
 }
-
 .controls{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:8px;
+  gap: var(--control-gap);
   margin-top:8px;
   width:100%;
   min-width:0;
@@ -232,34 +214,55 @@ header{
   grid-column:1 / span 3;
   grid-row:1;
 }
+
 .controls #u{
   grid-column:4 / span 3;
   grid-row:1;
 }
 
+
+.controls-footer{
+  grid-column:1 / span 6;
+  grid-row:3;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap: var(--control-gap);
+  width:100%;
+  min-width:0;
+}
+.controls-footer .pill{
+  min-width:0;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
 .controls input{
   min-width:0;
-  height:var(--control-h);
+  height: var(--control-h);
   font-size:14px;
-  padding:6px 12px;
-  border-radius:var(--control-radius);
+  padding:0 12px;
+  border-radius: var(--control-radius);
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
-}
 
+}
 .button-toggle.active{
   background:var(--panel);
   border-color:var(--border);
 }
+
 .toggle-button{
   background:var(--panel);
   border:1px solid var(--border);
 }
+
 .toggle-button.is-active{
   background:var(--panel);
   border-color:var(--border);
 }
+
 .toggle-button.is-inactive{
   background:var(--panel);
   border-color:var(--border);
@@ -267,70 +270,80 @@ header{
 
 .meta-buttons{
   display:flex;
-  gap:8px;
+  gap: var(--control-gap);
   width:100%;
 }
+
 .panel-actions{
   width:100%;
 }
+
 .meta-buttons button{
   flex:1;
-  height:var(--control-h);
-  font-size:14px;
-  border-radius:var(--control-radius);
-  background:var(--panel);
-  border:1px solid var(--border);
-  color:var(--text);
-  cursor:pointer;
-  transition: background .15s ease, border-color .15s ease, transform .08s ease, box-shadow .15s ease;
+  height: var(--control-h);
+  border-radius: var(--control-radius);
   display:flex;
   align-items:center;
   justify-content:center;
   gap:6px;
+  font-size:14px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+  cursor:pointer;
+  transition: background .15s ease, border-color .15s ease, transform .08s ease;
 }
+
 .meta-buttons .button-toggle.is-active{
   background:#2a2a35;
   border-color:#3a3a48;
 }
+
 button:focus{
   outline:none;
 }
+
 button:focus-visible{
   outline:none;
 }
+
 button, .vod-card{
-  user-select:none;
-  -webkit-user-select:none;
+  user-select: none;
+  -webkit-user-select: none;
 }
+
+/* активное состояние */
 .meta-buttons button.is-active{
   background:#2a2a35;
   border-color:#3a3a48;
 }
+
 .button-toggle.is-active{
   background:#2a2a35;
   border-color:#3a3a48;
 }
+
 .button-toggle:active{
   transform:scale(0.96);
-  background:#23232d;
+  background:#23232d; /* чуть темнее */
   border-color:#3a3a48;
 }
+
+/* неактивное */
 .meta-buttons button.is-inactive{
   background:#15151b;
   border-color:var(--border);
   opacity:.7;
 }
+
+/* нажатие */
 .meta-buttons button:active{
   transform:scale(0.96);
-  border-color:rgba(145,70,255,0.9);
-  box-shadow:0 0 0 3px rgba(145,70,255,0.35);
 }
-.meta-buttons button:hover{
-  transform:translateY(-1px);
-  border-color:rgba(145,70,255,0.8);
-  box-shadow:
-    0 0 0 2px rgba(145,70,255,0.35),
-    0 14px 34px rgba(0,0,0,.28);
+
+.meta-buttons button:not(.is-active):hover{
+  border-color:var(--border);
+  background:var(--panel);
 }
 
 .snapshot-overlay{
@@ -343,6 +356,7 @@ button, .vod-card{
   z-index:9999;
   padding:20px;
 }
+
 .snapshot-panel{
   display:flex;
   flex-direction:column;
@@ -350,6 +364,7 @@ button, .vod-card{
   gap:10px;
   max-width:100%;
 }
+
 .snapshot-preview{
   max-width:min(100%, 1200px);
   max-height:min(80vh, 900px);
@@ -357,35 +372,33 @@ button, .vod-card{
   box-shadow:0 10px 40px rgba(0,0,0,.6);
   display:block;
 }
+
 .snapshot-actions{
   display:flex;
   justify-content:flex-end;
-  gap:8px;
+  gap: var(--control-gap);
   width:100%;
   opacity:0;
   pointer-events:none;
-  max-width:var(--controls-w);
 }
+
 .snapshot-actions.is-ready{
   opacity:1;
   pointer-events:auto;
 }
+
 .snapshot-toggle{
-  height:var(--control-h);
-  border-radius:var(--control-radius);
+  height: var(--control-h);
+  border-radius: var(--control-radius);
   padding:0 14px;
   font-size:14px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
   cursor:pointer;
-  transition: background .15s ease, border-color .15s ease, transform .08s ease, box-shadow .15s ease;
-  flex:1;
+  transition: background .15s ease, border-color .15s ease, transform .08s ease;
 }
+
 .snapshot-loader{
   width:60px;
   height:60px;
@@ -395,29 +408,34 @@ button, .vod-card{
   animation:spin 1s linear infinite;
   align-self:center;
 }
+
 @keyframes spin{
   to{ transform:rotate(360deg); }
 }
+
+/* активное */
 .snapshot-toggle.is-active{
   background:#2a2a35;
   border-color:#3a3a48;
 }
+
+/* неактивное */
 .snapshot-toggle.is-inactive{
   opacity:.7;
 }
+
+/* нажатие */
 .snapshot-toggle:active{
   transform:scale(0.96);
-  border-color:rgba(145,70,255,0.9);
-  box-shadow:0 0 0 3px rgba(145,70,255,0.35);
-}
-.snapshot-toggle:hover{
-  transform:translateY(-1px);
-  border-color:rgba(145,70,255,0.8);
-  box-shadow:
-    0 0 0 2px rgba(145,70,255,0.35),
-    0 14px 34px rgba(0,0,0,.28);
 }
 
+/* hover (не ломает active) */
+.snapshot-toggle:not(.is-active):hover{
+  background:var(--panel);
+  border-color:var(--border);
+}
+
+/* message list */
 #list{
   width:100%;
   max-width:390px;
@@ -431,9 +449,9 @@ button, .vod-card{
   overflow-x:hidden;
 }
 
+/* row */
 .row{
-  display:flex;
-  flex-wrap:wrap;
+  display:block;
   padding:6px 12px;
   line-height:1.4;
   overflow-wrap:anywhere;
@@ -444,6 +462,7 @@ button, .vod-card{
   margin-right:6px;
 }
 .user{
+  display:inline;
   font-weight:600;
   white-space:normal;
   overflow-wrap:anywhere;
@@ -451,9 +470,11 @@ button, .vod-card{
   min-width:0;
   max-width:100%;
 }
+
 .colon{
+  display:inline;
   color:var(--text);
-  margin-right:6px;
+  margin-right:6px;          /* пространство между ':' и началом сообщения */
   white-space:nowrap;
 }
 .msg{
@@ -480,98 +501,114 @@ button, .vod-card{
   object-fit:contain;
   image-rendering:auto;
 }
+
 .emote{
-  vertical-align:middle;
-  margin:0 2px;
+  vertical-align: -0.2em;
+  margin: 0 2px;
 }
 
-.export-wrap{
-  position:fixed;
-  left:-99999px;
-  top:0;
-  width:390px;
-  background:#18181f;
-  padding:24px;
+.panel-stats img{
+  height: 1em;
 }
+
+#mobileChannel img{
+  height: 1.3em;
+  width: 1.3em;
+  object-fit: contain;
+}
+
+#mobileChannel{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* export helper (unchanged) */
+.export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
 .export-wrap.snapshot-hide-time .time{
   display:none !important;
 }
-.export-meta{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:18px;
-  padding-top:14px;
-  border-top:1px solid rgba(255,255,255,.08);
-  font-size:14px;
-  color:#b9b9c6;
-}
+.export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
 
+/* ===== Desktop layout ===== */
 @media (min-width: 901px){
-  .page{
-    padding:24px;
-  }
-  .chat{
-    max-width: calc(var(--controls-w) + var(--chat-w) + var(--gap));
-    display:flex;
-    gap:var(--gap);
-    align-items:flex-start;
-  }
+  .page{padding:24px}
+  .chat{max-width: calc(var(--controls-w) + var(--chat-w) + var(--gap)); display:flex; gap:var(--gap); align-items:flex-start}
+
+  /* left column becomes fixed-ish via sticky */
   header{
     width:var(--controls-w);
     max-width:none;
     flex:0 0 var(--controls-w);
     position:sticky;
-    top:24px;
+    top:24px; /* offset from viewport top */
     border-radius:14px;
     padding:16px;
     height:fit-content;
   }
+
+  /* make controls vertical and full width of left column */
   .controls{
     display:flex;
     flex-direction:column;
-    gap:var(--control-gap);
+    gap: var(--control-gap);
     margin-top:2px;
     align-items:stretch;
   }
+
   .controls input{
     width:100%;
-    height:var(--control-h);
+    height: var(--control-h);
     font-size:14px;
     padding:0 12px;
     flex:0 0 auto;
   }
+
+  .panel-stats{
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    row-gap: 4px;
+  }
+
+  .panel-stats-channel{
+    width: 100%;
+    grid-column: 1 / -1; /* вся строка */
+  }
+
+  #stat{
+    grid-column: 2 / 3;
+    justify-self: end;
+  }
+  /* messages column */
   #list{
     width:var(--chat-w);
     max-width:var(--chat-w);
     flex:0 0 var(--chat-w);
     border-radius:14px;
     min-height:calc(100vh - 48px);
-    margin-top:0;
+    margin-top:0; /* header is in left column, not above messages */
   }
-  .page{
-    justify-content:center;
-  }
+
+  /* center whole layout horizontally */
+  .page{justify-content:center}
 }
 
-@media (max-width: 420px){
-  .chat{
-    padding:0 8px;
-  }
-  header{
-    padding:10px;
-    border-radius:12px;
-  }
-  #list{
-    margin-top:0;
-    border-radius:0;
-  }
+/* small refinements for very narrow phones (so content not glued to edges) */
+@media (max-width:420px){
+  .chat{padding:0 8px}
+  header{padding:10px;border-radius:12px}
+  #list{margin-top:0;border-radius:0}
 }
+
+
 
 @media (max-width: 900px){
+
   #list{
-    padding-top: var(--mobile-header-space, 140px);
+    padding-top: 140px;
   }
+
   header{
     position:fixed;
     top:0;
@@ -585,130 +622,140 @@ button, .vod-card{
     z-index:80;
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap: var(--control-gap);
     align-items:stretch;
     transition:transform .24s ease, box-shadow .2s ease;
     will-change:transform;
-    touch-action:none;
-    padding-bottom:32px;
+    touch-action: none;
+    padding-bottom: 32px;
   }
-  header::after{
+
+    header::after{
     content:"";
     position:absolute;
     left:50%;
     bottom:14px;
     transform:translateX(-50%);
+
     width:46px;
     height:4px;
+
     border-radius:999px;
     background:rgba(255,255,255,.18);
   }
+
   header.is-expanded{
     transform:translateY(0);
   }
-header.is-compact .panel-top{
-  display:none;
-}
 
-header.is-compact .panel-stats{
-  display:none;
-}
+  header.is-compact .panel-top,
+  header.is-compact .panel-stats{
+    opacity:0;
+    transform:translateY(-8px);
+    pointer-events:none;
+  }
 
-header.is-compact{
-  padding-top:10px;
-  padding-bottom:10px;
-}
-
-header.is-compact::after{
-  display:none;
-}
   header.is-expanded .panel-top,
   header.is-expanded .panel-stats{
     opacity:1;
     transform:none;
   }
+
   .panel-top{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
+    display:grid;
+    grid-template-columns:132px minmax(0,1fr);
+    gap:10px;
     min-width:0;
     transition:opacity .2s ease, transform .24s ease;
   }
-  .meta{
-    gap:8px;
-  }
-  .panel-channel{
-    font-size:15px;
-  }
+
   .panel-stats{
     display:flex;
-    gap:6px;
+    gap: var(--control-gap);
     align-items:center;
-    justify-content:flex-start;
+    justify-content:space-between;
     width:100%;
     min-width:0;
-    flex-wrap:wrap;
     transition:opacity .2s ease, transform .24s ease;
   }
-  .panel-date{
-    width:100%;
-    color:var(--muted);
-    font-size:12.5px;
-    line-height:1.2;
+
+  .panel-stats .pill{
+    min-width:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
+
+  .panel-stats-channel{
+    flex:1 1 auto;
+  }
+
   .vod-card{
     margin:0;
   }
+
   .meta{
     margin:0;
   }
+
   .vod-title{
+    -webkit-line-clamp:4;
     font-size:14px;
-    line-height:1.25;
   }
+
   .vod-channel{
     font-size:15px;
     max-width:none;
   }
+
   .controls{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:8px;
+    gap: var(--control-gap);
     margin-top:0;
     min-width:0;
     width:100%;
   }
+
   .controls input{
     width:100%;
     min-width:0;
-    height:var(--control-h);
+    height: var(--control-h);
     font-size:14px;
-    padding:6px 12px;
+    padding:0 12px;
   }
+
   .panel-actions{
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap: var(--control-gap);
     width:100%;
   }
+
   .meta-buttons{
     display:flex;
-    gap:6px;
+    gap: var(--control-gap);
     width:100%;
     min-width:0;
   }
+
   .meta-buttons button{
     flex:1 1 0;
-    height:var(--control-h);
+    height: var(--control-h);
     font-size:14px;
     box-shadow:0 8px 20px rgba(0,0,0,.24);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
   }
+
   header.is-dragging{
-    transition:none !important;
+  transition:none !important;
   }
+
 }
 </style>
-
 
 </head>
 <body>
@@ -725,26 +772,22 @@ header.is-compact::after{
         </div>
 
         <div class="meta">
-          <span class="pill panel-channel" id="mobileChannel">—</span>
-
           <div class="vod-heading">
             <span id="title" class="vod-title">—</span>
           </div>
-
-          <div class="panel-stats">
-            <span class="pill" id="streamTime">⏱️ —</span>
-            <span class="panel-dot">•</span>
-            <span class="pill" id="stat">💬 —</span>
-            <span class="panel-dot">•</span>
-            <span class="pill" id="viewerStat">👥 —</span>
-          </div>
-
-          <div class="panel-date">
-            <span class="pill">
-              <span id="streamDateWrap"><span id="streamDate">—</span></span>
-            </span>
-          </div>
         </div>
+      </div>
+
+      <div class="panel-stats">
+
+        <span class="pill panel-stats-channel" id="mobileChannel">—</span>
+
+        <span class="pill">
+          <span id="streamDate">—</span>
+        </span>
+
+        <span class="pill" id="stat">—</span>
+
       </div>
 
       <div class="controls">
@@ -787,14 +830,11 @@ const BADGE_IMAGES = meta.badge_images || {};
 const TWITCH_CHANNEL_ID = meta.channel_id || null;
 
 const elTitle=document.getElementById("title");
-const elStreamTime=document.getElementById("streamTime");
 const elStat=document.getElementById("stat");
-const elViewerStat=document.getElementById("viewerStat");
 const elMobileChannel=document.getElementById("mobileChannel");
 const elList=document.getElementById("list");
 
 const elStreamDate=document.getElementById("streamDate");
-const elStreamDateWrap=document.getElementById("streamDateWrap");
 
 const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
@@ -827,56 +867,6 @@ function updateMainTimeButton(){
   elToggleTime.classList.toggle("is-active", SHOW_TIME);
   elToggleTime.classList.toggle("is-inactive", !SHOW_TIME);
   elToggleTime.setAttribute("aria-pressed", SHOW_TIME ? "true" : "false");
-}
-
-function parseTimecodeToSeconds(raw){
-  const parts = String(raw || "").trim().split(":").map(v => Number(v));
-  if(parts.some(n => Number.isNaN(n))) return null;
-  if(parts.length === 2){
-    const [mm, ss] = parts;
-    return mm * 60 + ss;
-  }
-  if(parts.length === 3){
-    const [hh, mm, ss] = parts;
-    return hh * 3600 + mm * 60 + ss;
-  }
-  return null;
-}
-
-function formatSecondsAsTime(totalSeconds){
-  if(!Number.isFinite(totalSeconds) || totalSeconds < 0) return "—";
-  const total = Math.floor(totalSeconds);
-  const hh = Math.floor(total / 3600);
-  const mm = Math.floor((total % 3600) / 60);
-  const ss = total % 60;
-  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
-}
-
-function getMaxChatDuration(rowsList){
-  let max = null;
-  for(const r of rowsList || []){
-    const sec = parseTimecodeToSeconds(r && r.t);
-    if(sec == null) continue;
-    if(max == null || sec > max) max = sec;
-  }
-  return max;
-}
-
-function getViewerCountLabel(){
-  const raw = meta.viewer_count ?? meta.viewers ?? meta.viewerCount ?? meta.active_viewers ?? meta.concurrent_viewers ?? meta.concurrency ?? meta.viewerNumber ?? null;
-  if(raw === null || raw === undefined || raw === "") return "👥 —";
-  return `👥 ${raw}`;
-}
-
-function updateStreamMeta(){
-  if(elStreamTime){
-    const secs = meta.duration ?? getMaxChatDuration(rows);
-    const label = secs != null ? formatSecondsAsTime(secs) : "—";
-    elStreamTime.textContent = `⏱️ ${label}`;
-  }
-  if(elViewerStat){
-    elViewerStat.textContent = getViewerCountLabel();
-  }
 }
 
 function fitVodTitle(){
@@ -1060,7 +1050,7 @@ window.addEventListener("resize", ()=>{
 });
 
 function openVodOverlay(){
-  if(!meta.thumbnail_full_url && !meta.thumbnail_preview_url && !meta.thumbnail_url) return;
+  if(!meta.thumbnail_full_url && !meta.thumbnail_preview_url) return;
 
   const overlay = document.createElement("div");
   overlay.className = "snapshot-overlay";
@@ -1068,39 +1058,45 @@ function openVodOverlay(){
   const panel = document.createElement("div");
   panel.className = "snapshot-panel";
 
-const previewImg = document.createElement("img");
-previewImg.className = "snapshot-preview";
-previewImg.alt = "";
+  // ПРЕВЬЮ
+  const preview = document.createElement("img");
+  preview.className = "snapshot-preview";
+  preview.alt = "";
+  panel.appendChild(preview);
 
-const actions = document.createElement("div");
-actions.className = "snapshot-actions";
-actions.classList.remove("is-ready");
-
-const linkBtn = document.createElement("button");
-linkBtn.className = "snapshot-toggle is-active";
-linkBtn.textContent = "";
-
-const icon = document.createElement("img");
-icon.src = "https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/2x.webp";
-icon.style.height = "1em";
-icon.style.verticalAlign = "middle";
-icon.style.marginRight = "6px";
-
-const text = document.createElement("span");
-text.textContent = "Twitch VOD";
-
-linkBtn.appendChild(icon);
-linkBtn.appendChild(text);
-
-actions.appendChild(linkBtn);
-
-panel.appendChild(previewImg);
-
-  // loader
+  // ЛОАДЕР
   const loader = document.createElement("div");
   loader.className = "snapshot-loader";
   panel.appendChild(loader);
 
+  // ACTIONS
+  const actions = document.createElement("div");
+  actions.className = "snapshot-actions";
+
+  const linkBtn = document.createElement("button");
+  linkBtn.className = "snapshot-toggle is-active";
+
+  // ИКОНКА
+  const icon = document.createElement("img");
+  icon.src = "https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/2x.webp";
+  icon.style.height = "1em";
+  icon.style.verticalAlign = "middle";
+  icon.style.marginRight = "6px";
+
+  const text = document.createElement("span");
+  text.textContent = "Twitch VOD";
+
+  linkBtn.appendChild(icon);
+  linkBtn.appendChild(text);
+
+  linkBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    if(meta.vod_url){
+      window.open(meta.vod_url,"_blank");
+    }
+  });
+
+  actions.appendChild(linkBtn);
   panel.appendChild(actions);
   overlay.appendChild(panel);
 
@@ -1114,14 +1110,12 @@ panel.appendChild(previewImg);
   document.body.style.overflow = "hidden";
   document.body.appendChild(overlay);
 
-  // загрузка изображения
+  // ЗАГРУЗКА КАРТИНКИ
   const full = new Image();
   full.src = meta.thumbnail_full_url || meta.thumbnail_preview_url;
 
   full.onload = ()=>{
-  previewImg.src = full.src;
-  previewImg.style.display = "block";
-
+    preview.src = full.src;
     loader.remove();
     actions.classList.add("is-ready");
   };
@@ -1129,7 +1123,7 @@ panel.appendChild(previewImg);
 
 elVodCard.addEventListener("click", openVodOverlay);
 
-const previewUrl = meta.thumbnail_preview_url || meta.thumbnail_full_url || meta.thumbnail_url || "";
+const previewUrl = meta.thumbnail_preview_url || meta.thumbnail_full_url || "";
 
 if(previewUrl){
   elVodPreviewImg.src = previewUrl;
@@ -1163,9 +1157,8 @@ function fmtStreamStart(iso){
 }
 const streamStart = fmtStreamStart(meta.created_at);
 if(streamStart){
-  elStreamDate.textContent = `🗓 ${streamStart}`;
+  elStreamDate.textContent = `📅 ${streamStart}`;
 }
-updateStreamMeta();
 
 const DEFAULT_COLORS = [
   "#FF0000",
@@ -1541,9 +1534,9 @@ function openSnapshotOverlay(rowsToClone){
   const panel = document.createElement("div");
   panel.className = "snapshot-panel";
 
-  const previewImg = document.createElement("img");
-  previewImg.className = "snapshot-preview";
-  previewImg.alt = "";
+  const img = document.createElement("img");
+  img.className = "snapshot-preview";
+  img.alt = "";
 
   const actions = document.createElement("div");
   actions.className = "snapshot-actions";
@@ -1574,7 +1567,7 @@ function openSnapshotOverlay(rowsToClone){
   });
 
   SNAPSHOT_OVERLAY = overlay;
-  SNAPSHOT_PREVIEW_IMG = previewImg;
+  SNAPSHOT_PREVIEW_IMG = img;
   SNAPSHOT_TIME_BTN = timeBtn;
   SNAPSHOT_DATE_BTN = dateBtn;
   updateSnapshotTimeButton();
@@ -1582,7 +1575,7 @@ function openSnapshotOverlay(rowsToClone){
 
   actions.appendChild(timeBtn);
   actions.appendChild(dateBtn);
-  panel.appendChild(previewImg);
+  panel.appendChild(img);
 
   const loader = document.createElement("div");
   loader.className = "snapshot-loader";
