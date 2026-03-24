@@ -17,13 +17,13 @@ async def resolve_thumbnail(session, thumb_template):
     for w, h in sizes:
         url = thumb_template.replace("%{width}", str(w)).replace("%{height}", str(h))
         try:
-            async with session.head(url) as resp:
+            async with session.get(url) as resp:
                 if resp.status == 200:
                     return url
         except:
             continue
 
-    return None
+    return thumb_template.replace("%{width}", "480").replace("%{height}", "270")
 
 @dataclass
 class VodMeta:
