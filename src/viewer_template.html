@@ -20,9 +20,6 @@ button{
   --text:#e7e7ea;
   --muted:#a6a6b0;
   --border:#2a2a35;
-  --control-h: 46px;
-  --control-radius: 10px;
-  --control-gap: 8px;
 
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
 
@@ -54,14 +51,14 @@ header{
   border-radius:0;
   display:flex;
   flex-direction:column;
-  gap: var(--control-gap);
+  gap:8px;
   align-items:stretch;
   transition:padding .2s ease, gap .2s ease;
 }
 .meta{
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:8px;
   margin:0;
   min-width:0;
   height:100%;
@@ -69,11 +66,11 @@ header{
 
 
 .panel-top{
-  display:grid;
-  grid-template-columns:132px minmax(0,1fr);
-  gap:10px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
   min-width:0;
-  overflow:hidden;
+  overflow:visible;
   transition:max-height .25s ease, opacity .2s ease, transform .25s ease, margin .2s ease;
   max-height:1000px;
   opacity:1;
@@ -82,50 +79,72 @@ header{
 
 .panel-stats{
   display:flex;
-  gap: var(--control-gap);
   align-items:center;
-  justify-content:space-between;
+  justify-content:flex-start;
+  gap:6px;
   width:100%;
   min-width:0;
+  flex-wrap:wrap;
 }
 
-.panel-stats-main{
-  display:flex;
-  align-items:center;
-  gap: var(--control-gap);
-  min-width:0;
-  overflow:hidden;
-}
-
-.panel-stats-separator{
+.panel-dot{
   color:var(--muted);
   flex:0 0 auto;
 }
 
-.panel-stats .pill{
+.panel-stats .pill,
+.panel-date .pill,
+.panel-channel{
   min-width:0;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
-#streamDate{
-  min-width:0;
+.panel-date{
+  display:block;
+  width:100%;
+  color:var(--muted);
+  font-size:12.5px;
+  line-height:1.2;
+  margin-top:2px;
 }
 
 .panel-actions{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap: var(--control-gap);
+  gap:8px;
   width:100%;
   min-width:0;
 }
 
+.panel-handle{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  width:120px;
+  height:24px;
+  border-radius:999px;
+  background:#18181b;
+  border:none;
+  box-shadow:0 10px 24px rgba(0,0,0,.36);
+  cursor:grab;
+  user-select:none;
+  flex:0 0 auto;
+  position:relative;
+}
+
+.panel-handle span{
+  display:block;
+  width:42px;
+  height:4px;
+  border-radius:999px;
+  background:rgba(255,255,255,.12);
+}
+
 .vod-heading{
-  display:flex;
-  align-items:flex-start;
-  gap: var(--control-gap);
+  display:block;
   min-width:0;
   width:100%;
 }
@@ -150,25 +169,23 @@ header{
 }
 
 .vod-title{
-  flex:1 1 auto;
+  display:block;
   min-width:0;
-  font-size:17px;
-  font-weight:400;
-  line-height:1.3;
+  font-size:18px;
+  font-weight:500;
+  line-height:1.25;
   color:var(--text);
-  display:-webkit-box;
-  -webkit-line-clamp:6;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
+  white-space:normal;
+  overflow:visible;
   word-break:break-word;
 }
 .vod-title.is-truncated{
-  overflow:hidden;
+  overflow:visible;
 }
 
 .vod-card{
-  margin-bottom: var(--control-gap);
-  border:1px solid rgba(145,70,255,0.25);
+  margin-bottom:14px;
+  border:1px solid var(--border);
   border-radius:18px;
   overflow:hidden;
   background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
@@ -178,17 +195,8 @@ header{
 }
 .vod-card:hover{
   transform:translateY(-1px);
-  border-color:rgba(145,70,255,0.8);
-  box-shadow:
-    0 0 0 2px rgba(145,70,255,0.35),
-    0 14px 34px rgba(0,0,0,.28);
-}
-.vod-card:active{
-  transform:scale(0.96);
-  border-color:rgba(145,70,255,0.9);
-  box-shadow:
-    0 0 0 3px rgba(145,70,255,0.4),
-    0 10px 24px rgba(0,0,0,.35);
+  border-color:rgba(145,70,255,0.45);
+  box-shadow:0 14px 34px rgba(0,0,0,.28);
 }
 .vod-card:focus-visible{
   outline:2px solid rgba(145,70,255,0.65);
@@ -213,12 +221,21 @@ header{
 .pill{
   font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
   color:var(--muted);
-  font-size:13px;
+  font-size:12px;
+}
+
+.panel-channel{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:16px;
+  font-weight:600;
+  line-height:1.2;
 }
 .controls{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
-  gap: var(--control-gap);
+  gap:8px;
   margin-top:8px;
   width:100%;
   min-width:0;
@@ -240,7 +257,7 @@ header{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap: var(--control-gap);
+  gap:8px;
   width:100%;
   min-width:0;
 }
@@ -252,10 +269,10 @@ header{
 
 .controls input{
   min-width:0;
-  height: var(--control-h);
+  height:48px;
   font-size:14px;
-  padding:0 12px;
-  border-radius: var(--control-radius);
+  padding:6px 12px;
+  border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
@@ -283,7 +300,7 @@ header{
 
 .meta-buttons{
   display:flex;
-  gap: var(--control-gap);
+  gap:8px;
   width:100%;
 }
 
@@ -293,13 +310,9 @@ header{
 
 .meta-buttons button{
   flex:1;
-  height: var(--control-h);
-  border-radius: var(--control-radius);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
+  height:48px;
   font-size:14px;
+  border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
@@ -352,16 +365,11 @@ button, .vod-card{
 /* нажатие */
 .meta-buttons button:active{
   transform:scale(0.96);
-  border-color:rgba(145,70,255,0.9);
-  box-shadow:0 0 0 3px rgba(145,70,255,0.35);
 }
 
-.meta-buttons button:hover{
-  transform:translateY(-1px);
-  border-color:rgba(145,70,255,0.8);
-  box-shadow:
-    0 0 0 2px rgba(145,70,255,0.35),
-    0 14px 34px rgba(0,0,0,.28);
+.meta-buttons button:not(.is-active):hover{
+  border-color:var(--border);
+  background:var(--panel);
 }
 
 .snapshot-overlay{
@@ -394,11 +402,10 @@ button, .vod-card{
 .snapshot-actions{
   display:flex;
   justify-content:flex-end;
-  gap: var(--control-gap);
+  gap:8px;
   width:100%;
   opacity:0;
   pointer-events:none;
-  max-width: var(--controls-w);
 }
 
 .snapshot-actions.is-ready{
@@ -407,24 +414,15 @@ button, .vod-card{
 }
 
 .snapshot-toggle{
-  height: var(--control-h);
-  border-radius: var(--control-radius);
-  padding:0 14px;
+  height:48px;
   font-size:14px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-
+  padding:0 14px;
+  border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
   cursor:pointer;
-
   transition: background .15s ease, border-color .15s ease, transform .08s ease;
-
-  flex:1;
 }
 
 .snapshot-loader{
@@ -455,17 +453,12 @@ button, .vod-card{
 /* нажатие */
 .snapshot-toggle:active{
   transform:scale(0.96);
-  border-color:rgba(145,70,255,0.9);
-  box-shadow:0 0 0 3px rgba(145,70,255,0.35);
 }
 
 /* hover (не ломает active) */
-.snapshot-toggle:hover{
-  transform:translateY(-1px);
-  border-color:rgba(145,70,255,0.8);
-  box-shadow:
-    0 0 0 2px rgba(145,70,255,0.35),
-    0 14px 34px rgba(0,0,0,.28);
+.snapshot-toggle:not(.is-active):hover{
+  background:var(--panel);
+  border-color:var(--border);
 }
 
 /* message list */
@@ -484,7 +477,8 @@ button, .vod-card{
 
 /* row */
 .row{
-  display:block;
+  display:flex;
+  flex-wrap:wrap;
   padding:6px 12px;
   line-height:1.4;
   overflow-wrap:anywhere;
@@ -495,7 +489,6 @@ button, .vod-card{
   margin-right:6px;
 }
 .user{
-  display:inline;
   font-weight:600;
   white-space:normal;
   overflow-wrap:anywhere;
@@ -503,9 +496,7 @@ button, .vod-card{
   min-width:0;
   max-width:100%;
 }
-
 .colon{
-  display:inline;
   color:var(--text);
   margin-right:6px;          /* пространство между ':' и началом сообщения */
   white-space:nowrap;
@@ -534,32 +525,7 @@ button, .vod-card{
   object-fit:contain;
   image-rendering:auto;
 }
-
-.emote{
-  vertical-align: -0.2em;
-  margin: 0 2px;
-}
-
-.panel-stats img{
-  height: 1em;
-}
-
-#mobileChannel img{
-  height: 1.3em;
-  width: 1.3em;
-  object-fit: contain;
-}
-
-#mobileChannel{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  justify-content: flex-start;
-}
-
-#mobileChannel span{
-  margin-left: 2px;
-}
+.emote{vertical-align:middle;margin:0 2px}
 
 /* export helper (unchanged) */
 .export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
@@ -569,7 +535,7 @@ button, .vod-card{
 .export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
 
 /* ===== Desktop layout ===== */
-@media (min-width: 901px){
+@media (min-width: 900px){
   .page{padding:24px}
   .chat{max-width: calc(var(--controls-w) + var(--chat-w) + var(--gap)); display:flex; gap:var(--gap); align-items:flex-start}
 
@@ -581,43 +547,28 @@ button, .vod-card{
     position:sticky;
     top:24px; /* offset from viewport top */
     border-radius:14px;
-    padding:20px;
+    padding:16px;
     height:fit-content;
   }
 
   /* make controls vertical and full width of left column */
-  .controls{
-    display:flex;
-    flex-direction:column;
-    gap: var(--control-gap);
-    margin-top:2px;
-    align-items:stretch;
-  }
+.controls{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:12px;
+  align-items:stretch;
+}
 
-  .controls input{
-    width:100%;
-    height: var(--control-h);
-    font-size:14px;
-    padding:0 12px;
-    flex:0 0 auto;
-  }
+.controls input{
+  width:100%;
+  height:36px;
+  flex:0 0 auto;
+  padding:6px 12px;
+  line-height:1.2;
+  font-size:13px;
+}
 
-  .panel-stats{
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto;
-    row-gap: 4px;
-  }
-
-  .panel-stats-channel{
-    width: 100%;
-    grid-column: 1 / -1; /* вся строка */
-  }
-
-  #stat{
-    grid-column: 2 / 3;
-    justify-self: end;
-  }
   /* messages column */
   #list{
     width:var(--chat-w);
@@ -632,6 +583,11 @@ button, .vod-card{
   .page{justify-content:center}
 }
 
+@media (min-width: 701px){
+  .panel-handle{display:none;}
+}
+
+
 /* small refinements for very narrow phones (so content not glued to edges) */
 @media (max-width:420px){
   .chat{padding:0 8px}
@@ -641,10 +597,10 @@ button, .vod-card{
 
 
 
-@media (max-width: 900px){
+@media (max-width: 700px){
 
   #list{
-    padding-top: 140px;
+    padding-top: var(--mobile-header-space, 140px);
   }
 
   header{
@@ -660,7 +616,7 @@ button, .vod-card{
     z-index:80;
     display:flex;
     flex-direction:column;
-    gap: var(--control-gap);
+    gap:8px;
     align-items:stretch;
     transition:transform .24s ease, box-shadow .2s ease;
     will-change:transform;
@@ -700,20 +656,25 @@ button, .vod-card{
   }
 
   .panel-top{
-    display:grid;
-    grid-template-columns:132px minmax(0,1fr);
-    gap:14px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
     min-width:0;
     transition:opacity .2s ease, transform .24s ease;
   }
 
+  .meta{
+    gap:8px;
+  }
+
   .panel-stats{
     display:flex;
-    gap: row-gap:6px;
+    gap:6px;
     align-items:center;
-    justify-content:space-between;
+    justify-content:flex-start;
     width:100%;
     min-width:0;
+    flex-wrap:wrap;
     transition:opacity .2s ease, transform .24s ease;
   }
 
@@ -724,8 +685,11 @@ button, .vod-card{
     text-overflow:ellipsis;
   }
 
-  .panel-stats-channel{
-    flex:1 1 auto;
+  .panel-date{
+    width:100%;
+    color:var(--muted);
+    font-size:12.5px;
+    line-height:1.2;
   }
 
   .vod-card{
@@ -749,7 +713,7 @@ button, .vod-card{
   .controls{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:12px;
+    gap:8px;
     margin-top:0;
     min-width:0;
     width:100%;
@@ -758,36 +722,56 @@ button, .vod-card{
   .controls input{
     width:100%;
     min-width:0;
-    height: var(--control-h);
+    height:48px;
     font-size:14px;
-    padding:0 12px;
+    padding:6px 12px;
   }
 
   .panel-actions{
     display:flex;
     flex-direction:column;
-    gap: var(--control-gap);
+    gap:8px;
     width:100%;
   }
 
   .meta-buttons{
     display:flex;
-    gap: var(--control-gap);
+    gap:6px;
     width:100%;
     min-width:0;
   }
 
   .meta-buttons button{
     flex:1 1 0;
-    height: var(--control-h);
+    height:48px;
     font-size:14px;
     box-shadow:0 8px 20px rgba(0,0,0,.24);
+  }
+
     display:flex;
     align-items:center;
     justify-content:center;
-    gap:6px;
+
+    width:120px;
+    height:24px;
+
+    background:#18181b;
+    border-radius:0 0 10px 10px;
+
+    cursor:grab;
+    user-select:none;
   }
 
+    width:46px;
+    height:4px;
+    border-radius:999px;
+    background:rgba(255,255,255,.12);
+  }
+
+  .panel-handle.is-dragging{
+  cursor:grabbing;
+  transform:translateX(-50%) scale(0.96);
+  }
   header.is-dragging{
   transition:none !important;
   }
@@ -810,22 +794,26 @@ button, .vod-card{
         </div>
 
         <div class="meta">
+          <span class="pill panel-channel" id="mobileChannel">—</span>
+
           <div class="vod-heading">
             <span id="title" class="vod-title">—</span>
           </div>
+
+          <div class="panel-stats">
+            <span class="pill" id="streamTime">⏱️ —</span>
+            <span class="panel-dot">•</span>
+            <span class="pill" id="stat">💬 —</span>
+            <span class="panel-dot">•</span>
+            <span class="pill" id="viewerStat">👥 —</span>
+          </div>
+
+          <div class="panel-date">
+            <span class="pill">
+              <span id="streamDateWrap"><span id="streamDate">—</span></span>
+            </span>
+          </div>
         </div>
-      </div>
-
-      <div class="panel-stats">
-
-        <span class="pill panel-stats-channel" id="mobileChannel">—</span>
-
-        <span class="pill">
-          <span id="streamDate">—</span>
-        </span>
-
-        <span class="pill" id="stat">—</span>
-
       </div>
 
       <div class="controls">
@@ -868,23 +856,27 @@ const BADGE_IMAGES = meta.badge_images || {};
 const TWITCH_CHANNEL_ID = meta.channel_id || null;
 
 const elTitle=document.getElementById("title");
+const elStreamTime=document.getElementById("streamTime");
 const elStat=document.getElementById("stat");
+const elViewerStat=document.getElementById("viewerStat");
 const elMobileChannel=document.getElementById("mobileChannel");
 const elList=document.getElementById("list");
 
 const elStreamDate=document.getElementById("streamDate");
+const elStreamDateWrap=document.getElementById("streamDateWrap");
 
 const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
-const MOBILE_MQ = window.matchMedia("(max-width: 900px)");
+const elPanelHandle=document.getElementById("panelHandle");
+const MOBILE_MQ = window.matchMedia("(max-width: 700px)");
 const elHeader=document.querySelector("header");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
 const elVodHeading=document.querySelector(".vod-heading");
 let SHOW_TIME=true;
-let PANEL_EXPANDED = window.matchMedia("(min-width: 901px)").matches;
+let PANEL_EXPANDED = window.matchMedia("(min-width: 701px)").matches;
 
 elTitle.textContent = meta.title || "—";
 if(elMobileChannel){
@@ -909,26 +901,8 @@ function updateMainTimeButton(){
 
 function fitVodTitle(){
   if(!elTitle) return;
-  const maxLines = 3;
-  const minFont = 12;
-  const maxFont = 15;
-
-  elTitle.style.fontSize = `${maxFont}px`;
+  elTitle.style.fontSize = "";
   elTitle.classList.remove("is-truncated");
-
-  const cs = getComputedStyle(elTitle);
-  const lineHeight = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.22) || 18;
-  const maxHeight = lineHeight * maxLines + 1;
-
-  let size = maxFont;
-  while(size > minFont && elTitle.scrollHeight > maxHeight){
-    size -= 0.5;
-    elTitle.style.fontSize = `${size}px`;
-  }
-
-  if(elTitle.scrollHeight > maxHeight){
-    elTitle.classList.add("is-truncated");
-  }
 }
 
 updateMainTimeButton();
@@ -937,10 +911,59 @@ function clampNumber(value, min, max){
   return Math.max(min, Math.min(max, value));
 }
 
+function parseTimecodeToSeconds(raw){
+  const parts = String(raw || "").trim().split(":").map(v => Number(v));
+  if(parts.some(n => Number.isNaN(n))) return null;
+  if(parts.length === 2){
+    const [mm, ss] = parts;
+    return mm * 60 + ss;
+  }
+  if(parts.length === 3){
+    const [hh, mm, ss] = parts;
+    return hh * 3600 + mm * 60 + ss;
+  }
+  return null;
+}
 
-const MOBILE_PANEL_EXPANDED = 260;
+function formatSecondsAsTime(totalSeconds){
+  if(!Number.isFinite(totalSeconds) || totalSeconds < 0) return "—";
+  const total = Math.floor(totalSeconds);
+  const hh = Math.floor(total / 3600);
+  const mm = Math.floor((total % 3600) / 60);
+  const ss = total % 60;
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+}
+
+function getMaxChatDuration(rowsList){
+  let max = null;
+  for(const r of rowsList || []){
+    const sec = parseTimecodeToSeconds(r && r.t);
+    if(sec == null) continue;
+    if(max == null || sec > max) max = sec;
+  }
+  return max;
+}
+
+function getViewerCountLabel(){
+  const raw = meta.viewer_count ?? meta.viewers ?? meta.viewerCount ?? meta.active_viewers ?? meta.concurrent_viewers ?? meta.concurrency ?? meta.viewerNumber ?? null;
+  if(raw === null || raw === undefined || raw === "") return "👥 —";
+  return `👥 ${raw}`;
+}
+
+function updateStreamMeta(){
+  if(elStreamTime){
+    const secs = meta.duration ?? getMaxChatDuration(rows);
+    const label = secs != null ? formatSecondsAsTime(secs) : "—";
+    elStreamTime.textContent = `⏱️ ${label}`;
+  }
+  if(elViewerStat){
+    elViewerStat.textContent = getViewerCountLabel();
+  }
+}
+
+let MOBILE_PANEL_EXPANDED = 260;
 const MOBILE_PANEL_VISIBLE = 140;
-const MOBILE_PANEL_OFFSET = MOBILE_PANEL_VISIBLE - MOBILE_PANEL_EXPANDED; // negative
+let MOBILE_PANEL_OFFSET = MOBILE_PANEL_VISIBLE - MOBILE_PANEL_EXPANDED; // negative
 let PANEL_DRAG = null;
 let PANEL_OFFSET = MOBILE_MQ.matches ? MOBILE_PANEL_OFFSET : 0;
 
@@ -971,6 +994,21 @@ function syncPanelState(expanded, animate=true){
   }
 }
 
+function recalcMobilePanelMetrics(){
+  if(!elHeader) return;
+  if(MOBILE_MQ.matches){
+    const expanded = Math.max(Math.ceil(elHeader.scrollHeight || 0), 140);
+    MOBILE_PANEL_EXPANDED = expanded;
+    MOBILE_PANEL_OFFSET = MOBILE_PANEL_VISIBLE - MOBILE_PANEL_EXPANDED;
+    document.documentElement.style.setProperty('--mobile-header-space', `${MOBILE_PANEL_EXPANDED + 12}px`);
+  }else{
+    document.documentElement.style.removeProperty('--mobile-header-space');
+    MOBILE_PANEL_EXPANDED = 260;
+    MOBILE_PANEL_OFFSET = MOBILE_PANEL_VISIBLE - MOBILE_PANEL_EXPANDED;
+  }
+}
+
+recalcMobilePanelMetrics();
 syncPanelState(PANEL_EXPANDED, false);
 
 elHeader.addEventListener("pointerdown", (e)=>{
@@ -1083,12 +1121,15 @@ elHeader.addEventListener("touchcancel", ()=>{
 });
 
 window.addEventListener("resize", ()=>{
-  requestAnimationFrame(fitVodTitle);
-  syncPanelState(PANEL_EXPANDED, false);
+  requestAnimationFrame(()=>{
+    fitVodTitle();
+    recalcMobilePanelMetrics();
+    syncPanelState(PANEL_EXPANDED, false);
+  });
 });
 
 function openVodOverlay(){
-  if(!meta.thumbnail_full_url && !meta.thumbnail_preview_url) return;
+  if(!meta.thumbnail_url) return;
 
   const overlay = document.createElement("div");
   overlay.className = "snapshot-overlay";
@@ -1096,36 +1137,17 @@ function openVodOverlay(){
   const panel = document.createElement("div");
   panel.className = "snapshot-panel";
 
-  // ПРЕВЬЮ
-  const preview = document.createElement("img");
-  preview.className = "snapshot-preview";
-  preview.alt = "";
-  panel.appendChild(preview);
+  const img = document.createElement("img");
+  img.className = "snapshot-preview";
+  img.alt = "";
 
-  // ЛОАДЕР
-  const loader = document.createElement("div");
-  loader.className = "snapshot-loader";
-  panel.appendChild(loader);
-
-  // ACTIONS
   const actions = document.createElement("div");
   actions.className = "snapshot-actions";
+  actions.classList.remove("is-ready");
 
   const linkBtn = document.createElement("button");
   linkBtn.className = "snapshot-toggle is-active";
-
-  // ИКОНКА
-  const icon = document.createElement("img");
-  icon.src = "https://cdn.7tv.app/emote/01H1P0YF7G0008W9SSAM2XE7GF/2x.webp";
-  icon.style.height = "1em";
-  icon.style.verticalAlign = "middle";
-  icon.style.marginRight = "6px";
-
-  const text = document.createElement("span");
-  text.textContent = "Twitch VOD";
-
-  linkBtn.appendChild(icon);
-  linkBtn.appendChild(text);
+  linkBtn.textContent = "🔗 Ссылка VOD";
 
   linkBtn.addEventListener("click", (e)=>{
     e.stopPropagation();
@@ -1135,6 +1157,14 @@ function openVodOverlay(){
   });
 
   actions.appendChild(linkBtn);
+
+  panel.appendChild(img);
+
+  // loader
+  const loader = document.createElement("div");
+  loader.className = "snapshot-loader";
+  panel.appendChild(loader);
+
   panel.appendChild(actions);
   overlay.appendChild(panel);
 
@@ -1148,12 +1178,14 @@ function openVodOverlay(){
   document.body.style.overflow = "hidden";
   document.body.appendChild(overlay);
 
-  // ЗАГРУЗКА КАРТИНКИ
+  // загрузка изображения
   const full = new Image();
-  full.src = meta.thumbnail_full_url || meta.thumbnail_preview_url;
+  full.src = meta.thumbnail_url;
 
   full.onload = ()=>{
-    preview.src = full.src;
+    img.src = full.src;
+    img.style.display = "block";
+
     loader.remove();
     actions.classList.add("is-ready");
   };
@@ -1161,7 +1193,7 @@ function openVodOverlay(){
 
 elVodCard.addEventListener("click", openVodOverlay);
 
-const previewUrl = meta.thumbnail_preview_url || meta.thumbnail_full_url || "";
+const previewUrl = meta.thumbnail_url || "";
 
 if(previewUrl){
   elVodPreviewImg.src = previewUrl;
@@ -1175,9 +1207,15 @@ if(previewUrl){
 
 requestAnimationFrame(fitVodTitle);
 window.addEventListener("resize", ()=>requestAnimationFrame(fitVodTitle));
-if(elVodHeading && "ResizeObserver" in window){
-  const ro = new ResizeObserver(()=>requestAnimationFrame(fitVodTitle));
-  ro.observe(elVodHeading);
+if("ResizeObserver" in window){
+  const ro = new ResizeObserver(()=>{
+    requestAnimationFrame(()=>{
+      fitVodTitle();
+      recalcMobilePanelMetrics();
+      syncPanelState(PANEL_EXPANDED, false);
+    });
+  });
+  ro.observe(elHeader);
 }
 
 function fmtStreamStart(iso){
@@ -1194,9 +1232,9 @@ function fmtStreamStart(iso){
   }catch(e){ return null; }
 }
 const streamStart = fmtStreamStart(meta.created_at);
-if(streamStart){
-  elStreamDate.textContent = `📅 ${streamStart}`;
-}
+if(streamStart){ elStreamDate.textContent = `🗓 ${streamStart}`; elStreamDateWrap.style.display = ""; }
+
+updateStreamMeta();
 
 const DEFAULT_COLORS = [
   "#FF0000",
@@ -1409,7 +1447,7 @@ async function applyFilters(){
   const q=(elQ.value||"").trim().toLowerCase();
   const u=(elU.value||"").trim().toLowerCase();
   filtered = rows.filter(r=>matches(r,q,u));
-  elStat.textContent = `💬 ${filtered.length} / ${rows.length}`;
+  elStat.textContent = `${filtered.length} / ${rows.length}`;
   elList.innerHTML=""; rendered=0; renderMore();
 }
 
