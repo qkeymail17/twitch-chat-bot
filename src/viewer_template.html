@@ -20,6 +20,9 @@ button{
   --text:#e7e7ea;
   --muted:#a6a6b0;
   --border:#2a2a35;
+  --control-h: 48px;
+  --control-radius: 12px;
+  --control-gap: 10px;
 
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
 
@@ -51,7 +54,7 @@ header{
   border-radius:0;
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap: var(--control-gap);
   align-items:stretch;
   transition:padding .2s ease, gap .2s ease;
 }
@@ -79,7 +82,7 @@ header{
 
 .panel-stats{
   display:flex;
-  gap:8px;
+  gap: var(--control-gap);
   align-items:center;
   justify-content:space-between;
   width:100%;
@@ -89,7 +92,7 @@ header{
 .panel-stats-main{
   display:flex;
   align-items:center;
-  gap:8px;
+  gap: var(--control-gap);
   min-width:0;
   overflow:hidden;
 }
@@ -110,7 +113,7 @@ header{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:8px;
+  gap: var(--control-gap);
   width:100%;
   min-width:0;
 }
@@ -118,7 +121,7 @@ header{
 .vod-heading{
   display:flex;
   align-items:flex-start;
-  gap:8px;
+  gap: var(--control-gap);
   min-width:0;
   width:100%;
 }
@@ -160,7 +163,7 @@ header{
 }
 
 .vod-card{
-  margin-bottom:14px;
+  margin-bottom: var(--control-gap);
   border:1px solid var(--border);
   border-radius:18px;
   overflow:hidden;
@@ -202,7 +205,7 @@ header{
 .controls{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:8px;
+  gap: var(--control-gap);
   margin-top:8px;
   width:100%;
   min-width:0;
@@ -224,7 +227,7 @@ header{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:8px;
+  gap: var(--control-gap);
   width:100%;
   min-width:0;
 }
@@ -236,10 +239,10 @@ header{
 
 .controls input{
   min-width:0;
-  height:48px;
+  height: var(--control-h);
   font-size:14px;
-  padding:6px 12px;
-  border-radius:10px;
+  padding:0 12px;
+  border-radius: var(--control-radius);
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
@@ -267,7 +270,7 @@ header{
 
 .meta-buttons{
   display:flex;
-  gap:8px;
+  gap: var(--control-gap);
   width:100%;
 }
 
@@ -277,9 +280,13 @@ header{
 
 .meta-buttons button{
   flex:1;
-  height:48px;
+  height: var(--control-h);
+  border-radius: var(--control-radius);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
   font-size:14px;
-  border-radius:10px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
@@ -369,7 +376,7 @@ button, .vod-card{
 .snapshot-actions{
   display:flex;
   justify-content:flex-end;
-  gap:8px;
+  gap: var(--control-gap);
   width:100%;
   opacity:0;
   pointer-events:none;
@@ -381,10 +388,10 @@ button, .vod-card{
 }
 
 .snapshot-toggle{
-  height:48px;
-  font-size:14px;
+  height: var(--control-h);
+  border-radius: var(--control-radius);
   padding:0 14px;
-  border-radius:10px;
+  font-size:14px;
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
@@ -528,18 +535,17 @@ button, .vod-card{
   .controls{
     display:flex;
     flex-direction:column;
-    gap:12px;
+    gap: var(--control-gap);
     margin-top:12px;
     align-items:stretch;
   }
 
   .controls input{
     width:100%;
-    height:36px;
+    height: var(--control-h);
+    font-size:14px;
+    padding:0 12px;
     flex:0 0 auto;
-    padding:6px 12px;
-    line-height:1.2;
-    font-size:13px;
   }
 
   .panel-stats{
@@ -610,7 +616,7 @@ button, .vod-card{
     z-index:80;
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap: var(--control-gap);
     align-items:stretch;
     transition:transform .24s ease, box-shadow .2s ease;
     will-change:transform;
@@ -659,7 +665,7 @@ button, .vod-card{
 
   .panel-stats{
     display:flex;
-    gap:8px;
+    gap: var(--control-gap);
     align-items:center;
     justify-content:space-between;
     width:100%;
@@ -699,7 +705,7 @@ button, .vod-card{
   .controls{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:8px;
+    gap: var(--control-gap);
     margin-top:0;
     min-width:0;
     width:100%;
@@ -708,50 +714,34 @@ button, .vod-card{
   .controls input{
     width:100%;
     min-width:0;
-    height:48px;
+    height: var(--control-h);
     font-size:14px;
-    padding:6px 12px;
+    padding:0 12px;
   }
 
   .panel-actions{
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap: var(--control-gap);
     width:100%;
   }
 
   .meta-buttons{
     display:flex;
-    gap:6px;
+    gap: var(--control-gap);
     width:100%;
     min-width:0;
   }
 
   .meta-buttons button{
     flex:1 1 0;
-    height:48px;
+    height: var(--control-h);
     font-size:14px;
     box-shadow:0 8px 20px rgba(0,0,0,.24);
-  }
-
     display:flex;
     align-items:center;
     justify-content:center;
-
-    width:120px;
-    height:24px;
-
-    background:#18181b;
-    border-radius:0 0 10px 10px;
-
-    cursor:grab;
-    user-select:none;
-  }
-
-    width:46px;
-    height:4px;
-    border-radius:999px;
-    background:rgba(255,255,255,.12);
+    gap:6px;
   }
 
   header.is-dragging{
