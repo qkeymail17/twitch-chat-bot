@@ -406,10 +406,17 @@ button, .vod-card{
   border-radius: var(--control-radius);
   padding:0 14px;
   font-size:14px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+
   background:var(--panel);
   border:1px solid var(--border);
   color:var(--text);
   cursor:pointer;
+
   transition: background .15s ease, border-color .15s ease, transform .08s ease;
 }
 
@@ -441,12 +448,17 @@ button, .vod-card{
 /* нажатие */
 .snapshot-toggle:active{
   transform:scale(0.96);
+  border-color:rgba(145,70,255,0.9);
+  box-shadow:0 0 0 3px rgba(145,70,255,0.35);
 }
 
 /* hover (не ломает active) */
-.snapshot-toggle:not(.is-active):hover{
-  background:var(--panel);
-  border-color:var(--border);
+.snapshot-toggle:hover{
+  transform:translateY(-1px);
+  border-color:rgba(145,70,255,0.8);
+  box-shadow:
+    0 0 0 2px rgba(145,70,255,0.35),
+    0 14px 34px rgba(0,0,0,.28);
 }
 
 /* message list */
