@@ -871,7 +871,7 @@ if(elMobileChannel){
   elMobileChannel.textContent = "";
 
   const img = document.createElement("img");
-  icon.src = "assets/twitch_icon.webp";
+  img.src = "assets/twitch_icon.webp";
   img.className = "channel-icon";
 
   const text = document.createElement("span");
@@ -1077,18 +1077,12 @@ function openVodOverlay(){
   panel.className = "snapshot-panel";
 
   const img = document.createElement("img");
-  img.className = "snapshot-preview";
-  img.alt = "";
+  img.src = "assets/twitch_icon.webp";
+  img.style.height = "1em";
+  img.style.verticalAlign = "middle";
+  img.style.marginRight = "6px";
 
-  const actions = document.createElement("div");
-  actions.className = "snapshot-actions";
-  actions.classList.remove("is-ready");
-
-  const linkBtn = document.createElement("button");
-  linkBtn.className = "snapshot-toggle is-active";
-  linkBtn.textContent = "";
-
-  const img = document.createElement("img");
+  linkBtn.appendChild(img);
   img.src = "assets/twitch_icon.webp";
   img.style.height = "1em";
   img.style.verticalAlign = "middle";
