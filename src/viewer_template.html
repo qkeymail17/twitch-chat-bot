@@ -613,12 +613,13 @@ button, .vod-card{
   header.is-expanded{
     transform:translateY(0);
   }
-  header.is-compact .panel-top,
-  header.is-compact .panel-stats{
-    opacity:0;
-    transform:translateY(-8px);
-    pointer-events:none;
-  }
+header.is-compact .panel-top{
+  display:none;
+}
+
+header.is-compact .panel-stats{
+  display:none;
+}
   header.is-expanded .panel-top,
   header.is-expanded .panel-stats{
     opacity:1;
