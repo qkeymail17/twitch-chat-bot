@@ -508,7 +508,7 @@ button, .vod-card{
 .export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
 
 /* ===== Desktop layout ===== */
-@media (min-width: 701px){
+@media (min-width: 901px){
   .page{padding:24px}
   .chat{max-width: calc(var(--controls-w) + var(--chat-w) + var(--gap)); display:flex; gap:var(--gap); align-items:flex-start}
 
@@ -591,7 +591,7 @@ button, .vod-card{
 
 
 
-@media (max-width: 700px){
+@media (max-width: 900px){
 
   #list{
     padding-top: 140px;
@@ -844,13 +844,13 @@ const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
 const elExportBtn=document.getElementById("exportBtn");
-const MOBILE_MQ = window.matchMedia("(max-width: 700px)");
+const MOBILE_MQ = window.matchMedia("(max-width: 900px)");
 const elHeader=document.querySelector("header");
 const elVodCard=document.getElementById("vodCard");
 const elVodPreviewImg=document.getElementById("vodPreviewImg");
 const elVodHeading=document.querySelector(".vod-heading");
 let SHOW_TIME=true;
-let PANEL_EXPANDED = window.matchMedia("(min-width: 701px)").matches;
+let PANEL_EXPANDED = window.matchMedia("(min-width: 901px)").matches;
 
 elTitle.textContent = meta.title || "—";
 if(elMobileChannel) elMobileChannel.textContent = meta.channel || "—";
