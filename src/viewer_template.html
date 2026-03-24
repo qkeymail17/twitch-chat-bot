@@ -467,15 +467,16 @@ button, .vod-card{
 }
 .user{
   font-weight:600;
-  white-space:nowrap;
-  flex:0 0 auto;
+  white-space:normal;
   overflow-wrap:anywhere;
   word-break:break-word;
   min-width:0;
+  max-width:100%;
 }
 .colon{
   color:var(--text);
   margin-right:6px;          /* пространство между ':' и началом сообщения */
+  white-space:nowrap;
 }
 .msg{
   display:inline;
@@ -576,7 +577,7 @@ button, .vod-card{
 @media (max-width: 700px){
 
   #list{
-    padding-top: 180px;
+    padding-top: 160px;
   }
 
   header{
@@ -1248,8 +1249,8 @@ function createRowElement(r, includeTime, rowIndex){
   if(!renderFragmentsWithEmotes(msgEl, r.fragments || [], EMOTES)){
     renderTextWithEmotes(msgEl, r.text || "", EMOTES);
   }
+  nameWrap.appendChild(colonEl);
   rowEl.appendChild(nameWrap);
-  rowEl.appendChild(colonEl);
   rowEl.appendChild(msgEl);
   return rowEl;
 }
