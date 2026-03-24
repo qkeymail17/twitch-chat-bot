@@ -1039,22 +1039,24 @@ window.addEventListener("resize", ()=>{
 function updateListOffset(){
   if(!elHeader || !elList) return;
 
-  const wasExpanded = elHeader.classList.contains("is-expanded");
+  const prevTransform = elHeader.style.transform;
 
-  // временно в compact
+  // убираем transform
+  elHeader.style.transform = "none";
+
+  // делаем compact
+  const wasExpanded = elHeader.classList.contains("is-expanded");
   elHeader.classList.remove("is-expanded");
   elHeader.classList.add("is-compact");
 
   const h = elHeader.offsetHeight;
 
-  // возвращаем состояние
+  // возвращаем всё обратно
   elHeader.classList.toggle("is-expanded", wasExpanded);
   elHeader.classList.toggle("is-compact", !wasExpanded);
+  elHeader.style.transform = prevTransform;
 
-  // ВАЖНО: учитываем сдвиг панели
-  const offset = MOBILE_MQ.matches ? MOBILE_PANEL_OFFSET : 0;
-
-  elList.style.paddingTop = (h + Math.abs(offset)) + "px";
+  elList.style.paddingTop = h + "px";
 }
 
 function openVodOverlay(){
