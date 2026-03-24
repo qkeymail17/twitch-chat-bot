@@ -520,7 +520,12 @@ button, .vod-card{
 #mobileChannel{
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+#mobileChannel span{
+  margin-left: 2px;
 }
 
 /* export helper (unchanged) */
@@ -574,7 +579,6 @@ button, .vod-card{
   .panel-stats-channel{
     width: 100%;
     grid-column: 1 / -1; /* вся строка */
-    justify-self: start;
   }
 
   #stat{
