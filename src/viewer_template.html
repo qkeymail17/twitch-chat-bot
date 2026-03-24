@@ -872,7 +872,10 @@ const elMobileChannel=document.getElementById("mobileChannel");
 const elList=document.getElementById("list");
 
 const elStreamDate=document.getElementById("streamDate");
-const elStreamDateWrap=document.getElementById("streamDateWrap");
+
+if(streamStart){
+  elStreamDate.textContent = streamStart;
+}
 
 const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
