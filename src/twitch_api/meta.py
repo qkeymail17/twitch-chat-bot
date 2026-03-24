@@ -34,7 +34,9 @@ class VodMeta:
     channel_id: Optional[str] = None
     length_seconds: Optional[int] = None
     created_at: Optional[str] = None
-    thumbnail_url: Optional[str] = None
+
+    thumbnail_preview_url: Optional[str] = None
+    thumbnail_full_url: Optional[str] = None
 
 
 def extract_user_color(node: dict) -> Optional[str]:
