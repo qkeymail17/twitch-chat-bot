@@ -454,6 +454,8 @@ button, .vod-card{
 
 /* row */
 .row{
+  display:flex;
+  flex-wrap:wrap;
   padding:6px 12px;
   line-height:1.4;
   overflow-wrap:anywhere;
@@ -465,7 +467,8 @@ button, .vod-card{
 }
 .user{
   font-weight:600;
-  white-space:normal;
+  white-space:nowrap;
+  flex:0 0 auto;
   overflow-wrap:anywhere;
   word-break:break-word;
   min-width:0;
@@ -476,6 +479,7 @@ button, .vod-card{
 }
 .msg{
   display:inline;
+  flex:1 1 auto;
   color:var(--text);
   overflow-wrap:anywhere;
   word-break:break-word;
@@ -572,7 +576,7 @@ button, .vod-card{
 @media (max-width: 700px){
 
   #list{
-    padding-top: 130px;
+    padding-top: 180px;
   }
 
   header{
@@ -723,6 +727,7 @@ button, .vod-card{
     width:42px;
     height:4px;
     background:rgba(255,255,255,.18);
+    margin:0 auto;
   }
 
   .panel-handle.is-dragging{
@@ -1402,8 +1407,9 @@ async function rerenderSnapshotPreview(rowsToClone){
     if(token !== SNAPSHOT_RENDER_TOKEN) return;
     if(SNAPSHOT_PREVIEW_IMG){
       SNAPSHOT_PREVIEW_IMG.src = url;
-      const actions = SNAPSHOT_PREVIEW_IMG.closest(".snapshot-panel").querySelector(".snapshot-actions");
-      actions.classList.add("is-ready");
+      const panel = SNAPSHOT_PREVIEW_IMG?.closest(".snapshot-panel");
+      const actions = panel?.querySelector(".snapshot-actions");
+      if(actions) actions.classList.add("is-ready");
       SNAPSHOT_PREVIEW_IMG.style.opacity = "1";
     }
   }catch(err){
