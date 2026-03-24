@@ -873,10 +873,6 @@ const elList=document.getElementById("list");
 
 const elStreamDate=document.getElementById("streamDate");
 
-if(streamStart){
-  elStreamDate.textContent = streamStart;
-}
-
 const elQ=document.getElementById("q");
 const elU=document.getElementById("u");
 const elToggleTime=document.getElementById("toggleTime");
@@ -1177,7 +1173,10 @@ function fmtStreamStart(iso){
   }catch(e){ return null; }
 }
 const streamStart = fmtStreamStart(meta.created_at);
-if(streamStart){ elStreamDate.textContent = streamStart; elStreamDateWrap.style.display = ""; }
+if(streamStart){
+  elStreamDate.textContent = streamStart;
+  elStreamDateWrap.style.display = "";
+}
 
 const DEFAULT_COLORS = [
   "#FF0000",
