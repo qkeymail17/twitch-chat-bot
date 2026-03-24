@@ -596,11 +596,6 @@ button, .vod-card{
 }
 
 @media (max-width: 900px){
-
-  #list{
-    padding-top: 155px;
-  }
-
   header{
     position:fixed;
     top:0;
@@ -1037,7 +1032,24 @@ elHeader.addEventListener("touchcancel", ()=>{
 window.addEventListener("resize", ()=>{
   requestAnimationFrame(fitVodTitle);
   syncPanelState(PANEL_EXPANDED, false);
+  updateListOffset();
 });
+
+function updateListOffset(){
+  if(!elHeader || !elList) return;
+
+  const wasExpanded = elHeader.classList.contains("is-expanded");
+
+  elHeader.classList.remove("is-expanded");
+  elHeader.classList.add("is-compact");
+
+  const h = elHeader.offsetHeight;
+
+  elHeader.classList.toggle("is-expanded", wasExpanded);
+  elHeader.classList.toggle("is-compact", !wasExpanded);
+
+  elList.style.paddingTop = h + "px";
+}
 
 function openVodOverlay(){
   if(!meta.thumbnail_full_url && !meta.thumbnail_preview_url) return;
@@ -1638,6 +1650,7 @@ elExportBtn.addEventListener("pointerup", async (e)=>{
 });
 
 applyFilters();
+updateListOffset();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
