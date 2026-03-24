@@ -164,7 +164,7 @@ header{
 
 .vod-card{
   margin-bottom: var(--control-gap);
-  border:1px solid var(--border);
+  border:1px solid rgba(145,70,255,0.25);
   border-radius:18px;
   overflow:hidden;
   background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
@@ -174,8 +174,17 @@ header{
 }
 .vod-card:hover{
   transform:translateY(-1px);
-  border-color:rgba(145,70,255,0.45);
-  box-shadow:0 14px 34px rgba(0,0,0,.28);
+  border-color:rgba(145,70,255,0.8);
+  box-shadow:
+    0 0 0 2px rgba(145,70,255,0.35),
+    0 14px 34px rgba(0,0,0,.28);
+}
+.vod-card:active{
+  transform:scale(0.96);
+  border-color:rgba(145,70,255,0.9);
+  box-shadow:
+    0 0 0 3px rgba(145,70,255,0.4),
+    0 10px 24px rgba(0,0,0,.35);
 }
 .vod-card:focus-visible{
   outline:2px solid rgba(145,70,255,0.65);
