@@ -352,9 +352,12 @@ button, .vod-card{
   box-shadow:0 0 0 3px rgba(145,70,255,0.35);
 }
 
-.meta-buttons button:not(.is-active):hover{
+.meta-buttons button:hover{
+  transform:translateY(-1px);
   border-color:rgba(145,70,255,0.8);
-  box-shadow:0 0 0 2px rgba(145,70,255,0.25);
+  box-shadow:
+    0 0 0 2px rgba(145,70,255,0.35),
+    0 14px 34px rgba(0,0,0,.28);
 }
 
 .snapshot-overlay{
