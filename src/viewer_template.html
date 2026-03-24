@@ -304,6 +304,11 @@ header{
   transition: background .15s ease, border-color .15s ease, transform .08s ease;
 }
 
+.meta-buttons .button-toggle.is-active{
+  background:#2a2a35;
+  border-color:#3a3a48;
+}
+
 button:focus{
   outline:none;
 }
@@ -318,8 +323,12 @@ button, .vod-card{
 }
 
 /* активное состояние */
-.meta-buttons button.is-active,
-.button-toggle.active{
+.meta-buttons button.is-active{
+  background:#2a2a35;
+  border-color:#3a3a48;
+}
+
+.button-toggle.is-active{
   background:#2a2a35;
   border-color:#3a3a48;
 }
@@ -383,19 +392,27 @@ button, .vod-card{
   border:1px solid var(--border);
   color:var(--text);
   cursor:pointer;
+  transition: background .15s ease, border-color .15s ease, transform .08s ease;
 }
 
-.snapshot-toggle:hover{
-  background:var(--panel);
-  border-color:var(--border);
-}
-
+/* активное */
 .snapshot-toggle.is-active{
-  background:var(--panel);
-  border-color:var(--border);
+  background:#2a2a35;
+  border-color:#3a3a48;
 }
 
+/* неактивное */
 .snapshot-toggle.is-inactive{
+  opacity:.7;
+}
+
+/* нажатие */
+.snapshot-toggle:active{
+  transform:scale(0.96);
+}
+
+/* hover (не ломает active) */
+.snapshot-toggle:not(.is-active):hover{
   background:var(--panel);
   border-color:var(--border);
 }
@@ -1480,7 +1497,7 @@ elExportBtn.addEventListener("click", async (e)=>{
   e.currentTarget.blur(); // ← добавить
 
   elExportBtn.classList.add("is-active");
-  setTimeout(()=>elExportBtn.classList.remove("is-active"), 150);
+  setTimeout(()=>elExportBtn.classList.remove("is-active"), 180);
 
   const sel = window.getSelection();
   if(!sel || sel.rangeCount===0 || sel.toString().trim()===""){
