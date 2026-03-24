@@ -1076,7 +1076,7 @@ window.addEventListener("resize", ()=>{
 });
 
 function openVodOverlay(){
-  if(!meta.thumbnail_url) return;
+  if(!meta.thumbnail_full_url && !meta.thumbnail_preview_url) return;
 
   const overlay = document.createElement("div");
   overlay.className = "snapshot-overlay";
