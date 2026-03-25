@@ -1502,7 +1502,7 @@ async function createSnapshotDataUrl(rowsToClone, includeTime, includeDate){
 
   let canvas;
   try{
-    canvas = await html2canvas(wrap,{backgroundColor:null,useCORS:true,allowTaint:false,scale:2});
+    canvas = await html2canvas(wrap,{backgroundColor:"#18181f",useCORS:true,allowTaint:false,scale:2});
   }finally{
     if(wrap.parentNode){
       document.body.removeChild(wrap);
