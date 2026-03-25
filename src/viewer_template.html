@@ -562,9 +562,15 @@ button, .vod-card{
 }
 
 /* export helper (unchanged) */
-.export-wrap{position:fixed;left:-99999px;top:0;width:390px;background:#18181f;padding:24px}
-.export-wrap.snapshot-hide-time .time{
-  display:none !important;
+.export-wrap{
+  position:fixed;
+  left:-99999px;
+  top:0;
+  width:390px;
+  background:#18181f;
+
+  padding:16px 16px 0; /* ← ключ: убрали низ */
+  display:inline-block; /* ← ключ: убрали лишнюю высоту */
 }
 .export-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:#b9b9c6}
 
